@@ -12,6 +12,18 @@
 \maketitle
 \linenumbers
 
-\section*{Methods}
-Here is where we will put the methods section for the Simupop Simulations.
+\section{Methods}
+\subsection*{Introduction}
+
+SimuPOP v.1.0.8 is a python scripted, forward-time, individual-based simulator that can simulation populations with any marker type. 
+It works not by drawing data points from a distribution, but rather by initializing representatives of individuals and having these individuals undergo mating with user specified population parameters.
+Often, it is used for traditional population genetics analyses such as pedigree or genetic drift simulations.
+Simulations through simupop undergo a two step process, they are first initialized by user defined or random processes, then `evolved' through a specific mating and mutation regiment.
+We simulated 100 replicates of populations with increasing levels of clonal reproduction over 10 loci with 6 to 10 alleles per locus and 10,000 individuals each. 
+These populations were evolved under the different levels of clonal reproduction and then sub sampled 10 times with the sample sizes of 10, 25, 50, and 100 individuals. 
+
+\subsection*{Population Intialization}
+All of the clonal scenarios were simulated from the same 100 seed populations.
+
+
 \end{document}

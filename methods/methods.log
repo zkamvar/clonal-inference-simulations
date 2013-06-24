@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.12.19)  24 JUN 2013 15:42
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.12.19)  24 JUN 2013 16:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -85,18 +85,18 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 (./methods.aux)
 \openout1 = `methods.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -133,30 +133,30 @@ LaTeX Font Info:    ... okay on input line 7.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 8.
+(Font)              <12> on input line 12.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 8.
+(Font)              <8> on input line 12.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 8.
+(Font)              <6> on input line 12.
 [1
 
 {/usr/local/texlive/2012/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (./methods.aux) ) 
 Here is how much of TeX's memory you used:
- 960 strings out of 493488
- 13392 string characters out of 3141346
- 66126 words of memory out of 3000000
- 4318 multiletter control sequences out of 15000+200000
- 7580 words of font info for 27 fonts, out of 3000000 for 9000
+ 962 strings out of 493488
+ 13413 string characters out of 3141346
+ 68126 words of memory out of 3000000
+ 4320 multiletter control sequences out of 15000+200000
+ 7887 words of font info for 28 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 23i,6n,19p,199b,189s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 23i,6n,20p,215b,189s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfont
 s/cm/cmbx12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts
 /cm/cmr10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/c
 m/cmr12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/
 cmr17.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cm
 ss8.pfb>
-Output written on methods.pdf (1 page, 52826 bytes).
+Output written on methods.pdf (1 page, 61203 bytes).
 PDF statistics:
  28 PDF objects out of 1000 (max. 8388607)
  19 compressed objects within 1 object stream
