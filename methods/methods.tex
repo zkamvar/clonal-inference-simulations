@@ -16,13 +16,15 @@
 \linenumbers
 \setstretch{2}
 \section{Methods}
-\tab All simulations were performed via the python scripted, individual-based simulation program SimuPOP (v.1.0.8) under ten different rates of sexual reproduction (0\%, 0.01\%, 0.05\%, 0.1\%, 1\%, 5\%, 10\%, 20\%, 50\%, and 100\%) referring to the proportion of offspring that would be produced via sexual reproduction. 
-Each simulation consisted of a heterothallic, isolated population that contained a fixed census size of 10,000 individuals with 10 loci that had 6 to 10 alleles at each locus with variable frequencies. 
+\tab All simulations were performed via the python scripted, individual-based simulation program SimuPOP (v.1.0.8) under ten different rates of sexual reproduction (0\%, 0.01\%, 0.05\%, 0.1\%, 1\%, 5\%, 10\%, 20\%, 50\%, and 100\%).
+These rates correspond to the proportion of offspring that would be produced via sexual reproduction. 
+Each simulation consisted of a single heterothallic, isolated population that contained a fixed census size of 10,000 individuals with 10 loci that had 6 to 10 alleles at each locus with variable frequencies. 
 
 To avoid stochastic variation among rates of sexual reproduction, 100 unique seed populations were initialized with the parameters listed above.
 Diploid individuals were assigned genotypes at all loci and then underwent a `burn in' period of random mating for 1,000 generations to bring the population to equilibrium. 
-For each level of sexual reproduction, the seed populations were run under the specified mating scheme for 10,000 generations with a mutation rate of $1E^{-5}$ applied before mating. 
-Cloned individuals were simply copied from the $F1$ to the $F2$ generation, whereas individuals derived from sexual reproduction were produced from two parents. Both operations were performed using random sampling with replacement from the $F1$ generation.
+For each level of sexual reproduction, the seed populations were run under the specified mating scheme for 10,000 generations with a mutation rate of $1E^{-5}$ applied to parental individuals over all loci each generation before mating. 
+Cloned offspring were simply copied from the $F1$ to the $F2$ generation, whereas those derived from sexual reproduction were produced from the combination of two parents. 
+Both operations were performed using random sampling with replacement from the $F1$ generation.
 Populations were saved after every 1,000 generations and 10 sub samples of four sizes (10, 25, 50, and 100 individuals) were randomly drawn and saved in FSTAT format. 
 
 Statistical analysis was performed using the R package \textit{poppr} (v.1.0.0). 
@@ -42,5 +44,9 @@ Both of the bootstrap methods would simulate the null hypothesis of sexual repro
 \includegraphics{figures/rbarD_chart.eps}\\
 \includegraphics{figures/Ia_pval.eps}
 \includegraphics{figures/rbarD_pval.eps}\\
+\includegraphics{figures/Ia_chart2.eps}
+\includegraphics{figures/rbarD_chart2.eps}\\
+\includegraphics{figures/Ia_pval2.eps}
+\includegraphics{figures/rbarD_pval2.eps}\\
 
 \end{document}
