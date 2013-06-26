@@ -28,7 +28,7 @@ Both operations were performed using random sampling with replacement from the $
 Populations were saved after every 1,000 generations and 10 sub samples of four sizes (10, 25, 50, and 100 individuals) were randomly drawn and saved in FSTAT format. 
 
 Statistical analysis was performed using the R package \textit{poppr} (v.1.0.0). 
-The summary statistics $I_A$ and $\bar{r}_d$ were calculated and their respective p-values were determined via permutation analysis.
+The summary statistics $I_A$ and $\bar{r}_d$ were calculated and their respective p-values were determined via permutation analysis\footnote{
 Four different methods of permutation were utilized.
 The first method was a method of permutation developed by Agapow and Burt in the program \textit{multilocus}.
 This method would reshuffle genotypes at each locus in order to simulate the null hypothesis of unlinked loci. 
@@ -36,17 +36,28 @@ The second method was a method of permutation that would shuffle the alleles at 
 The third and fourth methods were parametric and non-parametric bootstrapping of alleles at each locus, or sampling with replacement. 
 For the parametric method, at each locus, observed allele frequencies were calculated and then resampled at those frequencies to reconstruct the locus. 
 The non-parametric method would simply resample alleles at each locus with replacement, regardless of frequency.
-Both of the bootstrap methods would simulate the null hypothesis of sexual reproduction from a larger population. 
+Both of the bootstrap methods would simulate the null hypothesis of sexual reproduction from a larger population.}.
+Analysis of Variance was calculated using Base R and all graphics were created with the \textit{ggplot2} package.
 
 \section{Results}
+\tab The first set of charts represent all finite values of the data set:
 
-\includegraphics{figures/Ia_chart.eps}
-\includegraphics{figures/rbarD_chart.eps}\\
-\includegraphics{figures/Ia_pval.eps}
+\begin{center}
+Figure 1a.\\
+\includegraphics{figures/Ia_chart.eps}\\Figure 1b.\\
+\includegraphics{figures/rbarD_chart.eps}\\Figure 1c.\\
+\includegraphics{figures/Ia_pval.eps}\\Figure 1d.\\
 \includegraphics{figures/rbarD_pval.eps}\\
-\includegraphics{figures/Ia_chart2.eps}
-\includegraphics{figures/rbarD_chart2.eps}\\
-\includegraphics{figures/Ia_pval2.eps}
+\end{center}
+
+The second set represent the data sets with missing values of $\bar{r}_d$ removed.
+
+\begin{center}
+Figure 2a.\\
+\includegraphics{figures/Ia_chart2.eps}\\Figure 2b.\\
+\includegraphics{figures/rbarD_chart2.eps}\\Figure 2c.\\
+\includegraphics{figures/Ia_pval2.eps}\\Figure 2d.\\
 \includegraphics{figures/rbarD_pval2.eps}\\
+\end{center}
 
 \end{document}
