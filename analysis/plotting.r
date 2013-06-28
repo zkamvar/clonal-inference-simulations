@@ -410,6 +410,9 @@ AUC.Ia <- lapply(levels(Ia.df2$Sex.Rate), function(w) sapply(methlev, function(x
 names(AUC.Ia) <- levels(Ia.df2$Sex.Rate)
 AUC.Ia.df <- data.frame(list(AUC = unlist(AUC.Ia), Method = rep(rep(methlev, each=4), 10), Sex.Rate=rep(names(AUC.Ia), each=16), Samp.Size = rep(rep(samlev, 4), 10)))
 
+AUC.rd.df <- read.table("rd_AUROCC.csv", sep = ",", head = TRUE)
+AUC.Ia.df <- read.table("Ia_AUROCC.csv", sep = ",", head = TRUE)
+
 Ia.TP <- aov(Percent_Reject ~ Sex.Rate + Samp.Size * Method, data=Ia.df2)
 Ia.FP <- aov(Null_Percent ~ Sex.Rate + Samp.Size*Method, data=Ia.df2)
 Ia.ROC.aov <- aov(AUC ~ Sex.Rate + Samp.Size + Method, data=AUC.Ia.df)
@@ -432,6 +435,58 @@ kruskalrd.samp <- sapply(levels(meth2$Sex.Rate), function(x) sapply(samlev, func
   kruskal.test(meth2[meth2$Sex.Rate == x & meth2$Samp.Size == y, ]$p.rD, 
                meth2[meth2$Sex.Rate == x & meth2$Samp.Size == y, ]$Method)$p.value
 }))
+
+levene.boot <- c(
+  `AUC for Ia` = levene.test(AUC.Ia.df$AUC, AUC.Ia.df$Method)$p.value,
+  `AUC for rbarD` = levene.test(AUC.rd.df$AUC, AUC.rd.df$Method)$p.value,
+  `False Positive rbarD` = levene.test(rd.df2$Null_Percent, rd.df2$Method)$p.value,
+  `True Positive rbarD` = levene.test(rd.df2$Percent_Reject, rd.df2$Method)$p.value,
+  `False Positive Ia` = levene.test(Ia.df2$Null_Percent, Ia.df2$Method)$p.value,
+  `True Positive Ia` = levene.test(Ia.df2$Percent_Reject, Ia.df2$Method)$p.value,
+  `p-value Ia` = levene.test(meth2$p.Ia, meth2$Method)$p.value,
+  `p-value rbarD` = levene.test(meth2$p.rD, meth2$Method)$p.value
+)
+
+kruskal.boot <- c(
+  `AUC for Ia` = kruskal.test(AUC.Ia.df$AUC, AUC.Ia.df$Method)$p.value,
+  `AUC for rbarD` = kruskal.test(AUC.rd.df$AUC, AUC.rd.df$Method)$p.value,
+  `False Positive rbarD` = kruskal.test(rd.df2$Null_Percent, rd.df2$Method)$p.value,
+  `True Positive rbarD` = kruskal.test(rd.df2$Percent_Reject, rd.df2$Method)$p.value,
+  `False Positive Ia` = kruskal.test(Ia.df2$Null_Percent, Ia.df2$Method)$p.value,
+  `True Positive Ia` = kruskal.test(Ia.df2$Percent_Reject, Ia.df2$Method)$p.value,
+  `p-value Ia` = kruskal.test(meth2$p.Ia, meth2$Method)$p.value,
+  `p-value rbarD` = kruskal.test(meth2$p.rD, meth2$Method)$p.value
+)
+
+
+levene.no.boot <- c(
+  `AUC for Ia` = levene.test(AUC.Ia.df[AUC.Ia.df$Method != methlev[4], ]$AUC, AUC.Ia.df[AUC.Ia.df$Method != methlev[4], ]$Method)$p.value,
+  `AUC for rbarD` = levene.test(AUC.rd.df[AUC.rd.df$Method != methlev[4], ]$AUC, AUC.rd.df[AUC.rd.df$Method != methlev[4], ]$Method)$p.value,
+  `False Positive rbarD` = levene.test(rd.df2[rd.df2$Method != methlev[4], ]$Null_Percent, rd.df2[rd.df2$Method != methlev[4], ]$Method)$p.value,
+  `True Positive rbarD` = levene.test(rd.df2[rd.df2$Method != methlev[4], ]$Percent_Reject, rd.df2[rd.df2$Method != methlev[4], ]$Method)$p.value,
+  `False Positive Ia` = levene.test(Ia.df2[Ia.df2$Method != methlev[4], ]$Null_Percent, Ia.df2[Ia.df2$Method != methlev[4], ]$Method)$p.value,
+  `True Positive Ia` = levene.test(Ia.df2[Ia.df2$Method != methlev[4], ]$Percent_Reject, Ia.df2[Ia.df2$Method != methlev[4], ]$Method)$p.value,
+  `p-value Ia` = levene.test(meth2[meth2$Method != methlev[4], ]$p.Ia, meth2[meth2$Method != methlev[4], ]$Method)$p.value,
+  `p-value rbarD` = levene.test(meth2[meth2$Method != methlev[4], ]$p.rD, meth2[meth2$Method != methlev[4], ]$Method)$p.value
+)
+
+kruskal.no.boot <- c(
+`AUC for Ia` = kruskal.test(AUC.Ia.df[AUC.Ia.df$Method != methlev[4], ]$AUC, AUC.Ia.df[AUC.Ia.df$Method != methlev[4], ]$Method)$p.value,
+`AUC for rbarD` = kruskal.test(AUC.rd.df[AUC.rd.df$Method != methlev[4], ]$AUC, AUC.rd.df[AUC.rd.df$Method != methlev[4], ]$Method)$p.value,
+`False Positive rbarD` = kruskal.test(rd.df2[rd.df2$Method != methlev[4], ]$Null_Percent, rd.df2[rd.df2$Method != methlev[4], ]$Method)$p.value,
+`True Positive rbarD` = kruskal.test(rd.df2[rd.df2$Method != methlev[4], ]$Percent_Reject, rd.df2[rd.df2$Method != methlev[4], ]$Method)$p.value,
+`False Positive Ia` = kruskal.test(Ia.df2[Ia.df2$Method != methlev[4], ]$Null_Percent, Ia.df2[Ia.df2$Method != methlev[4], ]$Method)$p.value,
+`True Positive Ia` = kruskal.test(Ia.df2[Ia.df2$Method != methlev[4], ]$Percent_Reject, Ia.df2[Ia.df2$Method != methlev[4], ]$Method)$p.value,
+`p-value Ia` = kruskal.test(meth2[meth2$Method != methlev[4], ]$p.Ia, meth2[meth2$Method != methlev[4], ]$Method)$p.value,
+`p-value rbarD` = kruskal.test(meth2[meth2$Method != methlev[4], ]$p.rD, meth2[meth2$Method != methlev[4], ]$Method)$p.value
+)
+
+levene.df <- data.frame(list(`With Non-Parametric Bootstrap` = levene.boot, `Without Non-Parametric Bootstrap` = levene.no.boot))
+
+kruskal.df <- data.frame(list(`With Non-Parametric Bootstrap` = kruskal.boot, `Without Non-Parametric Bootstrap` = kruskal.no.boot))
+
+
+
 
 
 
