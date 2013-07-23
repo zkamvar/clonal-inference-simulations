@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.12.19)  28 JUN 2013 16:36
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  22 JUL 2013 12:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -527,54 +527,54 @@ e
 
 {/usr/local/texlive/2012/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 Package epstopdf Info: Source file: <figures/Ia_chart.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 1173991 bytes
 (epstopdf)             Output file: <figures/Ia_chart-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:13
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 39303 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_chart-eps-conve
 rted-to.pdf figures/Ia_chart.eps>
 (epstopdf)             \includegraphics on input line 72.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_chart-eps-converted-to.pdf, id=18, 227.85126pt x 172.645pt>
+<figures/Ia_chart-eps-converted-to.pdf, id=16, 227.85126pt x 172.645pt>
 File: figures/Ia_chart-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_chart-eps-converted-to.pdf>
 Package pdftex.def Info: figures/Ia_chart-eps-converted-to.pdf used on input li
 ne 72.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
+ [2]
 Package epstopdf Info: Source file: <figures/rbarD_chart.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 553868 bytes
 (epstopdf)             Output file: <figures/rbarD_chart-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:13
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 37251 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_chart-eps-co
 nverted-to.pdf figures/rbarD_chart.eps>
 (epstopdf)             \includegraphics on input line 73.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_chart-eps-converted-to.pdf, id=19, 227.85126pt x 172.645pt>
+<figures/rbarD_chart-eps-converted-to.pdf, id=24, 227.85126pt x 172.645pt>
 File: figures/rbarD_chart-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_chart-eps-converted-to.pdf>
 Package pdftex.def Info: figures/rbarD_chart-eps-converted-to.pdf used on input
  line 73.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
- [2 <./figures/Ia_chart-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figures/Ia_pval.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 441825 bytes
 (epstopdf)             Output file: <figures/Ia_pval-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:14
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 41497 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_pval-eps-conver
 ted-to.pdf figures/Ia_pval.eps>
 (epstopdf)             \includegraphics on input line 74.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_pval-eps-converted-to.pdf, id=26, 227.85126pt x 172.645pt>
+<figures/Ia_pval-eps-converted-to.pdf, id=25, 227.85126pt x 172.645pt>
 File: figures/Ia_pval-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_pval-eps-converted-to.pdf>
@@ -582,37 +582,37 @@ Package pdftex.def Info: figures/Ia_pval-eps-converted-to.pdf used on input lin
 e 74.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/rbarD_pval.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 270616 bytes
 (epstopdf)             Output file: <figures/rbarD_pval-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:14
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 33111 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_pval-eps-con
 verted-to.pdf figures/rbarD_pval.eps>
 (epstopdf)             \includegraphics on input line 75.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_pval-eps-converted-to.pdf, id=27, 227.85126pt x 172.645pt>
+<figures/rbarD_pval-eps-converted-to.pdf, id=26, 227.85126pt x 172.645pt>
 File: figures/rbarD_pval-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_pval-eps-converted-to.pdf>
 Package pdftex.def Info: figures/rbarD_pval-eps-converted-to.pdf used on input 
 line 75.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
- [3 <./figures/rbarD_chart-eps-converted-to.pdf> <./figures/Ia_pval-eps-convert
-ed-to.pdf> <./figures/rbarD_pval-eps-converted-to.pdf>]
+ [3 <./figures/Ia_chart-eps-converted-to.pdf> <./figures/rbarD_chart-eps-conver
+ted-to.pdf> <./figures/Ia_pval-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figures/Ia_chart2.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 543867 bytes
 (epstopdf)             Output file: <figures/Ia_chart2-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:15
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 35895 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_chart2-eps-conv
 erted-to.pdf figures/Ia_chart2.eps>
 (epstopdf)             \includegraphics on input line 82.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_chart2-eps-converted-to.pdf, id=37, 227.85126pt x 172.645pt>
+<figures/Ia_chart2-eps-converted-to.pdf, id=36, 227.85126pt x 172.645pt>
 File: figures/Ia_chart2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_chart2-eps-converted-to.pdf>
@@ -620,36 +620,38 @@ Package pdftex.def Info: figures/Ia_chart2-eps-converted-to.pdf used on input l
 ine 82.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/rbarD_chart2.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 553868 bytes
 (epstopdf)             Output file: <figures/rbarD_chart2-eps-converted-to.pdf>
 
-(epstopdf)                    date: 2013-06-26 16:12:15
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 37251 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_chart2-eps-c
 onverted-to.pdf figures/rbarD_chart2.eps>
 (epstopdf)             \includegraphics on input line 83.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_chart2-eps-converted-to.pdf, id=38, 227.85126pt x 172.645pt>
+<figures/rbarD_chart2-eps-converted-to.pdf, id=37, 227.85126pt x 172.645pt>
 File: figures/rbarD_chart2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_chart2-eps-converted-to.pdf>
 Package pdftex.def Info: figures/rbarD_chart2-eps-converted-to.pdf used on inpu
 t line 83.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
+ [4 <./figures/rbarD_pval-eps-converted-to.pdf> <./figures/Ia_chart2-eps-conver
+ted-to.pdf> <./figures/rbarD_chart2-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figures/Ia_pval2.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 272639 bytes
 (epstopdf)             Output file: <figures/Ia_pval2-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:16
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 32988 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_pval2-eps-conve
 rted-to.pdf figures/Ia_pval2.eps>
 (epstopdf)             \includegraphics on input line 84.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_pval2-eps-converted-to.pdf, id=39, 227.85126pt x 172.645pt>
+<figures/Ia_pval2-eps-converted-to.pdf, id=47, 227.85126pt x 172.645pt>
 File: figures/Ia_pval2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_pval2-eps-converted-to.pdf>
@@ -657,52 +659,52 @@ Package pdftex.def Info: figures/Ia_pval2-eps-converted-to.pdf used on input li
 ne 84.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/rbarD_pval2.eps>
-(epstopdf)                    date: 2013-06-26 16:11:48
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 270616 bytes
 (epstopdf)             Output file: <figures/rbarD_pval2-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 16:12:16
+(epstopdf)                    date: 2013-06-26 21:05:10
 (epstopdf)                    size: 33111 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_pval2-eps-co
 nverted-to.pdf figures/rbarD_pval2.eps>
 (epstopdf)             \includegraphics on input line 85.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_pval2-eps-converted-to.pdf, id=40, 227.85126pt x 172.645pt>
+<figures/rbarD_pval2-eps-converted-to.pdf, id=48, 227.85126pt x 172.645pt>
 File: figures/rbarD_pval2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_pval2-eps-converted-to.pdf>
 Package pdftex.def Info: figures/rbarD_pval2-eps-converted-to.pdf used on input
  line 85.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
- [4 <./figures/Ia_chart2-eps-converted-to.pdf> <./figures/rbarD_chart2-eps-conv
-erted-to.pdf> <./figures/Ia_pval2-eps-converted-to.pdf>] [5 <./figures/rbarD_pv
-al2-eps-converted-to.pdf>]
-(./methods.aux) ) 
+ [5 <./figures/Ia_pval2-eps-converted-to.pdf> <./figures/rbarD_pval2-eps-conver
+ted-to.pdf>] (./methods.aux) ) 
 Here is how much of TeX's memory you used:
- 3574 strings out of 493488
- 51297 string characters out of 3141346
+ 3576 strings out of 493488
+ 51318 string characters out of 3141326
  118312 words of memory out of 3000000
- 6818 multiletter control sequences out of 15000+200000
- 9406 words of font info for 34 fonts, out of 3000000 for 9000
+ 6819 multiletter control sequences out of 15000+200000
+ 9574 words of font info for 35 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 37i,11n,23p,285b,211s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmbx12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmmi10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmmi7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmr10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-17.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.
-pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
-></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></
-usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></us
-r/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/
-local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/l
-ocal/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb>
-Output written on methods.pdf (5 pages, 411068 bytes).
+ 37i,11n,23p,636b,211s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/local/texlive/2012/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmr10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmr12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr17.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmr6.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr8.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mss8.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti1
+0.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.
+pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.p
+fb>
+Output written on methods.pdf (5 pages, 421309 bytes).
 PDF statistics:
- 96 PDF objects out of 1000 (max. 8388607)
- 67 compressed objects within 1 object stream
+ 100 PDF objects out of 1000 (max. 8388607)
+ 70 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  41 words of extra memory for PDF output out of 10000 (max. 10000000)
 

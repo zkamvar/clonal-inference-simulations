@@ -25,7 +25,7 @@ Diploid individuals were assigned genotypes at all loci and then underwent a `bu
 For each level of sexual reproduction, the seed populations were run under the specified mating scheme for 10,000 generations with a mutation rate of $1E^{-5}$ applied to parental individuals over all loci each generation before mating. 
 Cloned offspring were simply copied from the $F1$ to the $F2$ generation, whereas those derived from sexual reproduction were produced from the combination of two parents. 
 Both operations were performed using random sampling with replacement from the $F1$ generation.
-Populations were saved after every 1,000 generations and 10 sub samples of four sizes (10, 25, 50, and 100 individuals) were randomly drawn and saved in FSTAT format. 
+Populations were saved after every 1,000 generations and 10 sub samples of four sizes (10, 25, 50, and 100 individuals) were randomly drawn and saved in FSTAT format. There were 40,000 data sets in total, resulting in 160,000 values of $I_A$ and $\bar{r}_d$ analyzed.
 
 Statistical analysis was performed using the R package \textit{poppr} (v.1.0.0). 
 The summary statistics $I_A$ and $\bar{r}_d$ were calculated and their respective p-values were determined via permutation analysis\footnote{
@@ -36,8 +36,7 @@ The second method was a method of permutation that would shuffle the alleles at 
 The third and fourth methods were parametric and non-parametric bootstrapping of alleles at each locus, or sampling with replacement. 
 For the parametric method, at each locus, observed allele frequencies were calculated and then resampled at those frequencies to reconstruct the locus. 
 The non-parametric method would simply resample alleles at each locus with replacement, regardless of frequency.
-Both of the bootstrap methods would simulate the null hypothesis of sexual reproduction from a larger population.}.
-Analysis of Variance was calculated using Base R and all graphics were created with the \textit{ggplot2} package.
+Both of the bootstrap methods would simulate the null hypothesis of sexual reproduction from a larger population.}. Regarding a test of the resampling methods, ROC curves were created using the data with a sex rate of 1 to represent the null compared against all other rates of sexual reproduction with values of alpha at intervals of 0.001. The area under the ROC curve (AUC) was calculated using the \texttt{trapz} function in the \textit{caTools} package. Since the data was non normal, the Kruskal-Wallis test was calculated using Base R and all graphics were created with the \textit{ggplot2} package.
 
 \section{Results}
 \tab 
@@ -53,10 +52,11 @@ Comparison & With Non-Parametric Bootstrap & Without Non-Parametric Bootstrap \\
 AUC for $I_A$ & 0.93997 & 0.92008 \\ 
   AUC for $\bar{r}_d$ & 0.97545 & 0.97234 \\
   \hline
-  False Positive $\bar{r}_d$ & 0.00181 & 0.30023 \\ 
-  True Positive $\bar{r}_d$ & 0.00402 & 0.78424 \\ 
-  False Positive $I_A$ & 0.00432 & 0.35469 \\ 
   True Positive $I_A$ & 0.00000 & 0.00000 \\ 
+  True Positive $\bar{r}_d$ & 0.00402 & 0.78424 \\
+  \hline  
+  False Positive $I_A$ & 0.00432 & 0.35469 \\ 
+  False Positive $\bar{r}_d$ & 0.00181 & 0.30023 \\  
   \hline
   p-value $I_A$ & 0.00004 & 0.90869 \\ 
   p-value $\bar{r}_d$ & 0.00001 & 0.90699 \\ 

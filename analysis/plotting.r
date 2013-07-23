@@ -194,6 +194,17 @@ Iapvalgrey <- ggplot(meth2[meth2$Method == levels(meth2$Method)[2], ], aes_strin
 
 rbarDpvalgrey <- ggplot(meth2[meth2$Method == levels(meth2$Method)[2], ], aes_string(x = "Sex.Rate", y = "p.rD", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1) + labs(y = expression(paste(bar(r)[d], " p-value (log scale)"))) + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) + coord_trans(y = "log2") + geom_hline(aes(yintercept = 0.05), linetype = 2) + annotate("text", x = 0, y = 0.04, label = "p = 0.05")
 
+E5grey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "E.5", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = expression(E[5])) + xlab("Sex Rate") + theme2 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
+
+Hexpgrey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "Hexp", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = "Expected Heterozygosity") + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
+
+Hgrey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "H", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = "Shannon-Wiener Index") + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
+
+Ggrey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "G", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = "Stoddart and Taylor's Index") + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
+
+Mgrey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "MLG", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = "Multilocus genotypes") + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
+
+
 quantsrd <- lapply(levels(meth2$Sex.Rate), function(x) lapply(levels(meth2$Samp.Size), function(y){
   p <- shapiro.test(meth2[meth2$Sex.Rate == x & meth2$Samp.Size == y & meth2$Method == methlev[1], ]$rbarD)$p.value
   derp <- qqnorm(meth2[meth2$Sex.Rate == x & meth2$Samp.Size == y & meth2$Method == methlev[1], ]$rbarD, main = paste("rbarD, p-value:",p,"\nSample Size:",y,"Sex Rate:",x))
@@ -280,7 +291,7 @@ Ia.plot <- Ia.plot + geom_point() + geom_hline(aes(yintercept=0.050), color="red
   geom_hline(aes(yintercept=0.950), color="blue") + facet_grid(Samp.Size ~ .) +
   labs(title=expression(paste("Probability of Rejecting the Null Hypothesis with ", I[A]))) + 
   xlab("Sex Rate") + ylab("Probability of Null Hypothesis Rejection") + 
-  annotate("text", x = 1, y = 0.10, label="5% rejection", color="red") +
+	annotate("text", x = 1, y = 0.10, label="5% rejection", color="red") +
   annotate("text", x = 10, y = 0.90, label="95% rejection", color="blue")
 print(Ia.plot + geom_line(aes(group = Method)) + theme_bw()) 
 
@@ -436,6 +447,7 @@ kruskalrd.samp <- sapply(levels(meth2$Sex.Rate), function(x) sapply(samlev, func
                meth2[meth2$Sex.Rate == x & meth2$Samp.Size == y, ]$Method)$p.value
 }))
 
+library(lawstat)
 levene.boot <- c(
   `AUC for Ia` = levene.test(AUC.Ia.df$AUC, AUC.Ia.df$Method)$p.value,
   `AUC for rbarD` = levene.test(AUC.rd.df$AUC, AUC.rd.df$Method)$p.value,
