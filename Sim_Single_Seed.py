@@ -5,7 +5,7 @@
 import simuOpt, os, sys, datetime, commands, re, exceptions, multiprocessing, random, pickle
 from simuOpt import setOptions
 cpu = int(multiprocessing.cpu_count())
-setOptions(optimized=True, gui=True, debug='DBG_WARNING',alleleType='long', quiet=True, numThreads=cpu)
+setOptions(optimized=True, gui=True, debug='DBG_WARNING', alleleType='long', quiet=True, numThreads=cpu)
 import simuPOP as sim
 from simuPOP import utils
 from simuPOP.utils import export
