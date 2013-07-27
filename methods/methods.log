@@ -1,24 +1,24 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  22 JUL 2013 12:00
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.7.24)  26 JUL 2013 12:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**methods.tex
+**methods
 (./methods.tex
 LaTeX2e <2011/06/27>
-Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, ge
-rman-x-2012-05-30, ngerman-x-2012-05-30, afrikaans, ancientgreek, ibycus, arabi
-c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
-h, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
-h, french, friulan, galician, german, ngerman, swissgerman, monogreek, greek, h
-ungarian, icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, ma
-rathi, oriya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, 
-kurmanji, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk,
- polish, portuguese, romanian, romansh, russian, sanskrit, serbian, serbianc, s
-lovak, slovenian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, 
-welsh, loaded.
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/article.cls
+Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, et
+hiopic, farsi, arabic, pinyin, croatian, bulgarian, ukrainian, russian, slovak,
+ czech, danish, dutch, usenglishmax, ukenglish, finnish, french, basque, ngerma
+n, german, swissgerman, ngerman-x-2012-05-30, german-x-2012-05-30, monogreek, g
+reek, ibycus, ancientgreek, hungarian, bengali, tamil, hindi, telugu, gujarati,
+ sanskrit, malayalam, kannada, assamese, marathi, oriya, panjabi, italian, lati
+n, latvian, lithuanian, mongolian, mongolianlmc, nynorsk, bokmal, indonesian, e
+speranto, coptic, welsh, irish, interlingua, serbian, serbianc, slovenian, friu
+lan, romansh, estonian, romanian, armenian, uppersorbian, turkish, afrikaans, i
+celandic, kurmanji, polish, portuguese, galician, catalan, spanish, swedish, lo
+aded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/size10.clo
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
 File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
@@ -33,22 +33,22 @@ File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2010/09/12 v5.6 Page Geometry
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/keyval.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
 \KV@toks@=\toks14
 )
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty
 Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
 Package ifpdf Info: pdfTeX in PDF mode is detected.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifvtex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty
 Package: ifvtex 2010/03/01 v1.5 Detect VTeX and its facilities (HO)
 Package ifvtex Info: VTeX not detected.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/generic/ifxetex/ifxetex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 )
 \Gm@cnth=\count87
@@ -64,10 +64,10 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 \Gm@layoutvoffset=\dimen110
 \Gm@dimlist=\toks15
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/mh/mathtools.sty
+(/usr/share/texlive/texmf-dist/tex/latex/mh/mathtools.sty
 Package: mathtools 2012/04/24 v1.12 mathematical typesetting tools
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/tools/calc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2007/08/22 v4.3 Infix arithmetic (KKT,FJ)
 \calc@Acount=\count90
 \calc@Bcount=\count91
@@ -80,27 +80,27 @@ LaTeX Info: Redefining \addtolength on input line 77.
 \calc@Ccount=\count92
 \calc@Cskip=\skip45
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/mh/mhsetup.sty
+(/usr/share/texlive/texmf-dist/tex/latex/mh/mhsetup.sty
 Package: mhsetup 2010/01/21 v1.2a programming setup (MH)
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/amsmath/amsmath.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2000/07/18 v2.13 AMS math features
 \@mathmargin=\skip46
 
 For additional information on amsmath, use the `?' option.
-(/usr/local/texlive/2012/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2000/06/29 v2.01
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/amsmath/amsgen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0
 \@emptytoks=\toks16
 \ex@=\dimen113
 ))
-(/usr/local/texlive/2012/texmf-dist/tex/latex/amsmath/amsbsy.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d
 \pmbraise@=\dimen114
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/amsmath/amsopn.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 1999/12/14 v2.01 operator names
 )
 \inf@bad=\count93
@@ -151,10 +151,10 @@ LaTeX Info: Redefining \] on input line 2667.
 \l_MT_above_shortintertext_dim=\dimen127
 \l_MT_below_shortintertext_dim=\dimen128
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/setspace/setspace.sty
+(/usr/share/texlive/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2011/12/19 v6.7a set line spacing
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/lineno/lineno.sty
+(/usr/share/texlive/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2005/11/02 line numbers on paragraphs v4.41
 \linenopenalty=\count106
 \output=\toks21
@@ -172,27 +172,27 @@ Package: lineno 2005/11/02 line numbers on paragraphs v4.41
 \bframebox=\box28
 LaTeX Info: Redefining \\ on input line 3056.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/trig.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/graphics.cfg
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg
 File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
 )
 Package graphics Info: Driver file: pdftex.def on input line 91.
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
 File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
 Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
 )
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
 Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 )
 \Gread@gobject=\count113
@@ -200,19 +200,19 @@ Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 \Gin@req@height=\dimen134
 \Gin@req@width=\dimen135
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2008/03/30 v1.1d Input encoding file
 \inpenc@prehook=\toks22
 \inpenc@posthook=\toks23
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OML ...
 ... no UTF-8 mapping file for font encoding OML
 Now handling font encoding T1 ...
 ... processing UTF-8 mapping file for font encoding T1
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/t1enc.dfu
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu
 File: t1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A1 (decimal 161)
    defining Unicode char U+00A3 (decimal 163)
@@ -362,7 +362,7 @@ File: t1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OT1 ...
 ... processing UTF-8 mapping file for font encoding OT1
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/ot1enc.dfu
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu
 File: ot1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A1 (decimal 161)
    defining Unicode char U+00A3 (decimal 163)
@@ -393,7 +393,7 @@ File: ot1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OMS ...
 ... processing UTF-8 mapping file for font encoding OMS
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/omsenc.dfu
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu
 File: omsenc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A7 (decimal 167)
    defining Unicode char U+00B6 (decimal 182)
@@ -466,7 +466,7 @@ LaTeX Font Info:    ... okay on input line 14.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-(/usr/local/texlive/2012/texmf-dist/tex/context/base/supp-pdf.mkii
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count114
 \scratchdimen=\dimen136
@@ -479,11 +479,11 @@ LaTeX Font Info:    ... okay on input line 14.
 \MPnumerator=\count118
 \makeMPintoPDFobject=\count119
 \everyMPtoPDFconversion=\toks25
-) (/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+) (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
 )
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifluatex.sty
 Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
 Package ifluatex Info: LuaTeX not detected.
 )
@@ -492,22 +492,22 @@ Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/grfext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty
 Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
 Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
 ))
-(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty
 Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
 Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/etexcmds.sty
 Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
 Package etexcmds Info: Could not find \expanded.
 (etexcmds)             That can mean that you are not using pdfTeX 1.50 or
@@ -519,18 +519,18 @@ Package grfext Info: Graphics extension search list:
 G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 452.
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 [1
 
-{/usr/local/texlive/2012/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 Package epstopdf Info: Source file: <figures/Ia_chart.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 1173991 bytes
 (epstopdf)             Output file: <figures/Ia_chart-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 39303 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_chart-eps-conve
 rted-to.pdf figures/Ia_chart.eps>
@@ -546,10 +546,10 @@ ne 72.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
  [2]
 Package epstopdf Info: Source file: <figures/rbarD_chart.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 553868 bytes
 (epstopdf)             Output file: <figures/rbarD_chart-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 37251 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_chart-eps-co
 nverted-to.pdf figures/rbarD_chart.eps>
@@ -564,10 +564,10 @@ Package pdftex.def Info: figures/rbarD_chart-eps-converted-to.pdf used on input
  line 73.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/Ia_pval.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 441825 bytes
 (epstopdf)             Output file: <figures/Ia_pval-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 41497 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_pval-eps-conver
 ted-to.pdf figures/Ia_pval.eps>
@@ -582,10 +582,10 @@ Package pdftex.def Info: figures/Ia_pval-eps-converted-to.pdf used on input lin
 e 74.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/rbarD_pval.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 270616 bytes
 (epstopdf)             Output file: <figures/rbarD_pval-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 33111 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_pval-eps-con
 verted-to.pdf figures/rbarD_pval.eps>
@@ -602,10 +602,10 @@ line 75.
  [3 <./figures/Ia_chart-eps-converted-to.pdf> <./figures/rbarD_chart-eps-conver
 ted-to.pdf> <./figures/Ia_pval-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figures/Ia_chart2.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 543867 bytes
 (epstopdf)             Output file: <figures/Ia_chart2-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 35895 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_chart2-eps-conv
 erted-to.pdf figures/Ia_chart2.eps>
@@ -620,11 +620,11 @@ Package pdftex.def Info: figures/Ia_chart2-eps-converted-to.pdf used on input l
 ine 82.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/rbarD_chart2.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 553868 bytes
 (epstopdf)             Output file: <figures/rbarD_chart2-eps-converted-to.pdf>
 
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 37251 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_chart2-eps-c
 onverted-to.pdf figures/rbarD_chart2.eps>
@@ -641,10 +641,10 @@ t line 83.
  [4 <./figures/rbarD_pval-eps-converted-to.pdf> <./figures/Ia_chart2-eps-conver
 ted-to.pdf> <./figures/rbarD_chart2-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figures/Ia_pval2.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 272639 bytes
 (epstopdf)             Output file: <figures/Ia_pval2-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 32988 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/Ia_pval2-eps-conve
 rted-to.pdf figures/Ia_pval2.eps>
@@ -659,10 +659,10 @@ Package pdftex.def Info: figures/Ia_pval2-eps-converted-to.pdf used on input li
 ne 84.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
 Package epstopdf Info: Source file: <figures/rbarD_pval2.eps>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 270616 bytes
 (epstopdf)             Output file: <figures/rbarD_pval2-eps-converted-to.pdf>
-(epstopdf)                    date: 2013-06-26 21:05:10
+(epstopdf)                    date: 2013-07-23 18:01:34
 (epstopdf)                    size: 33111 bytes
 (epstopdf)             Command: <repstopdf --outfile=figures/rbarD_pval2-eps-co
 nverted-to.pdf figures/rbarD_pval2.eps>
@@ -679,29 +679,28 @@ Package pdftex.def Info: figures/rbarD_pval2-eps-converted-to.pdf used on input
  [5 <./figures/Ia_pval2-eps-converted-to.pdf> <./figures/rbarD_pval2-eps-conver
 ted-to.pdf>] (./methods.aux) ) 
 Here is how much of TeX's memory you used:
- 3576 strings out of 493488
- 51318 string characters out of 3141326
+ 3576 strings out of 493493
+ 50875 string characters out of 3143797
  118312 words of memory out of 3000000
- 6819 multiletter control sequences out of 15000+200000
+ 6818 multiletter control sequences out of 15000+200000
  9574 words of font info for 35 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 37i,11n,23p,636b,211s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/local/texlive/2012/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/pub
-lic/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr12.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmr17.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmr6.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr8.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mss8.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y7.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti1
-0.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.
-pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.p
-fb>
-Output written on methods.pdf (5 pages, 421309 bytes).
+ 37i,11n,23p,632b,211s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmti8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmtt10.pfb>
+Output written on methods.pdf (5 pages, 421507 bytes).
 PDF statistics:
  100 PDF objects out of 1000 (max. 8388607)
  70 compressed objects within 1 object stream
