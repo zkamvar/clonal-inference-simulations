@@ -78,5 +78,8 @@ ggplot(melt(MLG.Sex.df)) +
 
 MLG.Sex.Samp <- table(sim[is.na(sim$rbarD) & sim$Generation == 10, c("MLG", "Samp.Size", "Sex.Rate")])[, , 1:2]
 MLG.Sex.Samp.df <- melt(MLG.Sex.Samp)
+MLG.Sex.Samp.df$Samp.Size <- factor(MLG.Sex.Samp.df$Samp.Size, levels = unique(MLG.Sex.Samp.df$Samp.Size))
+MLG.Sex.Samp.df$Sex.Rate <- paste("Sex Rate:", MLG.Sex.Samp.df$Sex.Rate)
 
-ggplot(MLG.Sex.Samp.df) + geom_bar(aes(x = factor(MLG), y = value, color = Samp.Size, fill = Samp.Size, alpha = rev(factor(Sex.Rate))), stat = "identity", position = "stack") + scale_alpha_manual(values=c(0.3, 0.9)) + theme_bw()
+missing_lab <- labs(list(x = "Number of MLGs", y = "Number of missing values", fill = "Sample Size"))
+ggplot(MLG.Sex.Samp.df) + geom_bar(aes(x = factor(MLG), y = value, fill = Samp.Size), stat = "identity", position = "stack") + theme_bw() + facet_wrap(~Sex.Rate, ncol = 1) + theme3 + theme(legend.position = c(0.5, 0.5), legend.justification = c(0.5, 1), legend.direction = "horizontal", legend.title.align = 0.5) + scale_fill_grey(start = 0.2, end = 0.8) + missing_lab
