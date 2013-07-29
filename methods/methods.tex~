@@ -36,14 +36,9 @@ The second method was a method of permutation that would shuffle the alleles at 
 The third and fourth methods were parametric and non-parametric bootstrapping of alleles at each locus, or sampling with replacement. 
 For the parametric method, at each locus, observed allele frequencies were calculated and then resampled at those frequencies to reconstruct the locus. 
 The non-parametric method would simply resample alleles at each locus with replacement, regardless of frequency.
-Both of the bootstrap methods would simulate the null hypothesis of sexual reproduction from a larger population.}. Regarding a test of the resampling methods, ROC curves were created using the data with a sex rate of 1 to represent the null compared against all other rates of sexual reproduction with values of alpha at intervals of 0.001. 
-The area under the ROC curve (AUC) was calculated using the \texttt{trapz} function in the \textit{caTools} package. Since the data was non normal, the Kruskal-Wallis test was calculated using Base R and all graphics were created with the \textit{ggplot2} package.
+Both of the bootstrap methods would simulate the null hypothesis of sexual reproduction from a larger population.}. Regarding a test of the resampling methods, ROC curves were created using the data with a sex rate of 1 to represent the null compared against all other rates of sexual reproduction with values of alpha at intervals of 0.001. The area under the ROC curve (AUC) was calculated using the \texttt{trapz} function in the \textit{caTools} package. Since the data was non normal, the Kruskal-Wallis test was calculated using Base R and all graphics were created with the \textit{ggplot2} package.
 
 \section{Results}
-
-Our results, superficially, are very similar to those of de Meeus and Balloux, 2004.
-$I_A$ and $\bar{r}_d$ both decrease as the rate of sexual reproduction approaches 1. Both indices show values that are indistinguishable from sexual reproduction at 1\% sex. Variance also increases dramatically between 0 and 1\% sex. Not surprisingly, variance in estimates is negatively correlated with sample size when the indices are near zero, suggesting that a sample size of 25 or more individuals is ideal. About 
-
 \tab 
 Table 1. Kruskal-Wallis test comparison.
 % latex table generated in R 3.0.1 by xtable 1.7-1 package

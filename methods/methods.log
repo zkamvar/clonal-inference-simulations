@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.7.24)  26 JUL 2013 12:43
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.7.24)  28 JUL 2013 16:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -537,7 +537,7 @@ rted-to.pdf figures/Ia_chart.eps>
 (epstopdf)             \includegraphics on input line 72.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_chart-eps-converted-to.pdf, id=16, 227.85126pt x 172.645pt>
+<figures/Ia_chart-eps-converted-to.pdf, id=17, 227.85126pt x 172.645pt>
 File: figures/Ia_chart-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_chart-eps-converted-to.pdf>
@@ -556,7 +556,7 @@ nverted-to.pdf figures/rbarD_chart.eps>
 (epstopdf)             \includegraphics on input line 73.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_chart-eps-converted-to.pdf, id=24, 227.85126pt x 172.645pt>
+<figures/rbarD_chart-eps-converted-to.pdf, id=25, 227.85126pt x 172.645pt>
 File: figures/rbarD_chart-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_chart-eps-converted-to.pdf>
@@ -574,7 +574,7 @@ ted-to.pdf figures/Ia_pval.eps>
 (epstopdf)             \includegraphics on input line 74.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_pval-eps-converted-to.pdf, id=25, 227.85126pt x 172.645pt>
+<figures/Ia_pval-eps-converted-to.pdf, id=26, 227.85126pt x 172.645pt>
 File: figures/Ia_pval-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_pval-eps-converted-to.pdf>
@@ -592,7 +592,7 @@ verted-to.pdf figures/rbarD_pval.eps>
 (epstopdf)             \includegraphics on input line 75.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_pval-eps-converted-to.pdf, id=26, 227.85126pt x 172.645pt>
+<figures/rbarD_pval-eps-converted-to.pdf, id=27, 227.85126pt x 172.645pt>
 File: figures/rbarD_pval-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_pval-eps-converted-to.pdf>
@@ -612,7 +612,7 @@ erted-to.pdf figures/Ia_chart2.eps>
 (epstopdf)             \includegraphics on input line 82.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_chart2-eps-converted-to.pdf, id=36, 227.85126pt x 172.645pt>
+<figures/Ia_chart2-eps-converted-to.pdf, id=37, 227.85126pt x 172.645pt>
 File: figures/Ia_chart2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_chart2-eps-converted-to.pdf>
@@ -631,7 +631,7 @@ onverted-to.pdf figures/rbarD_chart2.eps>
 (epstopdf)             \includegraphics on input line 83.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_chart2-eps-converted-to.pdf, id=37, 227.85126pt x 172.645pt>
+<figures/rbarD_chart2-eps-converted-to.pdf, id=38, 227.85126pt x 172.645pt>
 File: figures/rbarD_chart2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_chart2-eps-converted-to.pdf>
@@ -651,7 +651,7 @@ rted-to.pdf figures/Ia_pval2.eps>
 (epstopdf)             \includegraphics on input line 84.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/Ia_pval2-eps-converted-to.pdf, id=47, 227.85126pt x 172.645pt>
+<figures/Ia_pval2-eps-converted-to.pdf, id=48, 227.85126pt x 172.645pt>
 File: figures/Ia_pval2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/Ia_pval2-eps-converted-to.pdf>
@@ -669,41 +669,56 @@ nverted-to.pdf figures/rbarD_pval2.eps>
 (epstopdf)             \includegraphics on input line 85.
 Package epstopdf Info: Output file is already uptodate.
 
-<figures/rbarD_pval2-eps-converted-to.pdf, id=48, 227.85126pt x 172.645pt>
+<figures/rbarD_pval2-eps-converted-to.pdf, id=49, 227.85126pt x 172.645pt>
 File: figures/rbarD_pval2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use figures/rbarD_pval2-eps-converted-to.pdf>
 Package pdftex.def Info: figures/rbarD_pval2-eps-converted-to.pdf used on input
  line 85.
 (pdftex.def)             Requested size: 227.8507pt x 172.64456pt.
+
+<figures/Ia_gen.pdf, id=50, 398.36095pt x 307.85072pt>
+File: figures/Ia_gen.pdf Graphic file (type pdf)
+
+<use figures/Ia_gen.pdf>
+Package pdftex.def Info: figures/Ia_gen.pdf used on input line 91.
+(pdftex.def)             Requested size: 398.35997pt x 307.84996pt.
  [5 <./figures/Ia_pval2-eps-converted-to.pdf> <./figures/rbarD_pval2-eps-conver
-ted-to.pdf>] (./methods.aux) ) 
+ted-to.pdf>]
+<figures/rbarD_gen.pdf, id=58, 398.36095pt x 307.85072pt>
+File: figures/rbarD_gen.pdf Graphic file (type pdf)
+
+<use figures/rbarD_gen.pdf>
+Package pdftex.def Info: figures/rbarD_gen.pdf used on input line 92.
+(pdftex.def)             Requested size: 398.35997pt x 307.84996pt.
+ [6 <./figures/Ia_gen.pdf>] [7 <./figures/rbarD_gen.pdf>] (./methods.aux) ) 
 Here is how much of TeX's memory you used:
- 3576 strings out of 493493
- 50875 string characters out of 3143797
- 118312 words of memory out of 3000000
- 6818 multiletter control sequences out of 15000+200000
+ 3586 strings out of 493493
+ 51092 string characters out of 3143797
+ 119312 words of memory out of 3000000
+ 6826 multiletter control sequences out of 15000+200000
  9574 words of font info for 35 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
  37i,11n,23p,632b,211s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmti8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmtt10.pfb>
-Output written on methods.pdf (5 pages, 421507 bytes).
+</us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/tex
+live/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on methods.pdf (7 pages, 1149242 bytes).
 PDF statistics:
- 100 PDF objects out of 1000 (max. 8388607)
- 70 compressed objects within 1 object stream
+ 245 PDF objects out of 1000 (max. 8388607)
+ 167 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 51 words of extra memory for PDF output out of 10000 (max. 10000000)
 
