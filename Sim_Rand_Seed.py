@@ -8,7 +8,8 @@ cpu = int(multiprocessing.cpu_count())
 setOptions(optimized=True, gui=True, debug='DBG_WARNING',alleleType='long', quiet=True, numThreads=cpu)
 import simuPOP as sim
 from simuPOP import utils
-from simuPOP.sampling import drawRandomSample
+from simuPOP.utils import export
+from simuPOP.sampling import drawRandomSamples, drawRandomSample
 #------------------------------------------------------------------------------#
 # setting the options for the script:
 # S0 = Pop size
@@ -322,13 +323,13 @@ def partialCloneFromBurnin(Sam0, S0, G0, C0, R0, N0, L0):
 #------------------------------------------------------------------------------#
     for m in range(0,G0+1,(G0)/10):
         ppop = sim.loadPopulation(str(N0)+"/"+str(N0)+"_gen_%d.pop" % m)
-        for k in range(R0):
-            for a in range(0,len(Sam0)):
-                sam = drawRandomSample(ppop, sizes=Sam0[a])
-                b = regul(m,G0)
+        for a in range(0,len(Sam0)):
+            sam = drawRandomSamples(ppop, sizes=Sam0[a], numOfSamples = R0)
+            b = regul(m,G0)
 #                print(Sam0[a])
+            for k in range(R0):
                 outfile = str(N0)+"/"+str(N0)+"_sr_%02d" % (k+1)+"_gen_"+str(b)+str(nam)+"_sam_"+str(Sam0[a])+".dat"
-                saveFStat(sam, outfile)
+                export(sam[k], format = 'fstat', output = outfile, gui = False)
     return
 
 

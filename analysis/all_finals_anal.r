@@ -1,3 +1,5 @@
+library(poppr)
+library(reshape)
 sims <- getfile()
 sim <- read.table(sims$files, header = TRUE, sep = " ")
 sim$Generation <- as.numeric(vapply(strsplit(as.character(sim$File), "_"), function(x) strsplit(x[10], "\\.")[[1]][1], "butt"))
@@ -74,3 +76,7 @@ ggplot(melt(MLG.Sex.df)) +
   labs(list(x = "Number of MLGs", y = "Number of Missing Values", fill = "Sex Rate")) +
   theme3 + scale_fill_grey(start = 0, end = 0.5)
 
+MLG.Sex.Samp <- table(sim[is.na(sim$rbarD) & sim$Generation == 10, c("MLG", "Samp.Size", "Sex.Rate")])[, , 1:2]
+MLG.Sex.Samp.df <- melt(MLG.Sex.Samp)
+
+ggplot(MLG.Sex.Samp.df) + geom_bar(aes(x = factor(MLG), y = value, color = Samp.Size, fill = Samp.Size, alpha = rev(factor(Sex.Rate))), stat = "identity", position = "stack") + scale_alpha_manual(values=c(0.3, 0.9)) + theme_bw()
