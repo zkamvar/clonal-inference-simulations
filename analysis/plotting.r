@@ -103,6 +103,7 @@ splitbymethod <- function(meth, index, alpha=0.05){
 # Starting the script
 
 library(poppr)
+library(ggplot2)
 x <- getfile(mult=TRUE, pattern="^final.+?csv$")
 setwd(x$path)
 an <- lapply(x$files, read.table, header=TRUE)
@@ -194,7 +195,7 @@ Iapvalgrey <- ggplot(meth2[meth2$Method == levels(meth2$Method)[2], ], aes_strin
 
 rbarDpvalgrey <- ggplot(meth2[meth2$Method == levels(meth2$Method)[2], ], aes_string(x = "Sex.Rate", y = "p.rD", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1) + labs(y = expression(paste(bar(r)[d], " p-value (log scale)"))) + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) + coord_trans(y = "log2") + geom_hline(aes(yintercept = 0.05), linetype = 2) + annotate("text", x = 0, y = 0.04, label = "p = 0.05")
 
-E5grey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "E.5", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = expression(E[5])) + xlab("Sex Rate") + theme2 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
+E5grey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "E.5", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = expression(E[5])) + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
 
 Hexpgrey <- ggplot(meth2, aes_string(x = "Sex.Rate", y = "Hexp", fill = "Samp.Size")) + geom_boxplot(outlier.shape = 20, outlier.size = 1, notch = TRUE) + theme_bw() + labs(y = "Expected Heterozygosity") + xlab("Sex Rate") + theme3 + labs(fill = "Sample Size") + scale_fill_grey(start = 0.4, end = 1) #+ labs(title = expression(paste(E[5], " over 1000 data sets")), size = rel(2), face = "bold") 
 
