@@ -13,6 +13,7 @@ def rescale_allele_probabilities(allele_probs, nloc, nall):
 '''
 Generate allele probabilities from a random uniform distribution for a certain
 number of alleles. 
+
 Inputs:
 	nloc: an integer. The number of loci.
 	nall: an integer. The number of alleles per locus. 
@@ -25,12 +26,14 @@ def get_allele_probabilities(nloc, nall):
 	allele_probs = rescale_allele_probabilities(allele_probs, nloc, nall)
 	return allele_probs
 
-def test_allele_probabilities(allele_probs):
-	for i in allele_probs:
-		if sum(alle)
-
 '''
 Plot the allele probabilities on the command line.
+
+Inputs:
+	allele_probs: a numpy array where each row sums to 1.
+	nall: the number of columns. 
+
+Output: A histogram for each allele frequency.
 '''
 def plot_allele_probabilities(allele_probs, nall):
 	for i in allele_probs:
