@@ -113,12 +113,12 @@ if __name__ == '__main__':
         cfgs = clen * replicates * poplen
         burns = poplen * replicates
         print("\nProducing "+str(cfgs + burns)+" *.cfg files")
-        print("Population Size(s):" + str(popsize))
-        print("Number of Loci:" +str(loci))
-        print("Number of replicate runs:" +str(replicates))
-        print("Size of samples:" +str(sampsize))
-        allfiles = cfgs * samlen
-        print("Number of output files that will be produced from this run:" +str(allfiles)+ "\n")
+        print("Population Size(s) :" + str(popsize))
+        print("Number of Loci: " +str(loci))
+        print("Number of replicate runs: " +str(replicates))
+        print("Size of samples: " +str(sampsize))
+        allfiles = cfgs * samlen + sum(popsize)
+        print("Number of output files that will be produced from this run: " +str(allfiles)+ "\n")
 
     for S0 in popsize:
         for C0 in clones:
