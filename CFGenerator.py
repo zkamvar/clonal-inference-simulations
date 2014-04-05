@@ -112,7 +112,7 @@ if __name__ == '__main__':
         poplen = len(popsize)
         cfgs = clen * replicates * poplen
         burns = poplen * replicates
-        print("\nProducing "+str(cfgs + burns)+" *.cfg files")
+        print("\nProducing "+str(cfgs + burns)+" *.cfg files in " + os.getcwd())
         print("Population Size(s) :" + str(popsize))
         print("Number of Loci: " +str(loci))
         print("Number of replicate runs: " +str(replicates))
