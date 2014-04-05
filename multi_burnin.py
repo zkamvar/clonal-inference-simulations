@@ -9,6 +9,7 @@ setOptions(optimized=True, gui=True, debug='DBG_WARNING',alleleType='long', quie
 import simuPOP as sim
 from simuPOP import utils
 from simuPOP.sampling import drawRandomSample
+from random_alleles import *
 options = [
     {'name':'S0',
      'default':10000,
@@ -111,21 +112,13 @@ def burnin(S0, B0, L0, loclist, N0):
 #    commands.getoutput('mkdir '+str(N0))
     #alProps = randomDistPerRep(allNames, N0, R0)
     loclist = loclist
+    initlist = list()
+    initlist.append(sim.InitSex(maleFreq = 0.5))
+    for i in range(len(loclist)):
+        initlist.append(sim.InitGenotype(freq = loclist[i], loci = i))
     simu = sim.Simulator(pop)
     simu.evolve(
-        initOps= [
-            sim.InitSex(maleFreq=0.5),
-            sim.InitGenotype(freq=loclist[0], loci=1),
-            sim.InitGenotype(freq=loclist[1], loci=2),
-            sim.InitGenotype(freq=loclist[2], loci=3),
-            sim.InitGenotype(freq=loclist[3], loci=4),
-            sim.InitGenotype(freq=loclist[4], loci=5),
-            sim.InitGenotype(freq=loclist[5], loci=6),
-            sim.InitGenotype(freq=loclist[6], loci=7),
-            sim.InitGenotype(freq=loclist[7], loci=8),
-            sim.InitGenotype(freq=loclist[8], loci=9),
-            sim.InitGenotype(freq=loclist[9], loci=10),
-        ],
+        initOps= initlist,
         matingScheme = sim.RandomMating(),
         finalOps = sim.SavePopulation(output="!'"+str(N0)+".pop'"),
         gen = B0
@@ -144,7 +137,7 @@ if __name__ == '__main__':
             "#\tBurnin started on "+tim+"\n"
             )
         f.close()
-    loclist = randLoci(len(pars.L0))
+    loclist = get_allele_probabilities(len(pars.L0), 10)
     pickle.dump(loclist, open(str(pars.N0)+".p", "wb"))
 #------------------------------------------------------------------------------#
 # The running of the simulation with all the parameters is given by this line.
