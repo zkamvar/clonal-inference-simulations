@@ -76,7 +76,7 @@ if __name__ == '__main__':
     replicates = 100
     loci = 10
     popsize = '10000'
-    verbose = True
+    verbose = False
     sampsize = "10 25 50 100"
     directory = "."
 
@@ -86,17 +86,17 @@ if __name__ == '__main__':
         if opt == "-h":
             usage()
         elif opt == "-v":
-            verbose == True
+            verbose = True
         elif opt in ("-d", "--directory"):
             directory = arg
         elif opt in ("-r", "--replicates"):
-            replicates == int(arg)
+            replicates = int(arg)
         elif opt in ("-l", "--loci"):
-            loci == int(arg)
+            loci = int(arg)
         elif opt in ("-p", "--popsize"):
-            popsize == arg
+            popsize = arg
         elif opt in ("-s", "--sampsize"):
-            sampsize == arg
+            sampsize = arg
 
     sampsize = map(int, sampsize.split())
     popsize = map(int, popsize.split())
@@ -117,7 +117,7 @@ if __name__ == '__main__':
         print("Number of Loci: " +str(loci))
         print("Number of replicate runs: " +str(replicates))
         print("Size of samples: " +str(sampsize))
-        allfiles = cfgs * samlen + sum(popsize)
+        allfiles = cfgs * samlen * 20
         print("Number of output files that will be produced from this run: " +str(allfiles)+ "\n")
 
     for S0 in popsize:
