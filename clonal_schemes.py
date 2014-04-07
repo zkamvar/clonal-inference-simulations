@@ -61,13 +61,13 @@ for i in range(len(loclist)):
     inits.append(sim.InitGenotype(freq = loclist[i], loci = i))
 
 popsize = r"'Pop Size: %d"
-males = r"Number of Males: %d\n'"
-#het = r"Heterozygosity: %.2f %.2f\n'"
+males = r"Number of Males: %d"
+het = r"Heterozygosity: %.2f %.2f\n'"
 #generations = r"Gen: %d"
-stats = r" | ".join([popsize, males])#, het, generations])
-stateval = " % (popSize, numOfMales)"#, heteroFreq[0], heteroFreq[1], gen)"
+stats = r" | ".join([popsize, males, het])#, generations])
+stateval = " % (popSize, numOfMales, heteroFreq[0], heteroFreq[1])"#, heteroFreq[1], gen)"
 stats = stats + stateval
-statargs = sim.Stat(popSize=True, numOfMales=True, heteroFreq=[1, 1], step = 1)
+statargs = sim.Stat(popSize=True, numOfMales=True, heteroFreq=[0, 1], step = 1)
 evalargs = sim.PyEval(stats, step = 1)
 
 pop.evolve(
