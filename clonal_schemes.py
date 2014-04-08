@@ -71,7 +71,7 @@ pop = sim.Population(
 
 # This will generate and plot allele probabilities for each locus.
 loclist = get_allele_probabilities(nloc, nall)
-plot_allele_probabilities(loclist, nall)
+plot_allele_probabilities(loclist, nall, loci_names)
 
 # This will put all of the initializing steps into a list. 
 # 1. initialize sex for the populations
