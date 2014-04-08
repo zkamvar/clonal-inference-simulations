@@ -58,7 +58,7 @@ pop = sim.Population(
     size = 100, 
     loci = [1, 1], 
     lociNames = 'L1 L2'.split(), 
-    alleleNames = '201 202 204 206'.split()
+    alleleNames = '202 204 206 208 210 212 214 216'.split()
     )
 
 #------------------------------------------------------------------------------#
@@ -112,7 +112,8 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 rand_mate = sim.RandomMating(subPops = 0, weight = C0)
 clone_mate = sim.RandomSelection(subPops = 0, weight = 100 - C0)
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
-
+outfile = "!'gen_%d.pop' % (gen)"
+finals = sim.SavePopulation(output = outfile, step = STEPS)
 #------------------------------------------------------------------------------#
 # Do the evolution.
 #------------------------------------------------------------------------------#
@@ -120,10 +121,10 @@ pop.evolve(
     initOps = inits,
     matingScheme = mate_scheme,
     preOps = [sim.StepwiseMutator(rates = 1e-5, loci = [1,1])],
-    postOps = [statargs, evalargs],
+    postOps = [statargs, evalargs, finals],
     gen = GENERATIONS
     )
-
+sim.dump(pop)
 
 
 
