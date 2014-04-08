@@ -51,7 +51,7 @@ print("Hey there!")
 C0 = 99
 nloc = 5
 nall = 10
-STEPS = 10
+STEPS = 100
 GENERATIONS = 1000
 SAVEPOPS = False
 
