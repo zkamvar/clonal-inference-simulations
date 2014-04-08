@@ -20,7 +20,7 @@ def usage():
 
 
 
-def write(N0, C0, S0, R0, Sam0, L0):
+def writecfg(N0, C0, S0, R0, Sam0, L0):
     with open("./clone_"+str(N0)+"_pop_"+str(S0)+"_rep_%02d" % R0+".cfg", 'w') as g:
         g.write(
             "[optimized]\n\n"
@@ -42,7 +42,7 @@ def write(N0, C0, S0, R0, Sam0, L0):
         g.close()
 
 
-def burn(N0, S0, R0, L0):
+def burncfg(N0, S0, R0, L0):
     with open("./BURNIN_pop_"+str(S0)+"_rep_%02d" % R0+".cfg", 'w') as g:
         g.write(
             "[optimized]\n\n"
@@ -57,7 +57,7 @@ def burn(N0, S0, R0, L0):
             )
         g.close()
 
-def name(num):
+def nameclone(num):
     if num < 100:
         if num < 10:
             num = "00%.2f" % num
@@ -122,11 +122,11 @@ if __name__ == '__main__':
 
     for S0 in popsize:
         for C0 in clones:
-            N0 = name(C0)
+            N0 = nameclone(C0)
             for R0 in range(replicates):
-                write(N0, C0, S0, R0, sampsize, loci)
+                writecfg(N0, C0, S0, R0, sampsize, loci)
                 if N0 == "100.00":
-                    burn(N0, S0, R0, loci)
+                    burncfg(N0, S0, R0, loci)
 
     os.chdir(here)
 

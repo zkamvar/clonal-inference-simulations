@@ -1,4 +1,4 @@
- P#!/usr/bin/perl
+#!/usr/bin/perl
 
 # written by Zhian Kamvar 2012-02-20
 
