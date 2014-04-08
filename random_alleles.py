@@ -33,16 +33,29 @@ Plot the allele probabilities on the command line.
 Inputs:
 	allele_probs: a numpy array where each row sums to 1.
 	nall: the number of columns. 
+	locnames: an optional list of names for the loci.
 
 Output: A histogram for each allele frequency.
 '''
-def plot_allele_probabilities(allele_probs, nall):
+def plot_allele_probabilities(allele_probs, nall, locnames = None):
+	namecount = 0
 	for i in allele_probs:
 		count = 0
-		print("|")
+		print("\\")
+		if locnames is not None:
+			print(" |" + locnames[namecount])
+		else:
+			print(" |")
+		namecount = namecount + 1
+		print("/")
 		for j in range(0, nall):
 			count = count + 1
-			print(str(count)+": "+"="*int(round(i[j]*100))+" "+str(round(i[j], 3)))
+			if nall > 9 and count < 10:
+				strcount = " " + str(count)
+			else:
+				strcount = str(count)
+
+			print(strcount+": "+"="*int(round(i[j]*100))+" "+str(round(i[j], 3)))
 	return
 
 '''
