@@ -48,11 +48,12 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-C0 = 50
+C0 = 99
 nloc = 5
 nall = 10
 STEPS = 10
 GENERATIONS = 1000
+SAVEPOPS = False
 
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
@@ -121,8 +122,16 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 rand_mate = sim.RandomMating(subPops = 0, weight = C0)
 clone_mate = sim.RandomSelection(subPops = 0, weight = 100 - C0)
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
-outfile = "!'gen_%d.pop' % (gen)"
-finals = sim.SavePopulation(output = outfile, step = STEPS)
+
+
+postlist = list()
+postlist.append(statargs)
+postlist.append(evalargs)
+if SAVEPOPS is True:
+    outfile = "!'gen_%d.pop' % (gen)"
+    finals = sim.SavePopulation(output = outfile, step = STEPS)
+    postlist.append(finals)
+
 #------------------------------------------------------------------------------#
 # Do the evolution.
 #------------------------------------------------------------------------------#
@@ -130,7 +139,7 @@ pop.evolve(
     initOps = inits,
     matingScheme = mate_scheme,
     preOps = [sim.StepwiseMutator(rates = 1e-5, loci = range(nloc))],
-    postOps = [statargs, evalargs, finals],
+    postOps = postlist,
     gen = GENERATIONS
     )
 sim.dump(pop)
