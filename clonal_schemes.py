@@ -50,7 +50,7 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 C0 = 90
 STEPS = 10
-GENERATIONS = 100
+GENERATIONS = 1000
 
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have 4 alleles.
@@ -58,7 +58,7 @@ pop = sim.Population(
     size = 100, 
     loci = [1, 1], 
     lociNames = 'L1 L2'.split(), 
-    alleleNames = '202 204 206 208 210 212 214 216'.split()
+    alleleNames = get_allele_names(2, 4)
     )
 
 #------------------------------------------------------------------------------#
@@ -120,7 +120,7 @@ finals = sim.SavePopulation(output = outfile, step = STEPS)
 pop.evolve(
     initOps = inits,
     matingScheme = mate_scheme,
-    preOps = [sim.StepwiseMutator(rates = 1e-5, loci = [1,1])],
+    preOps = [sim.StepwiseMutator(rates = 1e-5, loci = [0,1])],
     postOps = [statargs, evalargs, finals],
     gen = GENERATIONS
     )
