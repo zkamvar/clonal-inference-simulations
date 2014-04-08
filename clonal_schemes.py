@@ -48,17 +48,21 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-C0 = 90
+C0 = 50
+nloc = 5
+nall = 10
 STEPS = 10
 GENERATIONS = 1000
 
 # Initializing a population of 100 individuals with two loci each on separate
-# chromosomes. These loci each have 4 alleles.
+# chromosomes. These loci each have nall alleles.
+allele_names = get_allele_names(nloc, nall)
+loci_names = get_loci_names(nloc, allele_names)
 pop = sim.Population(
-    size = 100, 
-    loci = [1, 1], 
-    lociNames = 'L1 L2'.split(), 
-    alleleNames = get_allele_names(2, 4)
+    size = 1000, 
+    loci = [1]*nloc, 
+    lociNames = loci_names, 
+    alleleNames = allele_names
     )
 
 #------------------------------------------------------------------------------#
@@ -66,8 +70,8 @@ pop = sim.Population(
 #------------------------------------------------------------------------------#
 
 # This will generate and plot allele probabilities for each locus.
-loclist = get_allele_probabilities(2, 4)
-plot_allele_probabilities(loclist, 4)
+loclist = get_allele_probabilities(nloc, nall)
+plot_allele_probabilities(loclist, nall)
 
 # This will put all of the initializing steps into a list. 
 # 1. initialize sex for the populations
@@ -89,19 +93,24 @@ foot = r"\n'"
 head = r"'"
 
 popsize = r"Pop Size: %d"
-males = r"Number of Males: %d"
-het = r"Heterozygosity: %.2f %.2f"
+males = r"Males: %d"
+het = r"Het: " + r"%.2f "*nloc
 generations = r"Gen: %d"
 
 # Joining the statistics together with pipes.
 stats = " | ".join([head,popsize, males, het, generations, foot])
 
-# The string for the evaluation of the stats. 
-stateval = " % (popSize, numOfMales, heteroFreq[0], heteroFreq[1], gen)"
+# Heterozygosity must be evaluate for each locus. This is a quick and dirty
+# method of acheiving display of heterozygosity at each locus. 
+locrange = map(str, range(nloc))
+lochet = '], heteroFreq['.join(locrange)
+
+# The string for the evaluation of the stats.
+stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen)"
 
 # Stat and PyEval are both classes, so they can be put into variables. These
 # will be evaluated as the program runs. 
-statargs = sim.Stat(popSize=True, numOfMales=True, heteroFreq=[0, 1], step = STEPS)
+statargs = sim.Stat(popSize=True, numOfMales=True, heteroFreq = range(nloc), step = STEPS)
 evalargs = sim.PyEval(stats + stateval, step = STEPS)
 
 
@@ -120,7 +129,7 @@ finals = sim.SavePopulation(output = outfile, step = STEPS)
 pop.evolve(
     initOps = inits,
     matingScheme = mate_scheme,
-    preOps = [sim.StepwiseMutator(rates = 1e-5, loci = [0,1])],
+    preOps = [sim.StepwiseMutator(rates = 1e-5, loci = range(nloc))],
     postOps = [statargs, evalargs, finals],
     gen = GENERATIONS
     )
