@@ -50,7 +50,7 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 C0 = 90
 STEPS = 10
-GENERATIONS = 1000
+GENERATIONS = 100
 
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have 4 alleles.
