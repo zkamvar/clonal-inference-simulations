@@ -57,7 +57,7 @@ SAVEPOPS = False
 
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
-allele_names = get_allele_names(nloc, nall)
+allele_names = get_allele_names(nloc, nall + 1)
 loci_names = get_loci_names(nloc, allele_names)
 pop = sim.Population(
     size = 1000, 
