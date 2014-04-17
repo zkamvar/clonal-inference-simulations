@@ -63,7 +63,8 @@ pop = sim.Population(
     size = 1000, 
     loci = [1]*nloc, 
     lociNames = loci_names, 
-    alleleNames = allele_names
+    alleleNames = allele_names,
+    infoFields = ['clone_proj', 'sex_proj']
     )
 
 #------------------------------------------------------------------------------#
@@ -79,6 +80,7 @@ plot_allele_probabilities(loclist, nall, loci_names)
 # 2. initialize genotypes for each locus separately.
 inits = list()
 inits.append(sim.InitSex())
+inits.append(sim.InitInfo(0, infoFields = ['clone_proj', 'sex_proj']))
 for i in range(len(loclist)):
     inits.append(sim.InitGenotype(freq = loclist[i], loci = i))
 
