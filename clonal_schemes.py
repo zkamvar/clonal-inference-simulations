@@ -48,13 +48,13 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-C0 = 99
+sexytime = 99
 nloc = 5
 nall = 10
 STEPS = 100
 GENERATIONS = 1000
 SAVEPOPS = False
-
+infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
@@ -64,7 +64,7 @@ pop = sim.Population(
     loci = [1]*nloc, 
     lociNames = loci_names, 
     alleleNames = allele_names,
-    infoFields = ['clone_proj', 'sex_proj']
+    infoFields = infos
     )
 
 #------------------------------------------------------------------------------#
@@ -80,7 +80,7 @@ plot_allele_probabilities(loclist, nall, loci_names)
 # 2. initialize genotypes for each locus separately.
 inits = list()
 inits.append(sim.InitSex())
-inits.append(sim.InitInfo(0, infoFields = ['clone_proj', 'sex_proj']))
+inits.append(sim.InitInfo(0, infoFields = infos))
 for i in range(len(loclist)):
     inits.append(sim.InitGenotype(freq = loclist[i], loci = i))
 
@@ -121,8 +121,10 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 # Generating mating.
 #------------------------------------------------------------------------------#
 
-rand_mate = sim.RandomMating(subPops = 0, weight = C0)
-clone_mate = sim.RandomSelection(subPops = 0, weight = 100 - C0)
+mate_ops = [sim.ParentsTagger()]
+
+rand_mate = sim.RandomMating(subPops = 0, weight = sexytime, ops = mate_ops)
+clone_mate = sim.RandomSelection(subPops = 0, weight = 100 - sexytime, ops = mate_ops)
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
