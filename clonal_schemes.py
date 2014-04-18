@@ -131,6 +131,9 @@ mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 postlist = list()
 postlist.append(statargs)
 postlist.append(evalargs)
+# ifs = sim.IfElse('mom == -1 or dad == -1', ifOps = [r'ind.clone = ind.clone_proj + 1'], 
+#     elseOps = [r'ind.sex_proj = ind.sex_proj + 1'])
+# postlist.append(ifs)
 if SAVEPOPS is True:
     outfile = "!'gen_%d.pop' % (gen)"
     finals = sim.SavePopulation(output = outfile, step = STEPS)
