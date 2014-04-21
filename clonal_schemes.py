@@ -48,13 +48,13 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 90
+sexytime = 40
 nloc = 5
 nall = 10
-STEPS = 1
-GENERATIONS = 10
+STEPS = 100
+GENERATIONS = 1000
 SAVEPOPS = False
-infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx']
+infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
@@ -100,15 +100,17 @@ males = r"Males: %d"
 het = r"Het: " + r"%.2f "*nloc
 generations = r"Gen: %d"
 
-def update_sex_proj(clone_proj, sex_proj):
+def update_sex_proj(clone_proj, sex_proj, tsmrsr):
     if len(clone_proj) > 1:
         out_sex_proj = 1 + ((sex_proj[0] + sex_proj[1]) / 2)
         out_clone_proj = ((clone_proj[0] + clone_proj[1]) / 2)
+        out_tsmrsr = 0
     else:
         out_sex_proj = sex_proj[0]
         out_clone_proj = clone_proj[0] + 1
+        out_tsmrsr = tsmrsr[0] + 1
 
-    return out_clone_proj, out_sex_proj
+    return out_clone_proj, out_sex_proj, out_tsmrsr
 
 # Joining the statistics together with pipes.
 stats = " | ".join([head,popsize, males, het, generations, foot])
@@ -161,6 +163,7 @@ pop.evolve(
     )
 moms = pop.indInfo('mother_idx')
 dads = pop.indInfo('father_idx')
+tsmrsr = pop.indInfo('tsmrsr')
 sim.dump(pop)
 
 
@@ -174,8 +177,11 @@ def whos_got_the_keys(gus, key):
 
 daddict = dict()
 momdict = dict()
+sexdict = dict()
+
 
 for i in range(1000):
+    sexdict = whos_got_the_keys(sexdict, tsmrsr[i])
     if moms[i] < 0:
         #print("dad " + str(dads[i]))
         daddict = whos_got_the_keys(daddict, dads[i])
@@ -183,21 +189,33 @@ for i in range(1000):
         #print("mom " + str(moms[i]))
         momdict = whos_got_the_keys(momdict, moms[i])
 
-sys.stdout.write("Clonefathers:\t\t")
-valdict = dict()
-for i in daddict.keys():
-    val = daddict[i]
-    valdict = whos_got_the_keys(valdict, val)
-    #print(str(i) + " " + "[o-o] "*val + str(val))
-for i in valdict.keys():
-    sys.stdout.write(str(valdict[i]) + "\t")
-print("")
-sys.stdout.write("Clones produced:\t")
-for i in valdict.keys():
-    sys.stdout.write(str(i) + "\t")
 
-print("")
+def print_vals(indict, vals, counts):
+
+    padding = abs(len(vals) - len(counts))
+    valdict = dict()
+    for i in indict.keys():
+        valdict = whos_got_the_keys(valdict, indict[i])
+
+    sys.stdout.write(vals + ":" + " "*padding + "\t")
+    for i in valdict.keys():
+        sys.stdout.write(str(i) + "\t")
+    print("")
+
+    sys.stdout.write(counts + ":" + " "*padding + "\t")
+    for i in valdict.keys():
+        sys.stdout.write(str(valdict[i]) + "\t")
+    print("")
+
+print_vals(daddict, "Clones Produced", "Clonefathers")
+print("Time Since Sex:")
+print("\tTime\tCount")
+for i in sexdict.keys():
+    print("\t" + str(i) + "\t" + str(sexdict[i]))
+
 print("Moms:" + str(momdict))
+
+
 
 
 
