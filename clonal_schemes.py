@@ -48,7 +48,7 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 99
+sexytime = 50
 nloc = 5
 nall = 10
 STEPS = 100
@@ -149,7 +149,33 @@ pop.evolve(
     postOps = postlist,
     gen = GENERATIONS
     )
-sim.dump(pop)
+moms = pop.indInfo('mother_idx')
+dads = pop.indInfo('father_idx')
+
+def whos_got_the_keys(gus, key):
+    if gus.has_key(key):
+        gus[key] += 1
+    else:
+        gus[key] = 1
+    return gus
+
+daddict = dict()
+momdict = dict()
+
+for i in range(1000):
+    if moms[i] < 0:
+        print("dad " + str(dads[i]))
+        daddict = whos_got_the_keys(daddict, dads[i])
+    elif dads[i] < 0:
+        print("mom " + str(moms[i]))
+        momdict = whos_got_the_keys(momdict, moms[i])
+
+print("")
+for i in daddict.keys():
+    val = daddict[i]
+    print(str(i) + " " + " \t"*val + str(val))
+
+print("Moms:" + str(momdict))
 
 
 
