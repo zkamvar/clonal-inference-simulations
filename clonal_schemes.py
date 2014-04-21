@@ -48,11 +48,11 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 50
+sexytime = 90
 nloc = 5
 nall = 10
-STEPS = 100
-GENERATIONS = 1000
+STEPS = 1
+GENERATIONS = 10
 SAVEPOPS = False
 infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx']
 # Initializing a population of 100 individuals with two loci each on separate
@@ -100,6 +100,16 @@ males = r"Males: %d"
 het = r"Het: " + r"%.2f "*nloc
 generations = r"Gen: %d"
 
+def update_sex_proj(clone_proj, sex_proj):
+    if len(clone_proj) > 1:
+        out_sex_proj = 1 + ((sex_proj[0] + sex_proj[1]) / 2)
+        out_clone_proj = ((clone_proj[0] + clone_proj[1]) / 2)
+    else:
+        out_sex_proj = sex_proj[0]
+        out_clone_proj = clone_proj[0] + 1
+
+    return out_clone_proj, out_sex_proj
+
 # Joining the statistics together with pipes.
 stats = " | ".join([head,popsize, males, het, generations, foot])
 
@@ -121,7 +131,7 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 # Generating mating.
 #------------------------------------------------------------------------------#
 
-mate_ops = [sim.ParentsTagger()]
+mate_ops = [sim.ParentsTagger(), sim.PyTagger(update_sex_proj)]
 
 rand_mate = sim.RandomMating(subPops = 0, weight = sexytime, ops = mate_ops)
 clone_mate = sim.RandomSelection(subPops = 0, weight = 100 - sexytime, ops = mate_ops)
@@ -151,6 +161,9 @@ pop.evolve(
     )
 moms = pop.indInfo('mother_idx')
 dads = pop.indInfo('father_idx')
+sim.dump(pop)
+
+
 
 def whos_got_the_keys(gus, key):
     if gus.has_key(key):
@@ -164,17 +177,26 @@ momdict = dict()
 
 for i in range(1000):
     if moms[i] < 0:
-        print("dad " + str(dads[i]))
+        #print("dad " + str(dads[i]))
         daddict = whos_got_the_keys(daddict, dads[i])
     elif dads[i] < 0:
-        print("mom " + str(moms[i]))
+        #print("mom " + str(moms[i]))
         momdict = whos_got_the_keys(momdict, moms[i])
 
-print("")
+sys.stdout.write("Clonefathers:\t\t")
+valdict = dict()
 for i in daddict.keys():
     val = daddict[i]
-    print(str(i) + " " + " \t"*val + str(val))
+    valdict = whos_got_the_keys(valdict, val)
+    #print(str(i) + " " + "[o-o] "*val + str(val))
+for i in valdict.keys():
+    sys.stdout.write(str(valdict[i]) + "\t")
+print("")
+sys.stdout.write("Clones produced:\t")
+for i in valdict.keys():
+    sys.stdout.write(str(i) + "\t")
 
+print("")
 print("Moms:" + str(momdict))
 
 
