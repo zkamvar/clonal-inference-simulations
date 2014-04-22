@@ -48,11 +48,13 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 40
-nloc = 5
+sexytime = 0.00005
+nloc = 10
 nall = 10
 STEPS = 100
-GENERATIONS = 1000
+GENERATIONS = 10000
+POPSIZE = 10000
+sexytime = sexytime*POPSIZE
 SAVEPOPS = False
 infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
@@ -60,7 +62,7 @@ infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx', 'tsmrsr']
 allele_names = get_allele_names(nloc, nall + 1)
 loci_names = get_loci_names(nloc, allele_names)
 pop = sim.Population(
-    size = 1000, 
+    size = POPSIZE, 
     loci = [1]*nloc, 
     lociNames = loci_names, 
     alleleNames = allele_names,
@@ -180,7 +182,7 @@ momdict = dict()
 sexdict = dict()
 
 
-for i in range(1000):
+for i in range(POPSIZE):
     sexdict = whos_got_the_keys(sexdict, tsmrsr[i])
     if moms[i] < 0:
         #print("dad " + str(dads[i]))
@@ -208,6 +210,7 @@ def print_vals(indict, vals, counts):
     print("")
 
 print_vals(daddict, "Clones Produced", "Clonefathers")
+print("Amount of Sex:" + str(sexytime) + "/" + str(POPSIZE))
 print("Time Since Sex:")
 print("\tTime\tCount")
 for i in sexdict.keys():
