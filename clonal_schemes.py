@@ -48,7 +48,7 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 0.00005
+sexytime = 0.0005
 nloc = 10
 nall = 10
 STEPS = 100
@@ -138,7 +138,7 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 mate_ops = [sim.ParentsTagger(), sim.PyTagger(update_sex_proj)]
 
 rand_mate = sim.RandomMating(subPops = 0, weight = sexytime, ops = mate_ops)
-clone_mate = sim.RandomSelection(subPops = 0, weight = 100 - sexytime, ops = mate_ops)
+clone_mate = sim.RandomSelection(subPops = 0, weight = POPSIZE - sexytime, ops = mate_ops)
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
@@ -210,7 +210,7 @@ def print_vals(indict, vals, counts):
     print("")
 
 print_vals(daddict, "Clones Produced", "Clonefathers")
-print("Amount of Sex:" + str(sexytime) + "/" + str(POPSIZE))
+print("Amount of Sex: " + str(sexytime) + "individuals per generation.")
 print("Time Since Sex:")
 print("\tTime\tCount")
 for i in sexdict.keys():
