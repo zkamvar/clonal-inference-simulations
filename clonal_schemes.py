@@ -210,10 +210,10 @@ def print_vals(indict, vals, counts):
     print("")
 
 print_vals(daddict, "Clones Produced", "Clonefathers")
-print("Amount of Sex: " + str(sexytime) + "individuals per generation.")
+print("Amount of Sex: " + str(sexytime) + " individuals per generation.")
 print("Time Since Sex:")
 print("\tTime\tCount")
-for i in sexdict.keys():
+for i in sorted(sexdict.keys()):
     print("\t" + str(i) + "\t" + str(sexdict[i]))
 
 print("Moms:" + str(momdict))
