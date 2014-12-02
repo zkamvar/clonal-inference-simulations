@@ -31,3 +31,5 @@ generated from `burnin.py`
 - `Rand_Batches.pl` will perform burnins and then run all simulations in batch. 
 - `gather_finished.sh` will gather all of the finished simulation files into a
 single directory.
+- `demo_script.py` is a script that is in progress that hard codes all of the
+parameters in an attempt to understand what is going on. 

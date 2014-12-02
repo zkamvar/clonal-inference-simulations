@@ -48,12 +48,12 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 0.0005
+sexytime = 0.00
 nloc = 10
 nall = 10
 STEPS = 100
-GENERATIONS = 10000
-POPSIZE = 10000
+GENERATIONS = 1000
+POPSIZE = 1000
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
 infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx', 'tsmrsr']
