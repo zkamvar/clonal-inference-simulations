@@ -102,11 +102,27 @@ males = r"Males: %d"
 het = r"Het: " + r"%.2f "*nloc
 generations = r"Gen: %d"
 
+
+'''
+Account for the geneological history of each isolate. This is a tagger that
+updates information fields for each individual produced during mating. This is
+used in during mating operations. 
+
+Parameters: 
+    clone_proj: a list containing the average number of clonal events for each
+        parent.
+    sex_proj: a list containing the average number of clonal events for each
+        parent.
+    tsmrsr: Time Since Most Recent Sexual Reproduction. This is only used if
+        a clonal event occurs.
+'''
 def update_sex_proj(clone_proj, sex_proj, tsmrsr):
+    # Sexual reproduction: average clone and sex. Add one to sex.
     if len(clone_proj) > 1:
         out_sex_proj = 1 + ((sex_proj[0] + sex_proj[1]) / 2)
         out_clone_proj = ((clone_proj[0] + clone_proj[1]) / 2)
         out_tsmrsr = 0
+    # Clonal reproduction: add one to clone.
     else:
         out_sex_proj = sex_proj[0]
         out_clone_proj = clone_proj[0] + 1
@@ -181,7 +197,10 @@ daddict = dict()
 momdict = dict()
 sexdict = dict()
 
-
+# Individuals carry information of who their parents were. If they were clonally
+# produced, then one of the parental indices will have a -1, indicating that
+# there was no contribution from that parental unit. This loops through and
+# assesses what clones came from mothers and what clones came from fathers.
 for i in range(POPSIZE):
     sexdict = whos_got_the_keys(sexdict, tsmrsr[i])
     if moms[i] < 0:
