@@ -2,3 +2,5 @@
 
 *.pyc
 .Rproj.user
+deleteme.csv
+Rplots.pdf

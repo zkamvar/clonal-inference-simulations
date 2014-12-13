@@ -5,6 +5,7 @@ import os, sys, datetime, commands, re, exceptions, multiprocessing, random, num
 from simuOpt import setOptions
 from simuPOP import utils
 from simuPOP.utils import export
+from simuPOP.utils import saveCSV
 from simuPOP.sampling import drawRandomSample, drawRandomSamples 
 from random_alleles import *
 
@@ -48,12 +49,13 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 0.01
-nloc = 10
+sexytime = 0.001
+nloc = 20
 nall = 10
-STEPS = 100
-GENERATIONS = 1000
-POPSIZE = 1000
+murate = 1e-5
+STEPS = 1000
+GENERATIONS = 5000
+POPSIZE = 500
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
 infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx', 'tsmrsr']
@@ -175,7 +177,7 @@ if SAVEPOPS is True:
 pop.evolve(
     initOps = inits,
     matingScheme = mate_scheme,
-    preOps = [sim.StepwiseMutator(rates = 1e-5, loci = range(nloc))],
+    preOps = [sim.StepwiseMutator(rates = murate, loci = range(nloc))],
     postOps = postlist,
     gen = GENERATIONS
     )
@@ -183,6 +185,9 @@ moms = pop.indInfo('mother_idx')
 dads = pop.indInfo('father_idx')
 tsmrsr = pop.indInfo('tsmrsr')
 sim.dump(pop)
+sample = sim.sampling.drawRandomSample(pop, sizes = 100)
+saveCSV(sample, filename="deleteme.csv", infoFields=['tsmrsr'],
+        sexFormatter=None, affectionFormatter=None)
 
 
 
@@ -236,8 +241,3 @@ for i in sorted(sexdict.keys()):
     print("\t" + str(i) + "\t" + str(sexdict[i]))
 
 print("Moms:" + str(momdict))
-
-
-
-
-
