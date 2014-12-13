@@ -49,12 +49,12 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 0.001
-nloc = 20
+sexytime = 0.00
+nloc = 10
 nall = 10
 murate = 1e-5
 STEPS = 1000
-GENERATIONS = 5000
+GENERATIONS = 50000
 POPSIZE = 500
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
