@@ -54,7 +54,7 @@ nloc = 10
 nall = 10
 murate = 1e-5
 STEPS = 1000
-GENERATIONS = 50000
+GENERATIONS = 5000
 POPSIZE = 500
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
@@ -155,8 +155,8 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 
 mate_ops = [sim.ParentsTagger(), sim.PyTagger(update_sex_proj)]
 
-rand_mate = sim.RandomMating(subPops = 0, weight = sexytime, ops = mate_ops)
-clone_mate = sim.RandomSelection(subPops = 0, weight = POPSIZE - sexytime, ops = mate_ops)
+rand_mate = sim.RandomMating(numOffspring = "(UNIFORM_DISTRIBUTION, 1, 5)", subPops = 0, weight = sexytime, ops = mate_ops)
+clone_mate = sim.CloneMating(numOffspring = "(UNIFORM_DISTRIBUTION, 1, 5)", subPops = 0, weight = POPSIZE - sexytime, ops = mate_ops)
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
