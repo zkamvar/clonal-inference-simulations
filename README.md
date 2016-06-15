@@ -4,17 +4,43 @@
 
 The purpose of these scripts is to simulate populations with varying levels of
 sexual reproduction and eventually varying levels of different popualtion
-genetic strategies such as admixture. They rely on simuPOP and numpy for python
-v. 2.7. All of these files were modified last in early 2013 and need to undergo
-heavy revamping to make them portable.
+genetic strategies such as admixture. 
+
+## Current software environment:
+
+ - Python 3.4
+ - simuPOP 1.1.7
+ - numpy 1.11.0
+
+I used conda to install all of these. [Here's the intro to
+conda](http://conda.pydata.org/docs/intro.html). It's worth noting that I did
+have some trouble getting everything to work correctly since simuPOP can't be
+installed with python 3.5 (for some weird reason, black magic, maybe? I dunno).
+These are my steps:
+
+1. Install conda (on my OSX, I used `brew install Caskroom/cask/anaconda`, but
+   there are instructions on the site.)
+2. Update my modules via conda, Downgrade python and install simuPOP:
+
+```
+conda update --all conda install python=3.4 conda install -c
+https://conda.binstar.org/bpeng simuPOP
+``` 
+
+Finally, I made sure that numpy was installed:
+
+```
+conda install numpy
+```
 
 ## Original workflow/implementation
 
-The original way this was done was to generate configuration files with `CFGenerator.py`
-and then to use `Rand_Batches.pl` to first generate all of the burnin populations.
-The point of the burnins was to have populations undergo sexual recombination for
-1000 generations to ensure equilibrium. After the burnins were generated, all of the
-simulations would begin under the specified parameters.
+The original way this was done was to generate configuration files with
+`CFGenerator.py` and then to use `Rand_Batches.pl` to first generate all of the
+burnin populations. The point of the burnins was to have populations undergo
+sexual recombination for 1000 generations to ensure equilibrium. After the
+burnins were generated, all of the simulations would begin under the specified
+parameters.
 
 ## File Descriptions
 
