@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.4
 
 import simuPOP as sim
-import os, sys, datetime, commands, re, exceptions, multiprocessing, random, numpy
+import os, sys, datetime, re, multiprocessing, random, numpy
 from simuOpt import setOptions
 from simuPOP import utils
 from simuPOP.utils import export
@@ -155,8 +155,8 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 
 mate_ops = [sim.ParentsTagger(), sim.PyTagger(update_sex_proj)]
 
-rand_mate = sim.RandomMating(numOffspring = "(UNIFORM_DISTRIBUTION, 1, 5)", subPops = 0, weight = sexytime, ops = mate_ops)
-clone_mate = sim.CloneMating(numOffspring = "(UNIFORM_DISTRIBUTION, 1, 5)", subPops = 0, weight = POPSIZE - sexytime, ops = mate_ops)
+rand_mate = sim.RandomMating(subPops = 0, weight = sexytime, ops = mate_ops)
+clone_mate = sim.CloneMating(subPops = 0, weight = POPSIZE - sexytime, ops = mate_ops)
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
@@ -192,7 +192,7 @@ saveCSV(sample, filename="deleteme.csv", infoFields=['tsmrsr'],
 
 
 def whos_got_the_keys(gus, key):
-    if gus.has_key(key):
+    if key in gus:
         gus[key] += 1
     else:
         gus[key] = 1
