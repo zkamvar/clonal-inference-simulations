@@ -23,8 +23,9 @@ These are my steps:
 2. Update my modules via conda, Downgrade python and install simuPOP:
 
 ```
-conda update --all conda install python=3.4 conda install -c
-https://conda.binstar.org/bpeng simuPOP
+conda update --all 
+conda install python=3.4 
+conda install -c https://conda.binstar.org/bpeng simuPOP
 ``` 
 
 Finally, I made sure that numpy was installed:
