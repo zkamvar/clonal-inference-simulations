@@ -49,12 +49,12 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 0.05
+sexytime = 0.01
 nloc = 10
 nall = 10
 murate = 1e-5
 STEPS = 1000
-GENERATIONS = 5000
+GENERATIONS = 500
 POPSIZE = 500
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
@@ -65,7 +65,7 @@ SAVEPOPS = False
 #  - mother_idx: ID of the mother (-1 if no mother) [SIMUPOP PARAM]
 #  - father_idx: ID of father (-1 if no father)     [SIMUPOP PARAM]
 #  - tmsrsr: time to most recent sexual reproduction
-infos = ['clone_proj', 'sex_proj', 'parents_idx', 'mother_idx', 'father_idx', 'tsmrsr']
+infos = ['clone_proj', 'sex_proj', 'ind_id', 'parent_id', 'mother_id', 'father_id', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
@@ -125,19 +125,26 @@ Parameters:
     tsmrsr: Time Since Most Recent Sexual Reproduction. This is only used if
         a clonal event occurs.
 '''
-def update_sex_proj(clone_proj, sex_proj, tsmrsr):
+def update_sex_proj(clone_proj, sex_proj, tsmrsr):#, mother_id, father_id, ind_id, parent_id):
     # Sexual reproduction: average clone and sex. Add one to sex.
     if len(clone_proj) > 1:
         out_sex_proj = 1 + ((sex_proj[0] + sex_proj[1]) / 2)
         out_clone_proj = ((clone_proj[0] + clone_proj[1]) / 2)
         out_tsmrsr = 0
+        # out_mother_id = mother_id
+        # out_father_id = father_id
+        # out_parent_id = parent_id
+
     # Clonal reproduction: add one to clone.
     else:
         out_sex_proj = sex_proj[0]
         out_clone_proj = clone_proj[0] + 1
         out_tsmrsr = tsmrsr[0] + 1
+        # out_mother_id = int(0)
+        # out_father_id = int(0)
+        # out_parent_id = int(ind_id)
 
-    return out_clone_proj, out_sex_proj, out_tsmrsr
+    return out_clone_proj, out_sex_proj, out_tsmrsr#, out_mother_id, out_father_id, ind_id, out_parent_id
 
 # Joining the statistics together with pipes.
 stats = " | ".join([head,popsize, males, het, generations, foot])
@@ -163,24 +170,36 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 # There are options here are things to do during mating:
 # 1. Tag the parents (which fills mother_idx and father_idx)
 # 2. Count the reproductive events
-mate_ops = [sim.ParentsTagger(), sim.PyTagger(update_sex_proj)]
+mate_ops = [sim.PedigreeTagger(), sim.PyTagger(update_sex_proj)]
 
 rand_mate = sim.RandomMating(
     numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
     subPops = 0, 
     weight = sexytime, 
-    ops = [sim.ParentsTagger(infoFields=['mother_idx', 'father_idx']), sim.PyTagger(update_sex_proj)])
+    ops = [
+        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']), 
+        sim.IdTagger(),
+        sim.PyTagger(update_sex_proj)
+        ]
+    )
 clone_mate = sim.RandomSelection(
     numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
     subPops = 0, 
     weight = POPSIZE - sexytime, 
-    ops = [sim.ParentsTagger(infoFields='parents_idx'), sim.CloneGenoTransmitter(), sim.PyTagger(update_sex_proj)])
+    ops = [ 
+        sim.CloneGenoTransmitter(), 
+        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+        sim.IdTagger(),
+        sim.PyTagger(update_sex_proj)
+        ]
+    )
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
 postlist = list()
 postlist.append(statargs)
 postlist.append(evalargs)
+# postlist.append(sim.IdTagger().reset(1))
 # ifs = sim.IfElse('mom == -1 or dad == -1', ifOps = [r'ind.clone = ind.clone_proj + 1'], 
 #     elseOps = [r'ind.sex_proj = ind.sex_proj + 1'])
 # postlist.append(ifs)
@@ -192,15 +211,19 @@ if SAVEPOPS is True:
 #------------------------------------------------------------------------------#
 # Do the evolution.
 #------------------------------------------------------------------------------#
+sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
 pop.evolve(
     initOps = inits,
     matingScheme = mate_scheme,
-    preOps = [sim.StepwiseMutator(rates = murate, loci = range(nloc))],
+    preOps = [
+        sim.StepwiseMutator(rates = murate, loci = range(nloc)),
+        sim.IdTagger(),
+        ],
     postOps = postlist,
     gen = GENERATIONS
     )
-moms = pop.indInfo('mother_idx')
-dads = pop.indInfo('father_idx')
+moms = pop.indInfo('mother_id')
+dads = pop.indInfo('father_id')
 tsmrsr = pop.indInfo('tsmrsr')
 sim.dump(pop)
 sample = sim.sampling.drawRandomSample(pop, sizes = 100)
@@ -226,10 +249,10 @@ sexdict = dict()
 # assesses what clones came from mothers and what clones came from fathers.
 for i in range(POPSIZE):
     sexdict = whos_got_the_keys(sexdict, tsmrsr[i])
-    if moms[i] < 0:
+    if moms[i] <= 0:
         #print("dad " + str(dads[i]))
         daddict = whos_got_the_keys(daddict, dads[i])
-    elif dads[i] < 0:
+    elif dads[i] <= 0:
         #print("mom " + str(moms[i]))
         momdict = whos_got_the_keys(momdict, moms[i])
 
@@ -251,11 +274,16 @@ def print_vals(indict, vals, counts):
         sys.stdout.write(str(valdict[i]) + "\t")
     print("")
 
-print_vals(daddict, "Clones Produced", "Clonefathers")
+print("| "+"="*80)
+print("| ______ Dads: " + str(len(daddict)))
+print_vals(daddict, "| Clones Produced", "| Clonefathers")
+print("| "+"-"*80)
+print("| ______ Moms: " + str(len(momdict)))
+print_vals(momdict, "| Clones Produced", "| Clonemothers")
+print("| "+"="*80)
 print("Amount of Sex: " + str(sexytime) + " individuals per generation.")
 print("Time Since Sex:")
 print("\tTime\tCount")
 for i in sorted(sexdict.keys()):
     print("\t" + str(i) + "\t" + str(sexdict[i]))
 
-print("Moms:" + str(momdict))
