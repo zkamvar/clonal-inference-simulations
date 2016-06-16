@@ -146,6 +146,26 @@ def update_sex_proj(clone_proj, sex_proj, tsmrsr):#, mother_id, father_id, ind_i
 
     return out_clone_proj, out_sex_proj, out_tsmrsr#, out_mother_id, out_father_id, ind_id, out_parent_id
 
+'''
+Set the clonal parent for each sample
+
+If the sample is clonally propagated, the mother and father indices should be
+updated. There is no simple way to do this, so we are setting it here.
+Unfortunately, it makes the simulations slower than normal :(
+
+'''
+def clonal_parent(ind):
+    if ind.tsmrsr == 0:
+        return True
+    ind.parent_id = ind.ind_id
+    if ind.sex() == 1:
+        ind.mother_id = 0       
+        ind.father_id = ind.ind_id
+    else:
+        ind.mother_id = ind.ind_id
+        ind.father_id = 0
+    return True
+
 # Joining the statistics together with pipes.
 stats = " | ".join([head,popsize, males, het, generations, foot])
 
@@ -178,7 +198,7 @@ rand_mate = sim.RandomMating(
     weight = sexytime, 
     ops = [
         sim.PedigreeTagger(infoFields=['mother_id', 'father_id']), 
-        sim.IdTagger(),
+        sim.MendelianGenoTransmitter(),
         sim.PyTagger(update_sex_proj)
         ]
     )
@@ -188,8 +208,7 @@ clone_mate = sim.RandomSelection(
     weight = POPSIZE - sexytime, 
     ops = [ 
         sim.CloneGenoTransmitter(), 
-        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
-        sim.IdTagger(),
+        # sim.IdTagger(),
         sim.PyTagger(update_sex_proj)
         ]
     )
@@ -199,6 +218,7 @@ mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 postlist = list()
 postlist.append(statargs)
 postlist.append(evalargs)
+postlist.append(sim.PyOperator(func = clonal_parent))
 # postlist.append(sim.IdTagger().reset(1))
 # ifs = sim.IfElse('mom == -1 or dad == -1', ifOps = [r'ind.clone = ind.clone_proj + 1'], 
 #     elseOps = [r'ind.sex_proj = ind.sex_proj + 1'])
