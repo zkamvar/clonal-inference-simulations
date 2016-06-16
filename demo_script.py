@@ -49,7 +49,7 @@ print("Hey there!")
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
-sexytime = 0.00
+sexytime = 0.05
 nloc = 10
 nall = 10
 murate = 1e-5
@@ -58,7 +58,14 @@ GENERATIONS = 5000
 POPSIZE = 500
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
-infos = ['clone_proj', 'sex_proj', 'mother_idx', 'father_idx', 'tsmrsr']
+# This variable is used to set up information fields that are collected at
+# mating. They include:
+#  - clone_proj: the average number of clonal events for each parent
+#  - sex_proj: The average number of sexual events for each parent
+#  - mother_idx: ID of the mother (-1 if no mother) [SIMUPOP PARAM]
+#  - father_idx: ID of father (-1 if no father)     [SIMUPOP PARAM]
+#  - tmsrsr: time to most recent sexual reproduction
+infos = ['clone_proj', 'sex_proj', 'parents_idx', 'mother_idx', 'father_idx', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
@@ -106,14 +113,14 @@ generations = r"Gen: %d"
 
 
 '''
-Account for the geneological history of each isolate. This is a tagger that
+Account for the genealogical history of each isolate. This is a tagger that
 updates information fields for each individual produced during mating. This is
 used in during mating operations. 
 
 Parameters: 
     clone_proj: a list containing the average number of clonal events for each
         parent.
-    sex_proj: a list containing the average number of clonal events for each
+    sex_proj: a list containing the average number of sexual events for each
         parent.
     tsmrsr: Time Since Most Recent Sexual Reproduction. This is only used if
         a clonal event occurs.
@@ -153,10 +160,21 @@ evalargs = sim.PyEval(stats + stateval, step = STEPS)
 # Generating mating.
 #------------------------------------------------------------------------------#
 
+# There are options here are things to do during mating:
+# 1. Tag the parents (which fills mother_idx and father_idx)
+# 2. Count the reproductive events
 mate_ops = [sim.ParentsTagger(), sim.PyTagger(update_sex_proj)]
 
-rand_mate = sim.RandomMating(subPops = 0, weight = sexytime, ops = mate_ops)
-clone_mate = sim.CloneMating(subPops = 0, weight = POPSIZE - sexytime, ops = mate_ops)
+rand_mate = sim.RandomMating(
+    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+    subPops = 0, 
+    weight = sexytime, 
+    ops = [sim.ParentsTagger(infoFields=['mother_idx', 'father_idx']), sim.PyTagger(update_sex_proj)])
+clone_mate = sim.RandomSelection(
+    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+    subPops = 0, 
+    weight = POPSIZE - sexytime, 
+    ops = [sim.ParentsTagger(infoFields='parents_idx'), sim.CloneGenoTransmitter(), sim.PyTagger(update_sex_proj)])
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
