@@ -62,8 +62,8 @@ SAVEPOPS = False
 # mating. They include:
 #  - clone_proj: the average number of clonal events for each parent
 #  - sex_proj: The average number of sexual events for each parent
-#  - mother_idx: ID of the mother (-1 if no mother) [SIMUPOP PARAM]
-#  - father_idx: ID of father (-1 if no father)     [SIMUPOP PARAM]
+#  - mother_id: ID of the mother (0 if no mother) [SIMUPOP PARAM]
+#  - father_id: ID of father (0 if no father)     [SIMUPOP PARAM]
 #  - tmsrsr: time to most recent sexual reproduction
 infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
@@ -125,26 +125,20 @@ Parameters:
     tsmrsr: Time Since Most Recent Sexual Reproduction. This is only used if
         a clonal event occurs.
 '''
-def update_sex_proj(clone_proj, sex_proj, tsmrsr):#, mother_id, father_id, ind_id, parent_id):
+def update_sex_proj(clone_proj, sex_proj, tsmrsr):
     # Sexual reproduction: average clone and sex. Add one to sex.
     if len(clone_proj) > 1:
         out_sex_proj = 1 + ((sex_proj[0] + sex_proj[1]) / 2)
         out_clone_proj = ((clone_proj[0] + clone_proj[1]) / 2)
         out_tsmrsr = 0
-        # out_mother_id = mother_id
-        # out_father_id = father_id
-        # out_parent_id = parent_id
 
     # Clonal reproduction: add one to clone.
     else:
         out_sex_proj = sex_proj[0]
         out_clone_proj = clone_proj[0] + 1
         out_tsmrsr = tsmrsr[0] + 1
-        # out_mother_id = int(0)
-        # out_father_id = int(0)
-        # out_parent_id = int(ind_id)
 
-    return out_clone_proj, out_sex_proj, out_tsmrsr#, out_mother_id, out_father_id, ind_id, out_parent_id
+    return out_clone_proj, out_sex_proj, out_tsmrsr
 
 # Joining the statistics together with pipes.
 stats = " | ".join([head,popsize, males, het, generations, foot])
@@ -183,18 +177,6 @@ rand_mate = sim.RandomMating(
         sim.IdTagger()
         ]
     )
-# clone_mate = sim.RandomSelection(
-#     numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
-#     subPops = 0, 
-#     weight = POPSIZE - sexytime, 
-#     ops = [ 
-#         sim.RandomParentChooser(),
-#         sim.CloneGenoTransmitter(),
-#         sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
-#         sim.PyTagger(update_sex_proj)
-#         ]
-#     )
-
 clone_mate = sim.HomoMating(
     chooser = sim.RandomParentChooser(),
     generator = sim.OffspringGenerator(
@@ -214,10 +196,7 @@ mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 postlist = list()
 postlist.append(statargs)
 postlist.append(evalargs)
-# postlist.append(sim.IdTagger().reset(1))
-# ifs = sim.IfElse('mom == -1 or dad == -1', ifOps = [r'ind.clone = ind.clone_proj + 1'], 
-#     elseOps = [r'ind.sex_proj = ind.sex_proj + 1'])
-# postlist.append(ifs)
+
 if SAVEPOPS is True:
     outfile = "!'gen_%d.pop' % (gen)"
     finals = sim.SavePopulation(output = outfile, step = STEPS)
