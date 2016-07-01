@@ -177,6 +177,19 @@ rand_mate = sim.RandomMating(
         sim.IdTagger()
         ]
     )
+
+# From Bo Peng:
+# When there is only one parent, PedigreeTagger only uses the first field 
+# (mother_id) regardless of the sex of parent. 
+# 
+# Because of this, I need to reassign the sex of the parents.
+def reassign_parents(pop):
+    for i in pop.individuals():
+        if i.sex() == 1 and i.tsmrsr > 0:
+            i.father_id = i.mother_id
+            i.mother_id = 0.0
+    return True
+
 clone_mate = sim.HomoMating(
     chooser = sim.RandomParentChooser(),
     generator = sim.OffspringGenerator(
@@ -193,14 +206,18 @@ clone_mate = sim.HomoMating(
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
 
+
+
 postlist = list()
 postlist.append(statargs)
 postlist.append(evalargs)
+postlist.append(sim.PyOperator(func = reassign_parents, step = STEPS))
 
 if SAVEPOPS is True:
     outfile = "!'gen_%d.pop' % (gen)"
     finals = sim.SavePopulation(output = outfile, step = STEPS)
     postlist.append(finals)
+
 
 #------------------------------------------------------------------------------#
 # Do the evolution.
@@ -217,24 +234,15 @@ pop.evolve(
     gen = GENERATIONS
     )
 
-# From Bo Peng:
-# When there is only one parent, PedigreeTagger only uses the first field 
-# (mother_id) regardless of the sex of parent. 
-# 
-# Because of this, I need to reassign the sex of the parents.
-inds = pop.individuals()
 
-for i in inds:
-    if i.sex() == 1:
-            i.father_id = i.mother_id
-            i.mother_id = 0.0
+
 
 moms = pop.indInfo('mother_id')
 dads = pop.indInfo('father_id')
 tsmrsr = pop.indInfo('tsmrsr')
 sim.dump(pop)
 sample = sim.sampling.drawRandomSample(pop, sizes = 100)
-saveCSV(sample, filename="deleteme.csv", infoFields=['tsmrsr'],
+saveCSV(sample, filename="deleteme.csv", infoFields=['tsmrsr', 'ind_id', 'mother_id', 'father_id'],
         sexFormatter=None, affectionFormatter=None)
 
 
