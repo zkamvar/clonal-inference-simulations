@@ -195,14 +195,8 @@ rand_mate = sim.RandomMating(
 #         ]
 #     )
 
-def RPC(pop, subPop):
-    pChooser = sim.RandomParentChooser()
-    pChooser.initialize(pop, subPop)
-    res = pChooser.chooseParents()[0]
-    return p
-
 clone_mate = sim.HomoMating(
-    chooser = sim.PyParentsChooser(RPC), #sim.RandomParentChooser(),
+    chooser = sim.RandomParentChooser(),
     generator = sim.OffspringGenerator(
         ops = [
             sim.CloneGenoTransmitter(),
@@ -243,6 +237,19 @@ pop.evolve(
     postOps = postlist,
     gen = GENERATIONS
     )
+
+# From Bo Peng:
+# When there is only one parent, PedigreeTagger only uses the first field 
+# (mother_id) regardless of the sex of parent. 
+# 
+# Because of this, I need to reassign the sex of the parents.
+inds = pop.individuals()
+
+for i in inds:
+    if i.sex() == 1:
+            i.father_id = i.mother_id
+            i.mother_id = 0.0
+
 moms = pop.indInfo('mother_id')
 dads = pop.indInfo('father_id')
 tsmrsr = pop.indInfo('tsmrsr')
