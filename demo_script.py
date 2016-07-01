@@ -65,7 +65,7 @@ SAVEPOPS = False
 #  - mother_idx: ID of the mother (-1 if no mother) [SIMUPOP PARAM]
 #  - father_idx: ID of father (-1 if no father)     [SIMUPOP PARAM]
 #  - tmsrsr: time to most recent sexual reproduction
-infos = ['clone_proj', 'sex_proj', 'ind_id', 'parent_id', 'mother_id', 'father_id', 'tsmrsr']
+infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
@@ -177,21 +177,42 @@ rand_mate = sim.RandomMating(
     subPops = 0, 
     weight = sexytime, 
     ops = [
-        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']), 
-        sim.IdTagger(),
-        sim.PyTagger(update_sex_proj)
+        sim.MendelianGenoTransmitter(),
+        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+        sim.PyTagger(update_sex_proj),
+        sim.IdTagger()
         ]
     )
-clone_mate = sim.RandomSelection(
-    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+# clone_mate = sim.RandomSelection(
+#     numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+#     subPops = 0, 
+#     weight = POPSIZE - sexytime, 
+#     ops = [ 
+#         sim.RandomParentChooser(),
+#         sim.CloneGenoTransmitter(),
+#         sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+#         sim.PyTagger(update_sex_proj)
+#         ]
+#     )
+
+def RPC(pop, subPop):
+    pChooser = sim.RandomParentChooser()
+    pChooser.initialize(pop, subPop)
+    res = pChooser.chooseParents()[0]
+    return p
+
+clone_mate = sim.HomoMating(
+    chooser = sim.PyParentsChooser(RPC), #sim.RandomParentChooser(),
+    generator = sim.OffspringGenerator(
+        ops = [
+            sim.CloneGenoTransmitter(),
+            sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+            sim.PyTagger(update_sex_proj)
+            ],
+        numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
+    ),
     subPops = 0, 
-    weight = POPSIZE - sexytime, 
-    ops = [ 
-        sim.CloneGenoTransmitter(), 
-        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
-        sim.IdTagger(),
-        sim.PyTagger(update_sex_proj)
-        ]
+    weight = POPSIZE - sexytime
     )
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
