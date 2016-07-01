@@ -1,8 +1,16 @@
 #!/usr/bin/env python3.4
 
-import simuPOP as sim
+
 import os, sys, datetime, re, multiprocessing, random, numpy
 from simuOpt import setOptions
+cpu = int(multiprocessing.cpu_count())
+setOptions(optimized=True, 
+            gui=False, 
+            debug='DBG_WARNING',
+            alleleType='long', 
+            quiet=True, 
+            numThreads=4)
+import simuPOP as sim
 from simuPOP import utils
 from simuPOP.utils import export
 from simuPOP.utils import saveCSV
@@ -54,8 +62,8 @@ nloc = 10
 nall = 10
 murate = 1e-5
 STEPS = 1000
-GENERATIONS = 500
-POPSIZE = 500
+GENERATIONS = 5001
+POPSIZE = 5000
 sexytime = sexytime*POPSIZE
 SAVEPOPS = False
 # This variable is used to set up information fields that are collected at
@@ -70,7 +78,7 @@ infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
 loci_names = get_loci_names(nloc, allele_names)
-murate = scale_mutation_rate(murate, allele_names)
+# murate = scale_mutation_rate(murate, allele_names)
 
 pop = sim.Population(
     size = POPSIZE, 
