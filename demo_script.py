@@ -238,7 +238,6 @@ pop.evolve(
 
 
 
-
 moms = pop.indInfo('mother_id')
 dads = pop.indInfo('father_id')
 tsmrsr = pop.indInfo('tsmrsr')
@@ -249,6 +248,7 @@ export(pop = sample,
         output = "deleteme.csv", 
         infoFields = ['tsmrsr', 'ind_id', 'mother_id', 'father_id'],
         sexFormatter = {1:"M", 2:"F"}, 
+        genoFormatter=lambda geno: str(geno[0] + 1) + "/" + str(geno[1] + 1), 
         affectionFormatter = None,
         gui = False
         )
