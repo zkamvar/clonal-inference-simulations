@@ -70,6 +70,8 @@ infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
 loci_names = get_loci_names(nloc, allele_names)
+murate = scale_mutation_rate(murate, allele_names)
+
 pop = sim.Population(
     size = POPSIZE, 
     loci = [1]*nloc, 
@@ -242,8 +244,14 @@ dads = pop.indInfo('father_id')
 tsmrsr = pop.indInfo('tsmrsr')
 sim.dump(pop)
 sample = sim.sampling.drawRandomSample(pop, sizes = 100)
-saveCSV(sample, filename="deleteme.csv", infoFields=['tsmrsr', 'ind_id', 'mother_id', 'father_id'],
-        sexFormatter=None, affectionFormatter=None)
+export(pop = sample,
+        format = 'csv',
+        output = "deleteme.csv", 
+        infoFields = ['tsmrsr', 'ind_id', 'mother_id', 'father_id'],
+        sexFormatter = {1:"M", 2:"F"}, 
+        affectionFormatter = None,
+        gui = False
+        )
 
 
 
