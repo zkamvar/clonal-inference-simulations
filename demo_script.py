@@ -65,7 +65,7 @@ SAVEPOPS = False
 #  - mother_idx: ID of the mother (-1 if no mother) [SIMUPOP PARAM]
 #  - father_idx: ID of father (-1 if no father)     [SIMUPOP PARAM]
 #  - tmsrsr: time to most recent sexual reproduction
-infos = ['clone_proj', 'sex_proj', 'ind_id', 'parent_id', 'mother_id', 'father_id', 'tsmrsr']
+infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
 allele_names = get_allele_names(nloc, nall + 1)
@@ -197,20 +197,36 @@ rand_mate = sim.RandomMating(
     subPops = 0, 
     weight = sexytime, 
     ops = [
-        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']), 
         sim.MendelianGenoTransmitter(),
-        sim.PyTagger(update_sex_proj)
+        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+        sim.PyTagger(update_sex_proj),
+        sim.IdTagger()
         ]
     )
-clone_mate = sim.RandomSelection(
-    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+# clone_mate = sim.RandomSelection(
+#     numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+#     subPops = 0, 
+#     weight = POPSIZE - sexytime, 
+#     ops = [ 
+#         sim.RandomParentChooser(),
+#         sim.CloneGenoTransmitter(),
+#         sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+#         sim.PyTagger(update_sex_proj)
+#         ]
+#     )
+
+clone_mate = sim.HomoMating(
+    chooser = sim.RandomParentChooser(),
+    generator = sim.OffspringGenerator(
+        ops = [
+            sim.CloneGenoTransmitter(),
+            sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+            sim.PyTagger(update_sex_proj)
+            ],
+        numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
+    ),
     subPops = 0, 
-    weight = POPSIZE - sexytime, 
-    ops = [ 
-        sim.CloneGenoTransmitter(), 
-        # sim.IdTagger(),
-        sim.PyTagger(update_sex_proj)
-        ]
+    weight = POPSIZE - sexytime
     )
 mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
@@ -242,6 +258,19 @@ pop.evolve(
     postOps = postlist,
     gen = GENERATIONS
     )
+
+# From Bo Peng:
+# When there is only one parent, PedigreeTagger only uses the first field 
+# (mother_id) regardless of the sex of parent. 
+# 
+# Because of this, I need to reassign the sex of the parents.
+inds = pop.individuals()
+
+for i in inds:
+    if i.sex() == 1:
+            i.father_id = i.mother_id
+            i.mother_id = 0.0
+
 moms = pop.indInfo('mother_id')
 dads = pop.indInfo('father_id')
 tsmrsr = pop.indInfo('tsmrsr')
