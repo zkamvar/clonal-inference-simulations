@@ -52,8 +52,6 @@ def goToClone(pops, L0, newG0, G0, N0, R0):
     print("\n---\nRep "+str(R0)+" is done!\n---\n")
 
 
-print("Hey there!")
-
 #------------------------------------------------------------------------------#
 # Variables to set up 
 #------------------------------------------------------------------------------#
@@ -77,8 +75,9 @@ SAVEPOPS = False
 infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # Initializing a population of 100 individuals with two loci each on separate
 # chromosomes. These loci each have nall alleles.
-allele_names = get_allele_names(nloc, nall + 1)
-loci_names = get_loci_names(nloc, allele_names)
+loci = zk_loci([zk_locus(mu = murate[x], amax = nall) for x in range(nall)])
+allele_names = loci.get_allele_names()
+loci_names = loci.get_locus_names()
 # murate = scale_mutation_rate(murate, allele_names)
 
 pop = sim.Population(
@@ -94,8 +93,8 @@ pop = sim.Population(
 #------------------------------------------------------------------------------#
 
 # This will generate and plot allele probabilities for each locus.
-loclist = get_allele_probabilities(nloc, nall)
-plot_allele_probabilities(loclist, nall, loci_names)
+loclist = loci.get_frequencies()
+# plot_allele_probabilities(loclist, nall, loci_names)
 
 # This will put all of the initializing steps into a list. 
 # 1. initialize sex for the populations
