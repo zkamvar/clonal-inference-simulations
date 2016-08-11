@@ -84,6 +84,11 @@ class zk_loci:
 	def nloc(self):
 		return(len(self.locus_names))
 
+	def nall(self):
+		nalls = self.get_allele_names()
+		nalls = [len(nalls[x]) for x in range(self.nloc())]
+		return(nalls)
+
 	def get_locus(self, index):
 		return(self.alleles[index])
 	
