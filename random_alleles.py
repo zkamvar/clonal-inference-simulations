@@ -11,15 +11,20 @@ class zk_locus:
 	holds:
 		alleles
 		frequencies
+		mutation rate
 	can tell you:
 		number of alleles
 		allele frequencies
 	"""
-	def __init__(self, nall = None):
+	def __init__(self, nall = None, mu = None):
 		if nall is not None:
 			self.nall = nall
 		else:
 			self.nall = np.random.random_integers(6, 10, 1)[0]
+		if mu is not None:
+			self.mu = mu
+		else:
+			self.mu = 1e-5
 		self.alleles = self.new_alleles()
 		self.freq = self.new_freqs()
 		self.replen = int(self.get_alleles()[0][0])
@@ -29,6 +34,12 @@ class zk_locus:
 
 	def get_alleles(self):
 		return(self.alleles)
+
+	def get_mu(self):
+		return(self.mu)
+
+	def set_mu(self, mu):
+		self.mu = mu
 
 	def get_replen(self):
 		return(self.replen)
@@ -62,23 +73,50 @@ class zk_loci:
 		number of loci
 		allele frequencies
 	"""
-	def __init__(self, alleles, mu = None):
+	def __init__(self, alleles):
 
 		self.alleles = alleles
-		if mu is not None:
-			self.mu = mu
-		else:
-			self.mu = [1e-5]*len(alleles)
 		self.locus_names = self.new_locus_names()
 
 	def get_locus_names(self):
-			return(self.locus_names)
+		return(self.locus_names)
 
-	def get_mu(self):
-			return(self.mu)
+	def nloc(self):
+		return(len(self.locus_names))
 
 	def get_locus(self, index):
 		return(self.alleles[index])
+	
+	def get_alleles(self):
+		return(self.alleles)
+
+	def get_allele_names(self):
+		nloc = self.nloc()
+		all_list = [self.get_locus(i).get_alleles() for i in range(nloc)]
+		return(all_list)
+
+	def get_allele_dict(self):
+		alleles = self.get_alleles()
+		lnames = self.get_locus_names()
+		adict = dict()
+		for i in range(len(lnames)):
+			adict[lnames[i]] = alleles[i]
+		return(adict)
+
+	def get_mu(self):
+		mu = [self.get_locus(i).get_mu() for i in range(self.nloc())]
+		return(mu)
+
+	def set_mu(self, index, mu):
+		self.get_locus(index).set_mu(mu)
+
+	def get_mu_dict(self):
+		mu = self.get_mu()
+		lnames = self.get_locus_names()
+		mudict = dict()
+		for i in range(len(lnames)):
+			mudict[lnames[i]] = mu[i]
+		return(mudict)
 
 	def new_locus_names(self):
 		locus_list = list()
