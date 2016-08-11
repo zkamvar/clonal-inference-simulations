@@ -16,11 +16,11 @@ class zk_locus:
 		number of alleles
 		allele frequencies
 	"""
-	def __init__(self, nall = None, mu = None):
+	def __init__(self, nall = None, mu = None, amin = 6, amax = 10):
 		if nall is not None:
 			self.nall = nall
 		else:
-			self.nall = np.random.random_integers(6, 10, 1)[0]
+			self.nall = np.random.random_integers(amin, amax, 1)[0]
 		if mu is not None:
 			self.mu = mu
 		else:
@@ -102,6 +102,11 @@ class zk_loci:
 		for i in range(len(lnames)):
 			adict[lnames[i]] = alleles[i]
 		return(adict)
+
+	def get_frequencies(self):
+		nloc = self.nloc()
+		all_list = [self.get_locus(i).get_frequencies() for i in range(nloc)]
+		return(all_list)		
 
 	def get_mu(self):
 		mu = [self.get_locus(i).get_mu() for i in range(self.nloc())]
