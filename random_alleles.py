@@ -15,16 +15,23 @@ class zk_locus:
 		number of alleles
 		allele frequencies
 	"""
-	def __init__(self, nall):
-		self.nall = nall
+	def __init__(self, nall = None):
+		if nall is not None:
+			self.nall = nall
+		else:
+			self.nall = np.random.random_integers(6, 10, 1)[0]
 		self.alleles = self.new_alleles()
 		self.freq = self.new_freqs()
+		self.replen = int(self.get_alleles()[0][0])
 
 	def get_frequencies(self):
 		return(self.freq)
 
 	def get_alleles(self):
 		return(self.alleles)
+
+	def get_replen(self):
+		return(self.replen)
 
 	def new_alleles(self):
 		nall = self.nall
@@ -45,11 +52,42 @@ class zk_locus:
 
 
 class zk_loci:
-	def __init__(self, nloc, nall, mu):
-		self.nloc = nloc
-		self.nall = nall
-		self.mu = mu
+	"""
+	A Class representing a set of loci.
+	holds:
+		a list of zk_locus objects
+		mutation rates
+		locus names
+	can tell you:
+		number of loci
+		allele frequencies
+	"""
+	def __init__(self, alleles, mu = None):
 
+		self.alleles = alleles
+		if mu is not None:
+			self.mu = mu
+		else:
+			self.mu = [1e-5]*len(alleles)
+		self.locus_names = self.new_locus_names()
+
+	def get_locus_names(self):
+			return(self.locus_names)
+
+	def get_mu(self):
+			return(self.mu)
+
+	def get_locus(self, index):
+		return(self.alleles[index])
+
+	def new_locus_names(self):
+		locus_list = list()
+		alist = self.alleles
+		for i in range(len(alist)):
+			replen = alist[i].get_replen()
+			locus_specifier = str(i+1) + ":" + str(replen)
+			locus_list.append("Locus " + locus_specifier)
+		return locus_list
 
 def rescale_allele_probabilities(allele_probs, nloc, nall):
 	for i in range(0, nloc):
