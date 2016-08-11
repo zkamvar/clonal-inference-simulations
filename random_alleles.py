@@ -5,6 +5,52 @@ import math as math
 import sys
 
 
+class zk_locus:
+	"""
+	A Class representing a locus.
+	holds:
+		alleles
+		frequencies
+	can tell you:
+		number of alleles
+		allele frequencies
+	"""
+	def __init__(self, nall):
+		self.nall = nall
+		self.alleles = self.new_alleles()
+		self.freq = self.new_freqs()
+
+	def get_frequencies(self):
+		return(self.freq)
+
+	def get_alleles(self):
+		return(self.alleles)
+
+	def new_alleles(self):
+		nall = self.nall
+		replen = np.random.random_integers(2, 6, 1)[0]
+		allele_list = list()
+		for i in range(nall):
+			allele = str((replen * 100) + replen * (i + 1))
+			allele_list.append(allele)
+		return(allele_list)
+
+	def new_freqs(self):
+		nall = self.nall
+		alleles = np.random.uniform(size = nall)
+		allsum = sum(alleles)
+		for i in range(0, len(alleles)):
+			alleles[i] = alleles[i]/allsum
+		return(alleles)
+
+
+class zk_loci:
+	def __init__(self, nloc, nall, mu):
+		self.nloc = nloc
+		self.nall = nall
+		self.mu = mu
+
+
 def rescale_allele_probabilities(allele_probs, nloc, nall):
 	for i in range(0, nloc):
 		allsum = sum(allele_probs[i])
