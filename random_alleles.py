@@ -12,9 +12,8 @@ class zk_locus:
 		alleles
 		frequencies
 		mutation rate
-	can tell you:
-		number of alleles
-		allele frequencies
+	By default, this will generate a locus with six to ten alleles with a
+	mutation rate of 1e-5.
 	"""
 	def __init__(self, nall = None, mu = None, amin = 6, amax = 10):
 		if nall is not None:
@@ -69,9 +68,15 @@ class zk_loci:
 		a list of zk_locus objects
 		mutation rates
 		locus names
-	can tell you:
-		number of loci
-		allele frequencies
+	
+	This is a big wrapper for the zk_locus class, but this can return sensible
+	information about your alleles. You can initialize it like so for 10 loci:
+	
+		nloc = 10
+		alleles = [zk.locus() for i in range(nloc)]
+		loci = zk_loci(alleles)
+
+	And boom, there ya go
 	"""
 	def __init__(self, alleles):
 
