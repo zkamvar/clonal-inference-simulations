@@ -60,7 +60,8 @@ print("Hey there!")
 sexytime = 0.01
 nloc = 10
 nall = 10
-murate = 1e-5
+murate = [1e-5]*nloc
+murate[0] = 1e-3
 STEPS = 1000
 GENERATIONS = 5001
 POPSIZE = 5000
