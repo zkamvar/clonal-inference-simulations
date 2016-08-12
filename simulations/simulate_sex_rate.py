@@ -7,8 +7,8 @@ simuOpt.setOptions(optimized = True,
 	gui = False, 
 	debug = 'DBG_WARNING',
 	alleleType = 'long', 
-	quiet = True, 
-	numThreads = cpu)
+	# quiet = True, 
+	numThreads = 0)
 import simuPOP as sim
 import random_alleles as ra
 from simuPOP.utils import export
@@ -18,7 +18,7 @@ from simuPOP.sampling import drawRandomSamples
 
 options = [
     {'name':'POPSIZE',
-     'default':10000,
+     'default':1000,
      'label':'Initial Population Size',
      'type': 'integer',
      'description':'This will set the effective population size to n individuals.',
@@ -84,7 +84,7 @@ options = [
      'validator':'amax > amin',
     },
     {'name':'rep',
-     'default':1,
+     'default':2,
      'label':'Number of replicates populations',
      'type': 'integer',
      'validator': 'rep > 0',
@@ -121,7 +121,7 @@ def update_sex_proj(clone_proj, sex_proj, tsmrsr):
     return out_clone_proj, out_sex_proj, out_tsmrsr
 
 
-def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS):
+def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep):
 	# This variable is used to set up information fields that are collected at
 	# mating. They include:
 	#  - clone_proj: the average number of clonal events for each parent
@@ -260,7 +260,8 @@ def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POP
 	# Do the evolution.
 	#------------------------------------------------------------------------------#
 	sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
-	pop.evolve(
+	simu = sim.Simulator(pop, rep = rep)
+	simu.evolve(
 	    initOps = inits,
 	    matingScheme = mate_scheme,
 	    preOps = [
@@ -278,4 +279,6 @@ if __name__ == '__main__':
         sys.exit(0)
  # def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS):       
     sim_partial_clone(pars.sexrate, pars.nloc, pars.amax, pars.amin, pars.murate, \
-    	pars.STEPS, pars.GENERATIONS, pars.POPSIZE, False)
+    	pars.STEPS, pars.GENERATIONS, pars.POPSIZE, False, pars.rep)
+
+    pars.saveConfig("config.cfg")
