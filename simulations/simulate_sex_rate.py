@@ -8,7 +8,7 @@ simuOpt.setOptions(optimized = True,
 	debug = 'DBG_WARNING',
 	alleleType = 'long', 
 	# quiet = True, 
-	numThreads = 0)
+	numThreads = 4)
 import simuPOP as sim
 import random_alleles as ra
 from simuPOP.utils import export
