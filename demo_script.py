@@ -77,7 +77,7 @@ infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
 # chromosomes. These loci each have nall alleles.
 loci = zk_loci([zk_locus(mu = murate[x], amax = nall) for x in range(nall)])
 allele_names = loci.get_allele_names()
-loci_names = loci.get_locus_names()
+loci_names   = loci.get_locus_names()
 # murate = scale_mutation_rate(murate, allele_names)
 
 pop = sim.Population(
@@ -256,7 +256,7 @@ export(pop = sample,
         output = "deleteme.csv", 
         infoFields = ['tsmrsr', 'ind_id', 'mother_id', 'father_id'],
         sexFormatter = {1:"M", 2:"F"}, 
-        genoFormatter=lambda geno: str(geno[0] + 1) + "/" + str(geno[1] + 1), 
+        genoFormatter = lambda geno: str(geno[0] + 1) + "/" + str(geno[1] + 1), 
         affectionFormatter = None,
         gui = False
         )
