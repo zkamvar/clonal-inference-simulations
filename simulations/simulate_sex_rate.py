@@ -133,7 +133,20 @@ def reassign_parents(pop):
             i.mother_id = 0.0
     return True
 
-def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep):
+
+def generate_loci(nloc, murate, amax, amin):
+	# Initializing the allele frequencies for each locus.
+	#
+	# Each element in 'alleles' is a class of zk_locus, which is then fed into
+	# zk_loci, a class that contains zk_locus and provides access to names, 
+	# frequencies, and mutation rates.
+	alleles = []
+	for x in range(nloc):
+		alleles += [ra.zk_locus(mu = murate[x], amax = amax, amin = amin)]
+	loci = ra.zk_loci(alleles)
+	return(loci)
+
+def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep):
 	# This variable is used to set up information fields that are collected at
 	# mating.
 	infos = [
@@ -144,41 +157,24 @@ def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POP
 		'father_id',  # ID of father (0 if no father)     [SIMUPOP PARAM]
 		'tsmrsr'      # time to most recent sexual reproduction
 	]
-
-	# Initializing the allele frequencies for each locus.
-	#
-	# Each element in 'alleles' is a class of zk_locus, which is then fed into
-	# zk_loci, a class that contains zk_locus and provides access to names, 
-	# frequencies, and mutation rates.
-	alleles = []
-	for x in range(nloc):
-		alleles += [ra.zk_locus(mu = murate[x], amax = amax, amin = amin)]
-
-	loci         = ra.zk_loci(alleles)
-	allele_names = loci.get_allele_names()
-	loci_names   = loci.get_locus_names()
-
-	# Initializing the population
+	nloc = loci.nloc()
 	pop = sim.Population(
-	    size = POPSIZE, 
-	    loci = [1]*nloc, 
-	    lociNames = loci_names, 
-	    alleleNames = allele_names,
-	    infoFields = infos
+	    size        = POPSIZE, 
+	    loci        = [1]*nloc, 
+	    lociNames   = loci.get_locus_names(), 
+	    alleleNames = loci.get_allele_names(),
+	    infoFields  = infos
 	)
 
 	# Init ops
 	# ==========================================================================
-	# This will generate and plot allele probabilities for each locus.
-	loclist = loci.get_frequencies()
-	# plot_allele_probabilities(loclist, nall, loci_names)
-
+	freqs = loci.get_frequencies()
 	inits = [
 		sim.InitSex(),                      # initialize sex for the populations
 		sim.InitInfo(0, infoFields = infos) # set information fields to 0
 	]
 	# initialize genotypes for each locus separately.
-	inits += [sim.InitGenotype(freq = loclist[i], loci = i) for i in range(len(loclist))]
+	inits += [sim.InitGenotype(freq = freqs[i], loci = i) for i in range(nloc)]
 
 
 	# Mating Schemes
@@ -268,7 +264,7 @@ def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POP
 	    initOps = inits,
 	    matingScheme = mate_scheme,
 	    preOps = [
-	        sim.StepwiseMutator(rates = murate, loci = range(nloc)),
+	        sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
 	        sim.IdTagger(),
 	        ],
 	    postOps = postlist,
@@ -279,8 +275,12 @@ def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POP
 if __name__ == '__main__':
     pars = simuOpt.Params(options, 'OPTIONS')
     if not pars.getParam():
-        sys.exit(0)       
-    sim_partial_clone(pars.sexrate, pars.nloc, pars.amax, pars.amin, pars.murate, \
-    	pars.STEPS, pars.GENERATIONS, pars.POPSIZE, False, pars.rep)
+        sys.exit(0)
+
+    # First, generate the 
+    loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
+
+    sim_partial_clone(loci, pars.sexrate, pars.STEPS, pars.GENERATIONS, \
+    	pars.POPSIZE, False, pars.rep)
 
     pars.saveConfig("config.cfg")
