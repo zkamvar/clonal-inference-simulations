@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.4
 
+import os
 import simuOpt
 import multiprocessing
 cpu = int(multiprocessing.cpu_count())
@@ -120,115 +121,83 @@ def update_sex_proj(clone_proj, sex_proj, tsmrsr):
 
     return out_clone_proj, out_sex_proj, out_tsmrsr
 
+# From Bo Peng:
+# When there is only one parent, PedigreeTagger only uses the first field 
+# (mother_id) regardless of the sex of parent. 
+# 
+# Because of this, I need to reassign the sex of the parents.
+def reassign_parents(pop):
+    for i in pop.individuals():
+        if i.sex() == 1 and i.tsmrsr > 0:
+            i.father_id = i.mother_id
+            i.mother_id = 0.0
+    return True
 
 def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep):
 	# This variable is used to set up information fields that are collected at
-	# mating. They include:
-	#  - clone_proj: the average number of clonal events for each parent
-	#  - sex_proj: The average number of sexual events for each parent
-	#  - mother_id: ID of the mother (0 if no mother) [SIMUPOP PARAM]
-	#  - father_id: ID of father (0 if no father)     [SIMUPOP PARAM]
-	#  - tmsrsr: time to most recent sexual reproduction
-	infos = ['clone_proj', 'sex_proj', 'ind_id', 'mother_id', 'father_id', 'tsmrsr']
-	# Initializing a population of 100 individuals with two loci each on separate
-	# chromosomes. These loci each have nall alleles.
+	# mating.
+	infos = [
+		'clone_proj', # the average number of clonal events for each parent
+		'sex_proj',   # average number of sexual events for each parent
+		'ind_id',     # ID for each individual per generation
+		'mother_id',  # ID of the mother (0 if no mother) [SIMUPOP PARAM]
+		'father_id',  # ID of father (0 if no father)     [SIMUPOP PARAM]
+		'tsmrsr'      # time to most recent sexual reproduction
+	]
 
-	alleles = [ra.zk_locus(mu = murate[x], amax = amax, amin = amin) for x in range(nloc)]
-	loci    = ra.zk_loci(alleles)
+	# Initializing the allele frequencies for each locus.
+	#
+	# Each element in 'alleles' is a class of zk_locus, which is then fed into
+	# zk_loci, a class that contains zk_locus and provides access to names, 
+	# frequencies, and mutation rates.
+	alleles = []
+	for x in range(nloc):
+		alleles += [ra.zk_locus(mu = murate[x], amax = amax, amin = amin)]
+
+	loci         = ra.zk_loci(alleles)
 	allele_names = loci.get_allele_names()
 	loci_names   = loci.get_locus_names()
-	# murate = scale_mutation_rate(murate, allele_names)
 
+	# Initializing the population
 	pop = sim.Population(
 	    size = POPSIZE, 
 	    loci = [1]*nloc, 
 	    lociNames = loci_names, 
 	    alleleNames = allele_names,
 	    infoFields = infos
-	    )
+	)
 
-	#------------------------------------------------------------------------------#
-	# Generating initializing operators.
-	#------------------------------------------------------------------------------#
-
+	# Init ops
+	# ==========================================================================
 	# This will generate and plot allele probabilities for each locus.
 	loclist = loci.get_frequencies()
 	# plot_allele_probabilities(loclist, nall, loci_names)
 
-	# This will put all of the initializing steps into a list. 
-	# 1. initialize sex for the populations
-	# 2. initialize genotypes for each locus separately.
-	inits = list()
-	inits.append(sim.InitSex())
-	inits.append(sim.InitInfo(0, infoFields = infos))
-	for i in range(len(loclist)):
-	    inits.append(sim.InitGenotype(freq = loclist[i], loci = i))
-
-	#------------------------------------------------------------------------------#
-	# Generating stats operators.
-	#------------------------------------------------------------------------------#
-	# The stats operators must be raw strings. Since it would be advantageous later
-	# to be able to add in different stats, it's better to join a bunch of small
-	# strings than write one long one.
-
-	# The stats must have single quotes around them.
-	foot = r"\n'"
-	head = r"'"
-
-	popsize = r"Pop Size: %d"
-	males = r"Males: %d"
-	het = r"Het: " + r"%.2f "*nloc
-	generations = r"Gen: %d"
-
-	# Joining the statistics together with pipes.
-	stats = " | ".join([head,popsize, males, het, generations, foot])
-
-	# Heterozygosity must be evaluate for each locus. This is a quick and dirty
-	# method of acheiving display of heterozygosity at each locus. 
-	locrange = map(str, range(nloc))
-	lochet = '], heteroFreq['.join(locrange)
-
-	# The string for the evaluation of the stats.
-	stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen)"
-
-	# Stat and PyEval are both classes, so they can be put into variables. These
-	# will be evaluated as the program runs. 
-	statargs = sim.Stat(popSize=True, numOfMales=True, heteroFreq = range(nloc), step = STEPS)
-	evalargs = sim.PyEval(stats + stateval, step = STEPS)
+	inits = [
+		sim.InitSex(),                      # initialize sex for the populations
+		sim.InitInfo(0, infoFields = infos) # set information fields to 0
+	]
+	# initialize genotypes for each locus separately.
+	inits += [sim.InitGenotype(freq = loclist[i], loci = i) for i in range(len(loclist))]
 
 
-	#------------------------------------------------------------------------------#
-	# Generating mating.
-	#------------------------------------------------------------------------------#
-
+	# Mating Schemes
+	# ==========================================================================
 	# There are options here are things to do during mating:
 	# 1. Tag the parents (which fills mother_idx and father_idx)
 	# 2. Count the reproductive events
-	mate_ops = [sim.PedigreeTagger(), sim.PyTagger(update_sex_proj)]
 
 	rand_mate = sim.RandomMating(
 	    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
-	    subPops = 0, 
-	    weight = sexrate, 
 	    ops = [
 	        sim.MendelianGenoTransmitter(),
 	        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
 	        sim.PyTagger(update_sex_proj),
 	        sim.IdTagger()
-	        ]
+	        ],
+	    subPops = 0, 
+	    weight = sexrate
 	    )
-
-	# From Bo Peng:
-	# When there is only one parent, PedigreeTagger only uses the first field 
-	# (mother_id) regardless of the sex of parent. 
-	# 
-	# Because of this, I need to reassign the sex of the parents.
-	def reassign_parents(pop):
-	    for i in pop.individuals():
-	        if i.sex() == 1 and i.tsmrsr > 0:
-	            i.father_id = i.mother_id
-	            i.mother_id = 0.0
-	    return True
 
 	clone_mate = sim.HomoMating(
 	    chooser = sim.RandomParentChooser(),
@@ -241,24 +210,58 @@ def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POP
 	        numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
 	    ),
 	    subPops = 0, 
-	    weight = POPSIZE - sexrate
+	    weight = 1 - sexrate
 	    )
 	mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
 
-	postlist = list()
-	postlist.append(statargs)
-	postlist.append(evalargs)
-	postlist.append(sim.PyOperator(func = reassign_parents, step = STEPS))
+
+	# Post Ops
+	# ==========================================================================
+	# The stats operators must be raw strings. Since it would be advantageous
+	# later to be able to add in different stats, it's better to join a bunch of
+	# small strings than write one long one.
+
+	# The stats must have single quotes around them.
+	head, foot  = r"'", r"\n'"
+	popsize     = r"Pop Size: %d"
+	males       = r"Males: %d"
+	het         = r"Het: " + r"%.2f "*nloc
+	generations = r"Gen: %d"
+
+	# Joining the statistics together with pipes.
+	stats = " | ".join([head, popsize, males, het, generations, foot])
+
+	# Heterozygosity must be evaluate for each locus. This is a quick and dirty
+	# method of acheiving display of heterozygosity at each locus. 
+	locrange = map(str, range(nloc))
+	lochet = '], heteroFreq['.join(locrange)
+
+	# The string for the evaluation of the stats.
+	stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen)"
+
+	# Stat and PyEval are both classes, so they can be put into variables. These
+	# will be evaluated as the program runs. 
+	statargs = sim.Stat(
+		popSize = True, 
+		numOfMales = True, 
+		heteroFreq = range(nloc), 
+		step = STEPS
+	)
+	evalargs = sim.PyEval(stats + stateval, step = STEPS)
+
+	postlist = [
+		statargs,
+		evalargs#,
+		# sim.PyOperator(func = reassign_parents, step = STEPS),
+	]
 
 	if SAVEPOPS is True:
 	    outfile = "!'gen_%d.pop' % (gen)"
-	    finals = sim.SavePopulation(output = outfile, step = STEPS)
-	    postlist.append(finals)
+	    postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
 
 
-	#------------------------------------------------------------------------------#
-	# Do the evolution.
-	#------------------------------------------------------------------------------#
+	# Simulate and Evolve
+	# ==========================================================================	
 	sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
 	simu = sim.Simulator(pop, rep = rep)
 	simu.evolve(
@@ -270,14 +273,13 @@ def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POP
 	        ],
 	    postOps = postlist,
 	    gen = GENERATIONS
-	    )
+	)
 
 
 if __name__ == '__main__':
     pars = simuOpt.Params(options, 'OPTIONS')
     if not pars.getParam():
-        sys.exit(0)
- # def sim_partial_clone(sexrate, nloc, amax, amin, murate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS):       
+        sys.exit(0)       
     sim_partial_clone(pars.sexrate, pars.nloc, pars.amax, pars.amin, pars.murate, \
     	pars.STEPS, pars.GENERATIONS, pars.POPSIZE, False, pars.rep)
 
