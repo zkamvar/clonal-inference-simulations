@@ -5,11 +5,11 @@ import simuOpt
 import multiprocessing
 cpu = int(multiprocessing.cpu_count())
 simuOpt.setOptions(optimized = True, 
-	gui = False, 
-	debug = 'DBG_WARNING',
-	alleleType = 'long', 
-	# quiet = True, 
-	numThreads = 4)
+    gui = False, 
+    debug = 'DBG_WARNING',
+    alleleType = 'long', 
+    # quiet = True, 
+    numThreads = 4)
 import simuPOP as sim
 import random_alleles as ra
 from simuPOP.utils import export
@@ -62,7 +62,7 @@ options = [
      'label':'Percentage of sexual reproduction.',
      'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
      'type':'number',
-     'validator':'100 >= sexrate >= 0',
+     'validator':'1 >= sexrate >= 0',
     },
     {'name':'murate',
      'default':[1e-5]*10,
@@ -135,141 +135,145 @@ def reassign_parents(pop):
 
 
 def generate_loci(nloc, murate, amax, amin):
-	# Initializing the allele frequencies for each locus.
-	#
-	# Each element in 'alleles' is a class of zk_locus, which is then fed into
-	# zk_loci, a class that contains zk_locus and provides access to names, 
-	# frequencies, and mutation rates.
-	alleles = []
-	for x in range(nloc):
-		alleles += [ra.zk_locus(mu = murate[x], amax = amax, amin = amin)]
-	loci = ra.zk_loci(alleles)
-	return(loci)
+    # Initializing the allele frequencies for each locus.
+    #
+    # Each element in 'alleles' is a class of zk_locus, which is then fed into
+    # zk_loci, a class that contains zk_locus and provides access to names, 
+    # frequencies, and mutation rates.
+    alleles = []
+    for x in range(nloc):
+        alleles += [ra.zk_locus(mu = murate[x], amax = amax, amin = amin)]
+    loci = ra.zk_loci(alleles)
+    return(loci)
 
-def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep):
-	# This variable is used to set up information fields that are collected at
-	# mating.
-	infos = [
-		'clone_proj', # the average number of clonal events for each parent
-		'sex_proj',   # average number of sexual events for each parent
-		'ind_id',     # ID for each individual per generation
-		'mother_id',  # ID of the mother (0 if no mother) [SIMUPOP PARAM]
-		'father_id',  # ID of father (0 if no father)     [SIMUPOP PARAM]
-		'tsmrsr'      # time to most recent sexual reproduction
-	]
-	nloc = loci.nloc()
-	pop = sim.Population(
-	    size        = POPSIZE, 
-	    loci        = [1]*nloc, 
-	    lociNames   = loci.get_locus_names(), 
-	    alleleNames = loci.get_allele_names(),
-	    infoFields  = infos
-	)
+def mix_mating(sexrate):
+    # Mating Schemes
+    # ==========================================================================
+    # There are options here are things to do during mating:
+    # 1. Tag the parents (which fills mother_idx and father_idx)
+    # 2. Count the reproductive events
 
-	# Init ops
-	# ==========================================================================
-	freqs = loci.get_frequencies()
-	inits = [
-		sim.InitSex(),                      # initialize sex for the populations
-		sim.InitInfo(0, infoFields = infos) # set information fields to 0
-	]
-	# initialize genotypes for each locus separately.
-	inits += [sim.InitGenotype(freq = freqs[i], loci = i) for i in range(nloc)]
+    rand_mate = sim.RandomMating(
+        numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
+        ops = [
+            sim.MendelianGenoTransmitter(),
+            sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+            sim.PyTagger(update_sex_proj),
+            sim.IdTagger()
+            ],
+        subPops = 0, 
+        weight = sexrate
+        )
 
-
-	# Mating Schemes
-	# ==========================================================================
-	# There are options here are things to do during mating:
-	# 1. Tag the parents (which fills mother_idx and father_idx)
-	# 2. Count the reproductive events
-
-	rand_mate = sim.RandomMating(
-	    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
-	    ops = [
-	        sim.MendelianGenoTransmitter(),
-	        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
-	        sim.PyTagger(update_sex_proj),
-	        sim.IdTagger()
-	        ],
-	    subPops = 0, 
-	    weight = sexrate
-	    )
-
-	clone_mate = sim.HomoMating(
-	    chooser = sim.RandomParentChooser(),
-	    generator = sim.OffspringGenerator(
-	        ops = [
-	            sim.CloneGenoTransmitter(),
-	            sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
-	            sim.PyTagger(update_sex_proj)
-	            ],
-	        numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
-	    ),
-	    subPops = 0, 
-	    weight = 1 - sexrate
-	    )
-	mate_scheme = sim.HeteroMating([rand_mate, clone_mate])
+    clone_mate = sim.HomoMating(
+        chooser = sim.RandomParentChooser(),
+        generator = sim.OffspringGenerator(
+            ops = [
+                sim.CloneGenoTransmitter(),
+                sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+                sim.PyTagger(update_sex_proj)
+                ],
+            numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
+        ),
+        subPops = 0, 
+        weight = 1 - sexrate
+        )
+    return(sim.HeteroMating([rand_mate, clone_mate]))
 
 
-	# Post Ops
-	# ==========================================================================
-	# The stats operators must be raw strings. Since it would be advantageous
-	# later to be able to add in different stats, it's better to join a bunch of
-	# small strings than write one long one.
+def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep, infos):
 
-	# The stats must have single quotes around them.
-	head, foot  = r"'", r"\n'"
-	popsize     = r"Pop Size: %d"
-	males       = r"Males: %d"
-	het         = r"Het: " + r"%.2f "*nloc
-	generations = r"Gen: %d"
+    nloc = loci.nloc()
+    pop = sim.Population(
+        size        = POPSIZE, 
+        loci        = [1]*nloc, 
+        lociNames   = loci.get_locus_names(), 
+        alleleNames = loci.get_allele_names(),
+        infoFields  = infos
+    )
 
-	# Joining the statistics together with pipes.
-	stats = " | ".join([head, popsize, males, het, generations, foot])
+    # Init ops
+    # ==========================================================================
+    freqs = loci.get_frequencies()
+    inits = [
+        sim.InitSex(),                      # initialize sex for the populations
+        sim.InitInfo(0, infoFields = infos) # set information fields to 0
+    ]
+    # initialize genotypes for each locus separately.
+    inits += [sim.InitGenotype(freq = freqs[i], loci = i) for i in range(nloc)]
 
-	# Heterozygosity must be evaluate for each locus. This is a quick and dirty
-	# method of acheiving display of heterozygosity at each locus. 
-	locrange = map(str, range(nloc))
-	lochet = '], heteroFreq['.join(locrange)
+    # Post Ops
+    # ==========================================================================
+    # The stats operators must be raw strings. Since it would be advantageous
+    # later to be able to add in different stats, it's better to join a bunch of
+    # small strings than write one long one.
 
-	# The string for the evaluation of the stats.
-	stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen)"
+    # The stats must have single quotes around them.
+    head, foot  = r"'", r"\n'"
+    popsize     = r"Pop Size: %d"
+    males       = r"Males: %d"
+    het         = r"Het: " + r"%.2f "*nloc
+    generations = r"Gen: %d"
 
-	# Stat and PyEval are both classes, so they can be put into variables. These
-	# will be evaluated as the program runs. 
-	statargs = sim.Stat(
-		popSize = True, 
-		numOfMales = True, 
-		heteroFreq = range(nloc), 
-		step = STEPS
-	)
-	evalargs = sim.PyEval(stats + stateval, step = STEPS)
+    # Joining the statistics together with pipes.
+    stats = " | ".join([head, popsize, males, het, generations, foot])
 
-	postlist = [
-		statargs,
-		evalargs#,
-		# sim.PyOperator(func = reassign_parents, step = STEPS),
-	]
+    # Heterozygosity must be evaluate for each locus. This is a quick and dirty
+    # method of acheiving display of heterozygosity at each locus. 
+    locrange = map(str, range(nloc))
+    lochet = '], heteroFreq['.join(locrange)
 
-	if SAVEPOPS is True:
-	    outfile = "!'gen_%d.pop' % (gen)"
-	    postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
+    # The string for the evaluation of the stats.
+    stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen)"
+
+    # Stat and PyEval are both classes, so they can be put into variables. These
+    # will be evaluated as the program runs. 
+    statargs = sim.Stat(
+        popSize = True, 
+        numOfMales = True, 
+        heteroFreq = range(nloc), 
+        step = STEPS
+    )
+    evalargs = sim.PyEval(stats + stateval, step = STEPS)
+
+    postlist = [
+        statargs,
+        evalargs#,
+        # sim.PyOperator(func = reassign_parents, step = STEPS),
+    ]
+
+    if SAVEPOPS is True:
+        outfile = "!'gen_%d.pop' % (gen)"
+        postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
 
 
-	# Simulate and Evolve
-	# ==========================================================================	
-	sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
-	simu = sim.Simulator(pop, rep = rep)
-	simu.evolve(
-	    initOps = inits,
-	    matingScheme = mate_scheme,
-	    preOps = [
-	        sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
-	        sim.IdTagger(),
-	        ],
-	    postOps = postlist,
-	    gen = GENERATIONS
-	)
+    # Simulate and Evolve
+    # ==========================================================================    
+    sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
+    simu = sim.Simulator(pop, rep = rep)
+
+    # Print a description of the evolution process for debugging
+    print(sim.describeEvolProcess(
+        initOps = inits,
+        matingScheme = mix_mating(sexrate),
+        preOps = [
+            sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
+            sim.IdTagger(),
+            ],
+        postOps = postlist,
+        gen = GENERATIONS
+        )
+    )
+    simu.evolve(
+        initOps = inits,
+        matingScheme = mix_mating(sexrate),
+        preOps = [
+            sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
+            sim.IdTagger(),
+            ],
+        postOps = postlist,
+        gen = GENERATIONS
+    )
 
 
 if __name__ == '__main__':
@@ -277,10 +281,20 @@ if __name__ == '__main__':
     if not pars.getParam():
         sys.exit(0)
 
-    # First, generate the 
+    # This variable is used to set up information fields that are collected at
+    # mating.
+    infos = [
+        'clone_proj', # the average number of clonal events for each parent
+        'sex_proj',   # average number of sexual events for each parent
+        'ind_id',     # ID for each individual per generation
+        'mother_id',  # ID of the mother (0 if no mother) [SIMUPOP PARAM]
+        'father_id',  # ID of father (0 if no father)     [SIMUPOP PARAM]
+        'tsmrsr'      # time to most recent sexual reproduction
+    ]
+
     loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
 
     sim_partial_clone(loci, pars.sexrate, pars.STEPS, pars.GENERATIONS, \
-    	pars.POPSIZE, False, pars.rep)
+        pars.POPSIZE, False, pars.rep, infos)
 
     pars.saveConfig("config.cfg")
