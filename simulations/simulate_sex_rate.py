@@ -203,6 +203,8 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         alleleNames = loci.get_allele_names(),
         infoFields  = infos
     )
+    NG = "0"+str(len(str(GENERATIONS)))
+    NP = "0"+str(len(str(POPSIZE)))
 
     # Init ops
     # ==========================================================================
@@ -222,10 +224,10 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
 
     # The stats must have single quotes around them.
     head, foot  = r"'", r"\n'"
-    popsize     = r"Pop Size: %d"
-    males       = r"Males: %d"
+    popsize     = r"Pop Size: %"+NP+"d"
+    males       = r"Males: %"+NP+"d"
     het         = r"Het: " + r"%.2f "*nloc
-    generations = r"Gen: %d"
+    generations = r"Gen: %"+NG+"d"
     reps        = r"Rep: %d"
 
     # Joining the statistics together with pipes.
@@ -255,14 +257,16 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         # sim.PyOperator(func = reassign_parents, step = STEPS),
     ]
 
+    finallist = []
+
     if SAVEPOPS is True:
         sexout = "sex_"+str(sexrate)
-        outfile = "!'"+sexout+"_gen_%d_rep_%d.pop' % (gen, rep)"
+        outfile = "!'"+sexout+"_gen_%"+NG+"d_rep_%d.pop' % (gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
-
+        # finallist += [sim.SavePopulation(output = outfile)]
 
     # Simulate and Evolve
-    # ==========================================================================    
+    # ==========================================================================
     sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
     simu = sim.Simulator(pop, rep = rep)
 
@@ -275,6 +279,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
             sim.IdTagger(),
             ],
         postOps = postlist,
+        finalOps = finallist,
         gen = GENERATIONS
         )
     )
@@ -288,33 +293,48 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
             sim.IdTagger(),
             ],
         postOps = postlist,
+        finalOps = finallist,
         gen = GENERATIONS
     )
+
+    # Clean up populations that haven't evolved
+    # ==========================================================================
+    #
+    # When using a mixed-mating scheme with very little sex, it's possible that
+    # the population will run out of either sex before the number of generations
+    # is complete. In this case, we will need to run out the rest of the
+    # populations with clonal reproduction only.
+    #
+    # The return value for the evolution of a simulator is the number of
+    # generations that were evolved for each replicate. Here, we are grabbing
+    # the populations that didn't evolve to the correct number of generations.
     pops = [x for x, y in zip(simu.populations(), evol) if y < GENERATIONS]
     gens = [x for x in evol if x < GENERATIONS]
-
-    for i in range(len(pops)):
-        print(str(gens[i]) + " generations left")
-        resim = sim.Simulator(pops[i])
-        resim.evolve(
-            matingScheme = sim.HomoMating(
-                chooser = sim.RandomParentChooser(),
-                generator = sim.OffspringGenerator(
-                    ops = [
-                        sim.CloneGenoTransmitter(),
-                        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
-                        sim.PyTagger(update_sex_proj)
-                        ],
-                    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
-                    )
-                ),
-            preOps = [
-                sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
-                sim.IdTagger(),
-                ],
-            postOps = postlist,
-            gen = gens[i]
-            )
+    # 
+    # Because we only want to finish out the evolution here, we put a cap on the
+    # number of generations needed to evolve.
+    postlist += [sim.TerminateIf("gen >= "+str(GENERATIONS))]
+    resim = sim.Simulator(pops)
+    resim.evolve(
+        matingScheme = sim.HomoMating(
+            chooser = sim.RandomParentChooser(),
+            generator = sim.OffspringGenerator(
+                ops = [
+                    sim.CloneGenoTransmitter(),
+                    sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+                    sim.PyTagger(update_sex_proj)
+                    ],
+                numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
+                )
+            ),
+        preOps = [
+            sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
+            sim.IdTagger(),
+            ],
+        postOps = postlist,
+        finalOps = finallist,
+        gen = GENERATIONS
+        )
 
 if __name__ == '__main__':
     pars = simuOpt.Params(options, 'OPTIONS')
