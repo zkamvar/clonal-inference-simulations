@@ -39,6 +39,13 @@ options = [
      'type':'string',
      'validator':'True',
     },
+    {'name':'cfg',
+     'default':'config.cfg',
+     'label':'Name your configuration file',
+     'description':'This will give the name to your configuration file.',
+     'type':'string',
+     'validator':'True',
+    },
     {'name':'GENERATIONS',
      'default':10001,
      'label':'Number of Generations',
@@ -58,11 +65,11 @@ options = [
     #  'validator':simuOpt.valueTrueFalse(),
     # },
     {'name':'sexrate',
-     'default':0,
+     'default':[0],#[0, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1],
      'label':'Percentage of sexual reproduction.',
      'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
-     'type':'number',
-     'validator':'1 >= sexrate >= 0',
+     'type':'numbers',
+     'validator':simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
     },
     {'name':'murate',
      'default':[1e-5]*10,
@@ -156,6 +163,11 @@ def mix_mating(sexrate):
     rand_mate = sim.RandomMating(
         numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
         ops = [
+            # sim.Stat(numOfMales = True, popSize = True),
+            # sim.IfElse('numOfMales == popSize or numOfMales == 0',
+            #     sim.CloneGenoTransmitter(),
+            #     sim.MendelianGenoTransmitter()
+            #     ),
             sim.MendelianGenoTransmitter(),
             sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
             sim.PyTagger(update_sex_proj),
@@ -214,9 +226,10 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     males       = r"Males: %d"
     het         = r"Het: " + r"%.2f "*nloc
     generations = r"Gen: %d"
+    reps        = r"Rep: %d"
 
     # Joining the statistics together with pipes.
-    stats = " | ".join([head, popsize, males, het, generations, foot])
+    stats = " | ".join([head, popsize, males, het, generations, reps, foot])
 
     # Heterozygosity must be evaluate for each locus. This is a quick and dirty
     # method of acheiving display of heterozygosity at each locus. 
@@ -224,7 +237,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     lochet = '], heteroFreq['.join(locrange)
 
     # The string for the evaluation of the stats.
-    stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen)"
+    stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen, rep)"
 
     # Stat and PyEval are both classes, so they can be put into variables. These
     # will be evaluated as the program runs. 
@@ -243,7 +256,8 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     ]
 
     if SAVEPOPS is True:
-        outfile = "!'gen_%d.pop' % (gen)"
+        sexout = "sex_"+str(sexrate)
+        outfile = "!'"+sexout+"_gen_%d_rep_%d.pop' % (gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
 
 
@@ -264,17 +278,43 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         gen = GENERATIONS
         )
     )
-    simu.evolve(
+    evol = simu.evolve(
         initOps = inits,
         matingScheme = mix_mating(sexrate),
         preOps = [
+            sim.Stat(numOfMales = True, popSize = True),
+            sim.TerminateIf('numOfMales == 0 or numOfMales == popSize'),
             sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
             sim.IdTagger(),
             ],
         postOps = postlist,
         gen = GENERATIONS
     )
+    pops = [x for x, y in zip(simu.populations(), evol) if y < GENERATIONS]
+    gens = [x for x in evol if x < GENERATIONS]
 
+    for i in range(len(pops)):
+        print(str(gens[i]) + " generations left")
+        resim = sim.Simulator(pops[i])
+        resim.evolve(
+            matingScheme = sim.HomoMating(
+                chooser = sim.RandomParentChooser(),
+                generator = sim.OffspringGenerator(
+                    ops = [
+                        sim.CloneGenoTransmitter(),
+                        sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
+                        sim.PyTagger(update_sex_proj)
+                        ],
+                    numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
+                    )
+                ),
+            preOps = [
+                sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
+                sim.IdTagger(),
+                ],
+            postOps = postlist,
+            gen = gens[i]
+            )
 
 if __name__ == '__main__':
     pars = simuOpt.Params(options, 'OPTIONS')
@@ -294,7 +334,8 @@ if __name__ == '__main__':
 
     loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
 
-    sim_partial_clone(loci, pars.sexrate, pars.STEPS, pars.GENERATIONS, \
-        pars.POPSIZE, False, pars.rep, infos)
+    for i in pars.sexrate:
+        sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
+            pars.POPSIZE, True, pars.rep, infos)
 
-    pars.saveConfig("config.cfg")
+    pars.saveConfig(pars.cfg)
