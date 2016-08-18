@@ -226,6 +226,16 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     # initialize genotypes for each locus separately.
     inits += [sim.InitGenotype(freq = freqs[i], loci = i) for i in range(nloc)]
 
+
+    # Pre Ops
+    # ==========================================================================
+    prelist = [
+        sim.Stat(numOfMales = True, popSize = True),
+        sim.TerminateIf('numOfMales == 0 or numOfMales == popSize'),
+        sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
+        sim.IdTagger(),
+        ]
+
     # Post Ops
     # ==========================================================================
     # The stats operators must be raw strings. Since it would be advantageous
@@ -287,39 +297,27 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
 
+    # Argument Compilation
+    # ==========================================================================
+    # The arguments to sim.evolve can be stored as a dict and be passed as 
+    # **kwargs (keyword arguments).
+    
+    EVOL = dict()
+    EVOL['initOps']      = inits
+    EVOL['matingScheme'] = mix_mating(sexrate)
+    EVOL['preOps']       = prelist
+    EVOL['postOps']      = postlist
+    EVOL['finalOps']     = finallist
+    EVOL['gen']          = GENERATIONS
+
     # Simulate and Evolve
     # ==========================================================================
     sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
     simu = sim.Simulator(pop, rep = rep)
 
     # Print a description of the evolution process for debugging
-    print(sim.describeEvolProcess(
-        initOps = inits,
-        matingScheme = mix_mating(sexrate),
-        preOps = [
-            sim.Stat(numOfMales = True, popSize = True),
-            sim.TerminateIf('numOfMales == 0 or numOfMales == popSize'),
-            sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
-            sim.IdTagger(),
-            ],
-        postOps = postlist,
-        finalOps = finallist,
-        gen = GENERATIONS
-        )
-    )
-    evol = simu.evolve(
-        initOps = inits,
-        matingScheme = mix_mating(sexrate),
-        preOps = [
-            sim.Stat(numOfMales = True, popSize = True),
-            sim.TerminateIf('numOfMales == 0 or numOfMales == popSize'),
-            sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
-            sim.IdTagger(),
-            ],
-        postOps = postlist,
-        finalOps = finallist,
-        gen = GENERATIONS
-    )
+    print(sim.describeEvolProcess(**EVOL))
+    evol = simu.evolve(**EVOL)
 
 
     # Clean up populations that haven't evolved
@@ -338,10 +336,9 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     # 
     # Because we only want to finish out the evolution here, we put a cap on the
     # number of generations needed to evolve.
-    postlist += [sim.TerminateIf("gen >= "+str(GENERATIONS))]
-    resim = sim.Simulator(pops)
-    resim.evolve(
-        matingScheme = sim.HomoMating(
+    EVOL['preOps']       = prelist[:1] + prelist[2:]
+    EVOL['postOps']     += [sim.TerminateIf("gen >= "+str(GENERATIONS))]
+    EVOL['matingScheme'] = sim.HomoMating(
             chooser = sim.RandomParentChooser(),
             generator = sim.OffspringGenerator(
                 ops = [
@@ -349,17 +346,11 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
                     sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
                     sim.PyTagger(update_sex_proj)
                     ],
-                numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3)
+                numOffspring = (sim.UNIFORM_DISTRIBUTION, 1, 3)
                 )
-            ),
-        preOps = [
-            sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
-            sim.IdTagger(),
-            ],
-        postOps = postlist,
-        finalOps = finallist,
-        gen = GENERATIONS
-        )
+            )
+    resim = sim.Simulator(pops)
+    resim.evolve(**EVOL)
 
 # ==============================================================================
 # MAIN PROGRAM
