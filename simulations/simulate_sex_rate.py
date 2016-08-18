@@ -9,8 +9,6 @@ import random_alleles as ra
 
 # Setting up options
 import simuOpt
-import multiprocessing
-cpu = int(multiprocessing.cpu_count())
 simuOpt.setOptions(optimized = True, 
     gui = False, 
     debug = 'DBG_WARNING',
@@ -301,7 +299,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     # ==========================================================================
     # The arguments to sim.evolve can be stored as a dict and be passed as 
     # **kwargs (keyword arguments).
-    
+
     EVOL = dict()
     EVOL['initOps']      = inits
     EVOL['matingScheme'] = mix_mating(sexrate)
