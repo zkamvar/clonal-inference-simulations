@@ -1,6 +1,12 @@
 #!/usr/bin/env python3.4
 
+# Useful for importing any python modules I have in the "modules" directory.
 import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'modules'))
+import random_alleles as ra
+
+# Setting up options
 import simuOpt
 import multiprocessing
 cpu = int(multiprocessing.cpu_count())
@@ -8,10 +14,9 @@ simuOpt.setOptions(optimized = True,
     gui = False, 
     debug = 'DBG_WARNING',
     alleleType = 'long', 
-    # quiet = True, 
-    numThreads = 4)
+    quiet = False, 
+    numThreads = 0)
 import simuPOP as sim
-import random_alleles as ra
 from simuPOP.utils import export
 from simuPOP.utils import saveCSV
 from simuPOP.sampling import drawRandomSample
