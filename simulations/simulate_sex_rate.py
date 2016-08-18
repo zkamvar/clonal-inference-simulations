@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.4
 
 # Useful for importing any python modules I have in the "modules" directory.
+# http://stackoverflow.com/a/35259170/2752888
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'modules'))
