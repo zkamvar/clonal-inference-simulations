@@ -203,13 +203,17 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         alleleNames = loci.get_allele_names(),
         infoFields  = infos
     )
-    NG = "0"+str(len(str(GENERATIONS)))
-    NP = "0"+str(len(str(POPSIZE)))
+    ng = len(str(GENERATIONS))
+    np = len(str(POPSIZE))
+    NG = "0"+str(ng)
+    NP = "0"+str(np)
+    NE = str(np + 2)
 
     # Init ops
     # ==========================================================================
     freqs = loci.get_frequencies()
     inits = [
+        sim.Stat(effectiveSize=range(nloc), vars='Ne_temporal_base'),
         sim.InitSex(),                      # initialize sex for the populations
         sim.InitInfo(0, infoFields = infos) # set information fields to 0
     ]
@@ -226,28 +230,40 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     head, foot  = r"'", r"\n'"
     popsize     = r"Pop Size: %"+NP+"d"
     males       = r"Males: %"+NP+"d"
+    Ne          = r"Ne: %"+NE+".1f (%"+NE+".1f - %"+NE+".1f)"
     het         = r"Het: " + r"%.2f "*nloc
     generations = r"Gen: %"+NG+"d"
     reps        = r"Rep: %d"
 
     # Joining the statistics together with pipes.
-    stats = " | ".join([head, popsize, males, het, generations, reps, foot])
+    stats = " | ".join([head, popsize, males, generations, reps, Ne, foot])
 
     # Heterozygosity must be evaluate for each locus. This is a quick and dirty
     # method of acheiving display of heterozygosity at each locus. 
-    locrange = map(str, range(nloc))
-    lochet = '], heteroFreq['.join(locrange)
+    # locrange = map(str, range(nloc))
+    # lochet = '], heteroFreq['.join(locrange)
+
 
     # The string for the evaluation of the stats.
-    stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen, rep)"
+    # stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen, rep)"
+    stateval  = " % "
+    stateval += "tuple("
+    stateval += "[popSize] + "
+    stateval += "[numOfMales] + "
+    stateval += "[gen] + "
+    stateval += "[rep] + "
+    stateval += "Ne_waples89_P1" # This returns a list of estimate and SE
+    stateval += ")"
 
     # Stat and PyEval are both classes, so they can be put into variables. These
     # will be evaluated as the program runs. 
     statargs = sim.Stat(
         popSize = True, 
         numOfMales = True, 
-        heteroFreq = range(nloc), 
-        step = STEPS
+        # heteroFreq = range(nloc), 
+        effectiveSize = range(nloc),
+        step = STEPS,
+        vars = 'Ne_waples89_P1'
     )
     evalargs = sim.PyEval(stats + stateval, step = STEPS)
 
@@ -275,6 +291,8 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         initOps = inits,
         matingScheme = mix_mating(sexrate),
         preOps = [
+            sim.Stat(numOfMales = True, popSize = True),
+            sim.TerminateIf('numOfMales == 0 or numOfMales == popSize'),
             sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
             sim.IdTagger(),
             ],
@@ -296,6 +314,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         finalOps = finallist,
         gen = GENERATIONS
     )
+
 
     # Clean up populations that haven't evolved
     # ==========================================================================
@@ -335,6 +354,10 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         finalOps = finallist,
         gen = GENERATIONS
         )
+
+# ==============================================================================
+# MAIN PROGRAM
+# ==============================================================================
 
 if __name__ == '__main__':
     pars = simuOpt.Params(options, 'OPTIONS')
