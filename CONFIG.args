@@ -1,11 +1,12 @@
---amax 10 
 --STEPS 1000 
---cfg CONFIG.args 
---GENERATIONS 2001 
+--nseed 1 
 --sexrate 0.0 1.0 
---nloc 10 
 --rep 10 
 --outfile foo 
+--amax 10 
 --murate 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 
 --POPSIZE 1000 
+--cfg CONFIG.args 
+--nloc 10 
+--GENERATIONS 2001 
 --amin 6 

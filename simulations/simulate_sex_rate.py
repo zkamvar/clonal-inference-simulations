@@ -76,7 +76,7 @@ parser.add_argument(
     type = float,
     nargs = "+",
     help = "Percentage of sexual reproduction",
-    default = [0.0, 1.0]
+    default = [0.0, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0]
     )
 parser.add_argument(
     "--murate", 
@@ -103,6 +103,13 @@ parser.add_argument(
     help = "Number of replicates per population",
     default = 10
     )
+parser.add_argument(
+    "--nseed", 
+    type = int,
+    help = "Number of seed populations. Multiply this with rep and sexrate " +
+    "to calculate the number of populations to be evolved. ",
+    default = 100
+    )
 # Setting up options
 import simuOpt
 simuOpt.setOptions(optimized = True, 
@@ -115,90 +122,7 @@ import simuPOP as sim
 from simuPOP.utils import export
 from simuPOP.utils import saveCSV
 from simuPOP.sampling import drawRandomSample
-from simuPOP.sampling import drawRandomSamples 
-
-# options = [
-#     {'name':'POPSIZE',
-#      'default':1000,
-#      'label':'Initial Population Size',
-#      'type': 'integer',
-#      'description':'This will set the effective population size to n individuals.',
-#      'validator': 'POPSIZE > 0',
-#      },
-#     {'name':'nloc',
-#      'default': 10,
-#      'label':'Number of loci',
-#      'description':'Defines the number of loci. It is important to note that putting in the number n will put n loci on one chromosome while puting 1 n times will put n loci on each of n chromosomes.',
-#      'type':'integer',
-#      'validator':simuOpt.valueGT(0),
-#     },
-#     {'name':'outfile',
-#      'default':'foo',
-#      'label':'Please name your output files (Letters and Numbers only)',
-#      'description':'gives a common name across your output files. Note that this program outputs 1+32n the number of replicates',
-#      'type':'string',
-#      'validator':'True',
-#     },
-#     {'name':'cfg',
-#      'default':'config.cfg',
-#      'label':'Name your configuration file',
-#      'description':'This will give the name to your configuration file.',
-#      'type':'string',
-#      'validator':'True',
-#     },
-#     {'name':'GENERATIONS',
-#      'default':10001,
-#      'label':'Number of Generations',
-#      'type': 'integer',
-#      'validator': 'GENERATIONS > 0',
-#     },
-#     {'name':'STEPS',
-#      'default':1000,
-#      'label':'Steps at which to evaluate progress of mating',
-#      'type': 'integer',
-#      'validator': 'STEPS > 0',
-#     },
-#     # {'name':'SAVEPOPS',
-#     #  'default': False,
-#     #  'label':'Should populations be saved at the number of steps?',
-#     #  'type': 'boolean',
-#     #  'validator':simuOpt.valueTrueFalse(),
-#     # },
-#     {'name':'sexrate',
-#      'default':[0],#[0, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1],
-#      'label':'Percentage of sexual reproduction.',
-#      'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
-#      'type':'numbers',
-#      'validator':simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
-#     },
-#     {'name':'murate',
-#      'default':[1e-5]*10,
-#      'label':'mutation rate',
-#      'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
-#      'type':'numbers',
-#      'validator': simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
-#     },
-
-#     {'name':'amin',
-#      'default':6,
-#      'label':'min number of alleles',
-#      'type':'integer',
-#      'validator':'amin > 0',
-#     },
-#     {'name':'amax',
-#      'default':10,
-#      'label':'max number of alleles',
-#      'type':'integer',
-#      'validator':'amax > amin',
-#     },
-#     {'name':'rep',
-#      'default':2,
-#      'label':'Number of replicates populations',
-#      'type': 'integer',
-#      'validator': 'rep > 0',
-#     }
-# ]
-
+from simuPOP.sampling import drawRandomSamples
 
 '''
 Account for the genealogical history of each isolate. This is a tagger that
@@ -386,8 +310,8 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     finallist = []
 
     if SAVEPOPS is True:
-        sexout = "sex_"+str(sexrate)
-        outfile = "!'"+sexout+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
+        sexf      = "sex_{:1.4f}".format(sexrate)
+        outfile   = "!'"+sexf+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
 
@@ -464,10 +388,10 @@ if __name__ == '__main__':
         'tsmrsr'      # time to most recent sexual reproduction
     ]
 
-    loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
-
-    for i in pars.sexrate:
-        sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
-            pars.POPSIZE, True, pars.rep, infos)
+    for s in range(pars.nseed):
+        loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
+        for i in pars.sexrate:
+            sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
+                pars.POPSIZE, True, pars.rep, infos)
 
     args_to_file(pars)
