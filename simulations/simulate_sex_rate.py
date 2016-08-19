@@ -6,7 +6,103 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'modules'))
 import random_alleles as ra
+import argparse
+import inspect
 
+def convert_arg_line_to_args(arg_line):
+    for arg in arg_line.split():
+        if not arg.strip():
+            continue
+        if arg[0] == '#':
+            break
+        yield arg
+
+
+def args_to_file(args):
+    f = open(args.cfg, "w")
+    for arg, value in vars(args).items():
+        if not isinstance(value, (list)):
+            value = [value]
+        val = '{} '*len(value)
+        f.write("--{} ".format(arg) + val.format(*value) + "\n")
+    f.close
+
+
+parser = argparse.ArgumentParser(
+    formatter_class = argparse.ArgumentDefaultsHelpFormatter,
+    fromfile_prefix_chars = '@'
+    )
+
+parser.convert_arg_line_to_args = convert_arg_line_to_args
+
+parser.add_argument(
+    "--POPSIZE", 
+    type = int,
+    help = "Set the census populations size.",
+    default = 1000
+    )
+parser.add_argument(
+    "--nloc", 
+    type = int,
+    help = "Set the number of unlinked loci.",
+    default = 10
+    )
+parser.add_argument(
+    "--outfile", 
+    type = str,
+    help = "Set the name of the output file.",
+    default = "foo"
+    )
+parser.add_argument(
+    "--cfg", 
+    type = str,
+    help = "Set the name of the configuration file.",
+    default = "CONFIG.args"
+    )
+parser.add_argument(
+    "--GENERATIONS", 
+    type = int,
+    help = "Number of generations to evolve.",
+    default = 10001
+    )
+parser.add_argument(
+    "--STEPS", 
+    type = int,
+    help = "Steps at which to save evolving populations",
+    default = 1000
+    )
+parser.add_argument(
+    "--sexrate", 
+    type = float,
+    nargs = "+",
+    help = "Percentage of sexual reproduction",
+    default = [0.0, 1.0]
+    )
+parser.add_argument(
+    "--murate", 
+    type = float,
+    nargs = "+",
+    help = "mutation rate per locus",
+    default = [1e-05]*10
+    )
+parser.add_argument(
+    "--amin", 
+    type = int,
+    help = "Minimum number of alleles per locus",
+    default = 6
+    )
+parser.add_argument(
+    "--amax", 
+    type = int,
+    help = "Maximum number of alleles per locus",
+    default = 10
+    )
+parser.add_argument(
+    "--rep", 
+    type = int,
+    help = "Number of replicates per population",
+    default = 10
+    )
 # Setting up options
 import simuOpt
 simuOpt.setOptions(optimized = True, 
@@ -21,87 +117,87 @@ from simuPOP.utils import saveCSV
 from simuPOP.sampling import drawRandomSample
 from simuPOP.sampling import drawRandomSamples 
 
-options = [
-    {'name':'POPSIZE',
-     'default':1000,
-     'label':'Initial Population Size',
-     'type': 'integer',
-     'description':'This will set the effective population size to n individuals.',
-     'validator': 'POPSIZE > 0',
-     },
-    {'name':'nloc',
-     'default': 10,
-     'label':'Number of loci',
-     'description':'Defines the number of loci. It is important to note that putting in the number n will put n loci on one chromosome while puting 1 n times will put n loci on each of n chromosomes.',
-     'type':'integer',
-     'validator':simuOpt.valueGT(0),
-    },
-    {'name':'outfile',
-     'default':'foo',
-     'label':'Please name your output files (Letters and Numbers only)',
-     'description':'gives a common name across your output files. Note that this program outputs 1+32n the number of replicates',
-     'type':'string',
-     'validator':'True',
-    },
-    {'name':'cfg',
-     'default':'config.cfg',
-     'label':'Name your configuration file',
-     'description':'This will give the name to your configuration file.',
-     'type':'string',
-     'validator':'True',
-    },
-    {'name':'GENERATIONS',
-     'default':10001,
-     'label':'Number of Generations',
-     'type': 'integer',
-     'validator': 'GENERATIONS > 0',
-    },
-    {'name':'STEPS',
-     'default':1000,
-     'label':'Steps at which to evaluate progress of mating',
-     'type': 'integer',
-     'validator': 'STEPS > 0',
-    },
-    # {'name':'SAVEPOPS',
-    #  'default': False,
-    #  'label':'Should populations be saved at the number of steps?',
-    #  'type': 'boolean',
-    #  'validator':simuOpt.valueTrueFalse(),
-    # },
-    {'name':'sexrate',
-     'default':[0],#[0, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1],
-     'label':'Percentage of sexual reproduction.',
-     'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
-     'type':'numbers',
-     'validator':simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
-    },
-    {'name':'murate',
-     'default':[1e-5]*10,
-     'label':'mutation rate',
-     'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
-     'type':'numbers',
-     'validator': simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
-    },
+# options = [
+#     {'name':'POPSIZE',
+#      'default':1000,
+#      'label':'Initial Population Size',
+#      'type': 'integer',
+#      'description':'This will set the effective population size to n individuals.',
+#      'validator': 'POPSIZE > 0',
+#      },
+#     {'name':'nloc',
+#      'default': 10,
+#      'label':'Number of loci',
+#      'description':'Defines the number of loci. It is important to note that putting in the number n will put n loci on one chromosome while puting 1 n times will put n loci on each of n chromosomes.',
+#      'type':'integer',
+#      'validator':simuOpt.valueGT(0),
+#     },
+#     {'name':'outfile',
+#      'default':'foo',
+#      'label':'Please name your output files (Letters and Numbers only)',
+#      'description':'gives a common name across your output files. Note that this program outputs 1+32n the number of replicates',
+#      'type':'string',
+#      'validator':'True',
+#     },
+#     {'name':'cfg',
+#      'default':'config.cfg',
+#      'label':'Name your configuration file',
+#      'description':'This will give the name to your configuration file.',
+#      'type':'string',
+#      'validator':'True',
+#     },
+#     {'name':'GENERATIONS',
+#      'default':10001,
+#      'label':'Number of Generations',
+#      'type': 'integer',
+#      'validator': 'GENERATIONS > 0',
+#     },
+#     {'name':'STEPS',
+#      'default':1000,
+#      'label':'Steps at which to evaluate progress of mating',
+#      'type': 'integer',
+#      'validator': 'STEPS > 0',
+#     },
+#     # {'name':'SAVEPOPS',
+#     #  'default': False,
+#     #  'label':'Should populations be saved at the number of steps?',
+#     #  'type': 'boolean',
+#     #  'validator':simuOpt.valueTrueFalse(),
+#     # },
+#     {'name':'sexrate',
+#      'default':[0],#[0, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1],
+#      'label':'Percentage of sexual reproduction.',
+#      'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
+#      'type':'numbers',
+#      'validator':simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
+#     },
+#     {'name':'murate',
+#      'default':[1e-5]*10,
+#      'label':'mutation rate',
+#      'description':'This defines the coefficient of sexual reproduction that the population will undergo per generation. Valid input is any integer between 0 and 100.',
+#      'type':'numbers',
+#      'validator': simuOpt.valueListOf(simuOpt.valueBetween(0, 1)),
+#     },
 
-    {'name':'amin',
-     'default':6,
-     'label':'min number of alleles',
-     'type':'integer',
-     'validator':'amin > 0',
-    },
-    {'name':'amax',
-     'default':10,
-     'label':'max number of alleles',
-     'type':'integer',
-     'validator':'amax > amin',
-    },
-    {'name':'rep',
-     'default':2,
-     'label':'Number of replicates populations',
-     'type': 'integer',
-     'validator': 'rep > 0',
-    }
-]
+#     {'name':'amin',
+#      'default':6,
+#      'label':'min number of alleles',
+#      'type':'integer',
+#      'validator':'amin > 0',
+#     },
+#     {'name':'amax',
+#      'default':10,
+#      'label':'max number of alleles',
+#      'type':'integer',
+#      'validator':'amax > amin',
+#     },
+#     {'name':'rep',
+#      'default':2,
+#      'label':'Number of replicates populations',
+#      'type': 'integer',
+#      'validator': 'rep > 0',
+#     }
+# ]
 
 
 '''
@@ -355,10 +451,8 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
 # ==============================================================================
 
 if __name__ == '__main__':
-    pars = simuOpt.Params(options, 'OPTIONS')
-    if not pars.getParam():
-        sys.exit(0)
-
+    pars = parser.parse_args()
+    
     # This variable is used to set up information fields that are collected at
     # mating.
     infos = [
@@ -376,4 +470,4 @@ if __name__ == '__main__':
         sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
             pars.POPSIZE, True, pars.rep, infos)
 
-    pars.saveConfig(pars.cfg)
+    args_to_file(pars)
