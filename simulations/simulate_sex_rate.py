@@ -387,11 +387,16 @@ if __name__ == '__main__':
         'father_id',  # ID of father (0 if no father)     [SIMUPOP PARAM]
         'tsmrsr'      # time to most recent sexual reproduction
     ]
+    if not os.path.isdir(pars.outfile):
+        os.mkdir(pars.outfile)
+    cwd = os.getcwd()
+    os.chdir(pars.outfile)
 
     for s in range(pars.nseed):
         loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
         for i in pars.sexrate:
             sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
                 pars.POPSIZE, True, pars.rep, infos)
-
     args_to_file(pars)
+    
+    os.chdir(cwd)
