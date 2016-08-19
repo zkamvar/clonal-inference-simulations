@@ -42,16 +42,57 @@ to set this up so it dumps the results in a "results" directory, but that will
 come later as I need it. All of the simulation scripts will live in the 
 [`simulations/`][simulations] directory.
 
-With no configuration file (options will be presented and the configuration saved):
+With default values:
 
 ```sh
 python simulations/simulate_sex_rate.py
 ```
 
-With a configuration file called `config.cfg`:
+With a configuration file called `CONFIG.args`:
 
 ```sh
-python simulations/simulate_sex_rate.py --config config.cfg
+python simulations/simulate_sex_rate.py @CONFIG.args
+```
+
+To get the options, use the `-h` flag:
+
+```sh
+$ python simulations/simulate_sex_rate.py -h
+simuPOP Version 1.1.7 : Copyright (c) 2004-2016 Bo Peng
+Revision 5000 (Jan 21 2016) for Python 3.4.4 (64bit, 0thread)
+Random Number Generator is set to mt19937 with random seed 0xca21ac86788de7fa.
+This is the optimized long allele version with 18446744073709551616 maximum allelic states.
+For more information, please visit http://simupop.sourceforge.net,
+or email simupop-list@lists.sourceforge.net (subscription required).
+Turn on debug 'DBG_WARNING'
+usage: simulate_sex_rate.py [-h] [--POPSIZE POPSIZE] [--nloc NLOC]
+                            [--outfile OUTFILE] [--cfg CFG]
+                            [--GENERATIONS GENERATIONS] [--STEPS STEPS]
+                            [--sexrate SEXRATE [SEXRATE ...]]
+                            [--murate MURATE [MURATE ...]] [--amin AMIN]
+                            [--amax AMAX] [--rep REP]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --POPSIZE POPSIZE     Set the census populations size. (default: 1000)
+  --nloc NLOC           Set the number of unlinked loci. (default: 10)
+  --outfile OUTFILE     Set the name of the output file. (default: foo)
+  --cfg CFG             Set the name of the configuration file. (default:
+                        CONFIG.args)
+  --GENERATIONS GENERATIONS
+                        Number of generations to evolve. (default: 10001)
+  --STEPS STEPS         Steps at which to save evolving populations (default:
+                        1000)
+  --sexrate SEXRATE [SEXRATE ...]
+                        Percentage of sexual reproduction (default: [0.0,
+                        1.0])
+  --murate MURATE [MURATE ...]
+                        mutation rate per locus (default: [1e-05, 1e-05,
+                        1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05,
+                        1e-05])
+  --amin AMIN           Minimum number of alleles per locus (default: 6)
+  --amax AMAX           Maximum number of alleles per locus (default: 10)
+  --rep REP             Number of replicates per population (default: 10)
 ```
 
 ## Modules
