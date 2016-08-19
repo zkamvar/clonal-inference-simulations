@@ -217,7 +217,7 @@ def mix_mating(sexrate):
     return(sim.HeteroMating([rand_mate, clone_mate]))
 
 
-def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep, infos):
+def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep, infos, seed):
 
     nloc = loci.nloc()
     pop = sim.Population(
@@ -310,7 +310,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     finallist = []
 
     if SAVEPOPS is True:
-        sexf      = "sex_{:1.4f}".format(sexrate)
+        sexf      = "seed_{:2d}_sex_{:1.4f}".format(seed, sexrate)
         outfile   = "!'"+sexf+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
@@ -396,7 +396,7 @@ if __name__ == '__main__':
         loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
         for i in pars.sexrate:
             sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
-                pars.POPSIZE, True, pars.rep, infos)
+                pars.POPSIZE, True, pars.rep, infos, s)
     args_to_file(pars)
-    
+
     os.chdir(cwd)
