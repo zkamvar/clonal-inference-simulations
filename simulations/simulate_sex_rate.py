@@ -242,12 +242,12 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
 
     # The stats must have single quotes around them.
     head, foot  = r"'", r"\n'"
-    popsize     = r"Pop Size: %"+NP+"d"
-    males       = r"Males: %"+NP+"d"
-    Ne          = r"Ne: %"+NE+".1f (%"+NE+".1f - %"+NE+".1f)"
-    het         = r"Het: " + r"%.2f "*nloc
-    generations = r"Gen: %"+NG+"d"
-    reps        = r"Rep: %d"
+    popsize     = r"Pop Size: {:"+NP+"d}"
+    males       = r"Males: {:"+NP+"d}"
+    Ne          = r"Ne: {n[0]:"+NE+".1f} ({n[1]:"+NE+".1f} - {n[2]:"+NE+".1f})"
+    het         = r"Het: " + r"{:.2f} "*nloc
+    generations = r"Gen: {:"+NG+"d}"
+    reps        = r"Rep: {:2d}"
 
     # Joining the statistics together with pipes.
     stats = " | ".join([head, popsize, males, generations, reps, Ne, foot])
@@ -260,13 +260,13 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
 
     # The string for the evaluation of the stats.
     # stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen, rep)"
-    stateval  = " % "
-    stateval += "tuple("
-    stateval += "[popSize] + "
-    stateval += "[numOfMales] + "
-    stateval += "[gen] + "
-    stateval += "[rep] + "
-    stateval += "Ne_waples89_P1" # This returns a list of estimate and SE
+    # stateval  = " % "
+    stateval = ".format("
+    stateval += "popSize, "
+    stateval += "numOfMales, "
+    stateval += "gen, "
+    stateval += "rep, "
+    stateval += "n = Ne_waples89_P1" # This returns a list of estimate and SE
     stateval += ")"
 
     # Stat and PyEval are both classes, so they can be put into variables. These
@@ -291,7 +291,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
 
     if SAVEPOPS is True:
         sexout = "sex_"+str(sexrate)
-        outfile = "!'"+sexout+"_gen_%"+NG+"d_rep_%d.pop' % (gen, rep)"
+        outfile = "!'"+sexout+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
 
@@ -334,9 +334,9 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     # 
     # Because we only want to finish out the evolution here, we put a cap on the
     # number of generations needed to evolve.
-    EVOL['preOps']       = prelist[:1] + prelist[2:]
-    EVOL['postOps']     += [sim.TerminateIf("gen >= "+str(GENERATIONS))]
-    EVOL['matingScheme'] = sim.HomoMating(
+    EVOL['preOps']        = prelist[:1] + prelist[2:]
+    EVOL['postOps']      += [sim.TerminateIf("gen >= "+str(GENERATIONS))]
+    EVOL['matingScheme']  = sim.HomoMating(
             chooser = sim.RandomParentChooser(),
             generator = sim.OffspringGenerator(
                 ops = [
