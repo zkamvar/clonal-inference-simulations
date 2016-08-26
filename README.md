@@ -27,10 +27,11 @@ conda install python=3.4
 conda install -c https://conda.binstar.org/bpeng simuPOP
 ``` 
 
-Finally, I made sure that numpy was installed:
+Finally, I made sure that numpy and feather-format were installed:
 
 ```
 conda install numpy
+pip install feather-format # for transfer between python and R
 ```
 
 ## Current workflow/implementation
