@@ -267,7 +267,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     Ne          = r"Ne: {n[0]:"+NE+".1f} ({n[1]:"+NE+".1f} - {n[2]:"+NE+".1f})"
     het         = r"Het: " + r"{:.2f} "*nloc
     generations = r"Gen: {:"+NG+"d}"
-    reps        = r"Rep: {:02d}"
+    reps        = r"Rep: {:2d}"
 
     # Joining the statistics together with pipes.
     stats = " | ".join([head, popsize, males, generations, reps, Ne, foot])
@@ -310,7 +310,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     finallist = []
 
     if SAVEPOPS is True:
-        sexf      = "seed_{:2d}_sex_{:1.4f}".format(seed, sexrate)
+        sexf      = "seed_{:02d}_sex_{:1.4f}".format(seed, sexrate)
         outfile   = "!'"+sexf+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
