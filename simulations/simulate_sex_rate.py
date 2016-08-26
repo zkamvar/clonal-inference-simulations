@@ -267,7 +267,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     Ne          = r"Ne: {n[0]:"+NE+".1f} ({n[1]:"+NE+".1f} - {n[2]:"+NE+".1f})"
     het         = r"Het: " + r"{:.2f} "*nloc
     generations = r"Gen: {:"+NG+"d}"
-    reps        = r"Rep: {:2d}"
+    reps        = r"Rep: {:02d}"
 
     # Joining the statistics together with pipes.
     stats = " | ".join([head, popsize, males, generations, reps, Ne, foot])
