@@ -229,8 +229,10 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     )
     ng = len(str(GENERATIONS))
     np = len(str(POPSIZE))
+    ns = len(str(seed))
     NG = "0"+str(ng)
     NP = "0"+str(np)
+    NS = "0"+str(ns)
     NE = str(np + 2)
 
     # Init ops
@@ -310,7 +312,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     finallist = []
 
     if SAVEPOPS is True:
-        sexf      = "seed_{:02d}_sex_{:1.4f}".format(seed, sexrate)
+        sexf      = "seed_{:"+NS+"d}_sex_{:1.4f}".format(seed, sexrate)
         outfile   = "!'"+sexf+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
