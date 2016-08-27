@@ -6,27 +6,9 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'modules'))
 import random_alleles as ra
+from zk_utils import *
 import argparse
 import inspect
-
-def convert_arg_line_to_args(arg_line):
-    for arg in arg_line.split():
-        if not arg.strip():
-            continue
-        if arg[0] == '#':
-            break
-        yield arg
-
-
-def args_to_file(args):
-    f = open(args.cfg, "w")
-    for arg, value in vars(args).items():
-        if not isinstance(value, (list)):
-            value = [value]
-        val = '{} '*len(value)
-        f.write("--{} ".format(arg) + val.format(*value) + "\n")
-    f.close
-
 
 parser = argparse.ArgumentParser(
     formatter_class = argparse.ArgumentDefaultsHelpFormatter,
@@ -125,58 +107,17 @@ from simuPOP.sampling import drawRandomSample
 from simuPOP.sampling import drawRandomSamples
 
 '''
-Account for the genealogical history of each isolate. This is a tagger that
-updates information fields for each individual produced during mating. This is
-used in during mating operations. 
+A wrapper to generate a mixed mating scheme with a rate of sexual reproduction.
 
-Parameters: 
-    clone_proj: a list containing the average number of clonal events for each
-        parent.
-    sex_proj: a list containing the average number of sexual events for each
-        parent.
-    tsmrsr: Time Since Most Recent Sexual Reproduction. This is only used if
-        a clonal event occurs.
+Parameters:
+    sexrate a rate of sexual reproduction between 0 and 1
+
+Output:
+    a simuPOP Mating scheme
+
+Examples:
+    mix_mating(0.5)
 '''
-def update_sex_proj(clone_proj, sex_proj, tsmrsr):
-    # Sexual reproduction: average clone and sex. Add one to sex.
-    if len(clone_proj) > 1:
-        out_sex_proj = 1 + ((sex_proj[0] + sex_proj[1]) / 2)
-        out_clone_proj = ((clone_proj[0] + clone_proj[1]) / 2)
-        out_tsmrsr = 0
-
-    # Clonal reproduction: add one to clone.
-    else:
-        out_sex_proj = sex_proj[0]
-        out_clone_proj = clone_proj[0] + 1
-        out_tsmrsr = tsmrsr[0] + 1
-
-    return out_clone_proj, out_sex_proj, out_tsmrsr
-
-# From Bo Peng:
-# When there is only one parent, PedigreeTagger only uses the first field 
-# (mother_id) regardless of the sex of parent. 
-# 
-# Because of this, I need to reassign the sex of the parents.
-def reassign_parents(pop):
-    for i in pop.individuals():
-        if i.sex() == 1 and i.tsmrsr > 0:
-            i.father_id = i.mother_id
-            i.mother_id = 0.0
-    return True
-
-
-def generate_loci(nloc, murate, amax, amin):
-    # Initializing the allele frequencies for each locus.
-    #
-    # Each element in 'alleles' is a class of zk_locus, which is then fed into
-    # zk_loci, a class that contains zk_locus and provides access to names, 
-    # frequencies, and mutation rates.
-    alleles = []
-    for x in range(nloc):
-        alleles += [ra.zk_locus(mu = murate[x], amax = amax, amin = amin)]
-    loci = ra.zk_loci(alleles)
-    return(loci)
-
 def mix_mating(sexrate):
     # Mating Schemes
     # ==========================================================================
@@ -215,7 +156,6 @@ def mix_mating(sexrate):
         weight = 1 - sexrate
         )
     return(sim.HeteroMating([rand_mate, clone_mate]))
-
 
 def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep, infos, seed):
 
@@ -312,8 +252,11 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     finallist = []
 
     if SAVEPOPS is True:
-        sexf      = "seed_{:"+NS+"d}_sex_{:1.4f}".format(seed, sexrate)
-        outfile   = "!'"+sexf+"_gen_{:"+NG+"d}_rep_{:02d}.pop'.format(gen, rep)"
+        seedf     = "seed_{:" + NS + "d}"
+        sexf      = "_sex_{:1.4f}"
+        sexseed   = seedf.format(seed) + sexf.format(sexrate)
+        outfile   = "!'"+ sexseed + "_gen_{:"+NG+"d}_rep_{:02d}.pop'"
+        outfile   = outfile + ".format(gen, rep)"
         postlist += [sim.SavePopulation(output = outfile, step = STEPS)]
         # finallist += [sim.SavePopulation(output = outfile)]
 
