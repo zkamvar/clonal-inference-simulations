@@ -5,55 +5,6 @@ import pandas as pd
 
 
 '''
-Convert pop data to a dataframe
-
-Parameters:
-    pop a simuPOP population
-
-Output:
-    a list of dictionaries containing data for each individual in a population
-
-Example:
-    
-    import simuPOP as sim
-    import pandas as pd
-    import os, re
-
-    pops = ["testpop/" + x for x in os.listdir("testpop")]
-    pops = [re.findall(r"^.+?gen_10.+?\.pop$", x) for x in pops]
-    pops = [x[0] for x in pops if len(x) > 0]
-    pop  = sim.loadPopulation(pops[0])
-    dl   = pop2df(pop, popname = pops[0])
-    cols = list(pop.infoFields()) + ["sex", "pop"] + list(pop.lociNames())
-    df   = pd.DataFrame(dl, columns = cols)
-'''
-def pop2dictlist(pop, popname = None):
-    nloc    = pop.totNumLoci()
-    # The locus names need to be stripped of the repeat lengths
-    lnames  = [l[:-2] for l in pop.lociNames()]
-    infos   = pop.infoFields()
-    ploid   = pop.ploidy()
-    sexdict = {1:"M", 2:"F"}
-    outlist = []
-    for ind in pop.individuals():
-        indict = {}
-        indict["sex"] = sexdict[ind.sex()]
-        if popname is not None:
-            indict["pop"] = popname
-        # Information fields for each individual
-        for i in infos:
-            indict[i] = ind.info(i)
-        # locus data
-        for x in range(nloc):
-            anames = ind.alleleNames(x)
-            # list comprehension of allele names, getting the index of allele
-            # in locus x at the p ploidy.
-            geno   = "/".join([anames[ind.allele(x, p)] for p in range(ploid)])
-            indict[lnames[x]] = geno
-        outlist.append(indict)
-    return(outlist)
-
-'''
 Parser for input parameters for the argparse module.
 
 Parameters:
