@@ -74,11 +74,11 @@ def pops2df(pops):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
+		print("Usage:\n\t" + sys.argv[0] + " <path with pops> <regex for generations>")
 		sys.exit()
 	d = sys.argv[1]
 	if not os.path.isdir(d):
 		sys.exit()
-	
 	pops = [d + "/" + x for x in os.listdir(d)]
 	if len(sys.argv) > 2:
 		pops = get_generation(pops, sys.argv[2])
