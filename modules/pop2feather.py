@@ -83,7 +83,7 @@ def pops2df(pops):
     # print(os.getcwd())
     for p in pops:
         if os.file.exists(p):
-    	    pop = sim.loadPopulation(p)
+            pop = sim.loadPopulation(p)
             dl += pop2dictlist(pop, p)
             if not INFO:
                 lnames += trim_lociNames(pop)
@@ -94,14 +94,14 @@ def pops2df(pops):
     return(pd.DataFrame(dl, columns = cols))
 
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print("Usage:\n\t" + sys.argv[0] + " <path with pops> <regex for generations>")
-		sys.exit()
-	d = sys.argv[1]
-	if not os.path.isdir(d):
-		sys.exit()
-	pops = [d + "/" + x for x in os.listdir(d)]
-	if len(sys.argv) > 2:
-		pops = get_field(pops, "gen_" + str(sys.argv[2]))
-	df = pops2df(pops)
-	feather.write_dataframe(df, d+"/"+d+".feather")
+    if len(sys.argv) < 2:
+        print("Usage:\n\t" + sys.argv[0] + " <path with pops> <regex for generations>")
+        sys.exit()
+    d = sys.argv[1]
+    if not os.path.isdir(d):
+        sys.exit()
+    pops = [d + "/" + x for x in os.listdir(d)]
+    if len(sys.argv) > 2:
+        pops = get_field(pops, "gen_" + str(sys.argv[2]))
+    df = pops2df(pops)
+    feather.write_dataframe(df, d+"/"+d+".feather")
