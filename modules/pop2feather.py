@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import sys, os, re
 import feather
-from simuPOP import loadPopulation
+import simuPOP as sim
 
 def trim_lociNames(pop):
     '''
@@ -80,13 +80,15 @@ def pops2df(pops):
     INFO   = False
     infos  = []
     lnames = []
+    # print(os.getcwd())
     for p in pops:
-        pop = loadPopulation(p)
-        dl += pop2dictlist(pop, p)
-        if not INFO:
-            lnames += trim_lociNames(pop)
-            infos  += pop.infoFields()
-            INFO   = True
+        if os.file.exists(p):
+    	    pop = sim.loadPopulation(p)
+            dl += pop2dictlist(pop, p)
+            if not INFO:
+                lnames += trim_lociNames(pop)
+                infos  += pop.infoFields()
+                INFO   = True
     cols = infos + ["sex", "pop"] + lnames
     print(cols)
     return(pd.DataFrame(dl, columns = cols))

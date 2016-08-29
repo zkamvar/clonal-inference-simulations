@@ -74,6 +74,7 @@ if __name__ == '__main__':
 	if not os.path.isdir(pars.out):
 		os.mkdir(pars.out)
 	for d in dirs:
+		print("processing directory " + d)
 		pops = [d + "/" + x for x in os.listdir(d)]
 		fname  = "dir_" + d
 		if (len(pops) < 1):
@@ -87,7 +88,9 @@ if __name__ == '__main__':
 			matches = set([re.sub(finder, r'\1', i) for i in pops])
 			for g in matches:
 				tempfname = fname + "_group_" + g
+				print(tempfname)
 				pop_group = pf.get_field(pops, g)
+				print(pop_group)
 				ruffle(pop_group, pars.out, tempfname, pars.zip)
 		else:
 			ruffle(pops, pars.out, fname, pars.zip)
