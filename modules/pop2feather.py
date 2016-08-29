@@ -3,6 +3,14 @@ import numpy as np
 import pandas as pd
 import sys, os, re
 import feather
+# Setting up options
+import simuOpt
+simuOpt.setOptions(optimized = False, 
+    gui = False, 
+    debug = 'DBG_WARNING',
+    alleleType = 'long', 
+    quiet = False, 
+    numThreads = 0)
 import simuPOP as sim
 
 def trim_lociNames(pop):
