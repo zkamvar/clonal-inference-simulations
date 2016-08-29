@@ -90,7 +90,6 @@ if __name__ == '__main__':
                 tempfname = fname + "_group_" + g
                 print(tempfname)
                 pop_group = pf.get_field(pops, g)
-                print(pop_group)
                 ruffle(pop_group, pars.out, tempfname, pars.zip)
         else:
             ruffle(pops, pars.out, fname, pars.zip)
