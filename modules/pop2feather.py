@@ -6,10 +6,21 @@ import feather
 from simuPOP import loadPopulation
 
 def trim_lociNames(pop):
+    '''
+    Trim the last two elements of the locus names
+    '''
     return([l[:-2] for l in pop.lociNames()])
 
-def get_generation(pops, gen = 10):
-    rs   = r"^.+?gen_" + str(gen) + ".+?\.pop$"
+def get_field(pops, regex = "gen_10"):
+    '''
+    Return all strings that have a specific regex
+
+    pops = ["testpop/" + x for x in os.listdir("testpop")]
+
+    # Get everything that has completed generation times
+    pops = zu.get_field(pops, "gen_10")
+    '''
+    rs   = re.compile("^.+?" + str(regex) + ".*?\.pop$")
     pops = [re.findall(rs, x) for x in pops]
     pops = [x[0] for x in pops if len(x) > 0]
     return(pops)
@@ -33,7 +44,7 @@ def pop2dictlist(pop, popname = None):
     
     # Get a list of populations that are at the final generation
     pops = ["testpop/" + x for x in os.listdir("testpop")]
-    pops = zu.get_generation(pops, gen = 10)
+    pops = zu.get_field(pops, "gen_10")
 
     # Load the first population and create a pandas data frame
     pop  = sim.loadPopulation(pops[0])
@@ -65,11 +76,19 @@ def pop2dictlist(pop, popname = None):
     return(outlist)
 
 def pops2df(pops):
-    dl = []
+    dl     = []
+    INFO   = False
+    infos  = []
+    lnames = []
     for p in pops:
         pop = loadPopulation(p)
         dl += pop2dictlist(pop, p)
-    cols = list(pop.infoFields()) + ["sex", "pop"] + trim_lociNames(pop)
+        if not INFO:
+            lnames += trim_lociNames(pop)
+            infos  += pop.infoFields()
+            INFO   = True
+    cols = infos + ["sex", "pop"] + lnames
+    print(cols)
     return(pd.DataFrame(dl, columns = cols))
 
 if __name__ == '__main__':
@@ -81,6 +100,6 @@ if __name__ == '__main__':
 		sys.exit()
 	pops = [d + "/" + x for x in os.listdir(d)]
 	if len(sys.argv) > 2:
-		pops = get_generation(pops, sys.argv[2])
+		pops = get_field(pops, "gen_" + str(sys.argv[2]))
 	df = pops2df(pops)
 	feather.write_dataframe(df, d+"/"+d+".feather")
