@@ -97,7 +97,6 @@ def pops2df(pops):
             infos  += pop.infoFields()
             INFO   = True
     cols = infos + ["sex", "pop"] + lnames
-    print(cols)
     return(pd.DataFrame(dl, columns = cols))
 
 if __name__ == '__main__':
