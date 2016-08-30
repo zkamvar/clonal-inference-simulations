@@ -50,8 +50,8 @@ parser.add_argument(
 
 def ruffle(pops, out, fname, zip):
     df = pf.pops2df(pops)
-    print(pops)
     outname = out + "/" + fname + ".feather"
+    print("writing file " + outname)
     feather.write_dataframe(df, outname)
     if zip:
         zipup(outname)
