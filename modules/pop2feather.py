@@ -1,8 +1,5 @@
 #!/usr/bin/env python3.4
-import numpy as np
-import pandas as pd
 import sys, os, re
-import feather
 # Setting up options
 import simuOpt
 simuOpt.setOptions(optimized = False, 
@@ -12,6 +9,9 @@ simuOpt.setOptions(optimized = False,
     quiet = False, 
     numThreads = 0)
 import simuPOP as sim
+import numpy as np
+import pandas as pd
+
 
 def trim_lociNames(pop):
     '''
@@ -98,16 +98,3 @@ def pops2df(pops):
             INFO   = True
     cols = infos + ["sex", "pop"] + lnames
     return(pd.DataFrame(dl, columns = cols))
-
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage:\n\t" + sys.argv[0] + " <path with pops> <regex for generations>")
-        sys.exit()
-    d = sys.argv[1]
-    if not os.path.isdir(d):
-        sys.exit()
-    pops = [d + "/" + x for x in os.listdir(d)]
-    if len(sys.argv) > 2:
-        pops = get_field(pops, "gen_" + str(sys.argv[2]))
-    df = pops2df(pops)
-    feather.write_dataframe(df, d+"/"+d+".feather")
