@@ -1,5 +1,4 @@
 import random_alleles as ra
-import feather
 import numpy as np
 import pandas as pd
 
