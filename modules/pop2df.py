@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python3
+
 import sys, os, re
 # Setting up options
 import simuOpt
@@ -35,7 +36,7 @@ def get_field(pops, regex = "gen_10"):
 
 def pop2dictlist(pop, popname = None):
     '''
-    Convert pop data to a dataframe
+    Convert pop data to a list of dictionaries
 
     Parameters:
         pop a simuPOP population
@@ -45,20 +46,18 @@ def pop2dictlist(pop, popname = None):
 
     Example:
     
-    import zk_utils as zu
+    import pop2df
     import simuPOP as sim
     import pandas as pd
     import os, re
     
     # Get a list of populations that are at the final generation
     pops = ["testpop/" + x for x in os.listdir("testpop")]
-    pops = zu.get_field(pops, "gen_10")
+    pops = pop2df.get_field(pops, "gen_10")
 
     # Load the first population and create a pandas data frame
     pop  = sim.loadPopulation(pops[0])
-    dl   = zu.pop2dictlist(pop, popname = pops[0])
-    cols = list(pop.infoFields()) + ["sex", "pop"] + zu.trim_lociNames(pop)
-    df   = pd.DataFrame(dl, columns = cols)
+    dl   = pop2df.pop2dictlist(pop, popname = pops[0])
 
     '''
     nloc    = pop.totNumLoci()
@@ -84,6 +83,28 @@ def pop2dictlist(pop, popname = None):
     return(outlist)
 
 def pops2df(pops):
+    '''
+    Convert a list of populations to a pandas DataFrame
+
+    Parameters:
+        pops a list of simuPOP populations
+
+    Output:
+        a pandas DataFrame
+
+    Example:
+
+    import pop2df
+    import simuPOP as sim
+    import pandas as pd
+    import os, re
+
+    # Get a list of populations that are at the final generation
+    pops = ["testpop/" + x for x in os.listdir("testpop")]
+    pops = pop2df.get_field(pops, "gen_10")
+
+    df   = pop2df.pops2df(pops)
+    '''
     dl     = []
     INFO   = False
     infos  = []

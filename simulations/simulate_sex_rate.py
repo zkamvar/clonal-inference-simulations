@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python3
 
 # Useful for importing any python modules I have in the "modules" directory.
 # http://stackoverflow.com/a/35259170/2752888

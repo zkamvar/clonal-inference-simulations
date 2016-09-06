@@ -1,8 +1,8 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python3
 
 import sys, os, re
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'modules'))
-import pop2feather as pf
+import pop2df as ptd
 import pandas as pd
 import feather
 import argparse
@@ -49,7 +49,7 @@ parser.add_argument(
 
 
 def ruffle(pops, out, fname, zip):
-    df = pf.pops2df(pops)
+    df =ptd.pops2df(pops)
     outname = out + "/" + fname + ".feather"
     print("writing file " + outname)
     feather.write_dataframe(df, outname)
@@ -82,14 +82,14 @@ if __name__ == '__main__':
             continue
         if pars.regex is not None:
             fname += "_" + pars.regex
-            pops   = pf.get_field(pops, pars.regex)
+            pops   =ptd.get_field(pops, pars.regex)
         if pars.group_by is not None:
             finder  = re.compile('^.+?(' + pars.group_by + '_[^_]+).*?\.pop$')
             matches = set([re.sub(finder, r'\1', i) for i in pops])
             for g in matches:
                 tempfname = fname + "_group_" + g
                 print(tempfname)
-                pop_group = pf.get_field(pops, g)
+                pop_group =ptd.get_field(pops, g)
                 ruffle(pop_group, pars.out, tempfname, pars.zip)
         else:
             ruffle(pops, pars.out, fname, pars.zip)

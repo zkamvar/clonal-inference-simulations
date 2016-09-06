@@ -100,11 +100,12 @@ optional arguments:
                         evolved. (default: 100)
 ```
 
-## Modules
+## [Modules][modules]
 
-The [`modules/`][modules] directory
+The `modules/` directory contains python scripts that can be loaded
+as modules for classes and functions.
 
-#### random_alleles.py
+#### [random_alleles.py][random_alleles]
 
 This module implements two classes, 
 
@@ -113,7 +114,18 @@ This module implements two classes,
  - *zk_loci* contains a whole bunch of *zk_locus* classes. This will provide an
    accessor to all of the loci names, allele names, allele frequencies, etc.
 
-## Simulation Scripts
+#### [zk_utils.py][zk_utils]
+
+This contains misc functions for evolution
+
+
+#### [pop2df.py][pop2df]
+
+This contains the code for converting population objects to pandas data frames
+with the function `pops2df()`.
+
+
+## [Simulation Scripts][simulations]
 
 The following scripts are used for the simulations. Again, they are to be run 
 from the top-level directory.
@@ -124,32 +136,22 @@ This will simulate populations with varying levels of sexual reproduction.
 Currently, there is no population structure for the populations, but this can
 change.
 
-## Old File Descriptions
 
+## [Organization][organizing]
 
-- `CFGenerator.py` will generate configuration files for the script. 
-- `multi_burnin.py` will generate named burnin files.
-- `burnin.py` will generate a burnin files named BURNIN.pop
-- `Sim_Rand_Seed.py` will simulate a population from a random seed population
-generated from `CFGenerator.py` and `multi_burnin.py`.
-- `Sim_Single_Seed.py` will simulate a population from a seed titled `BURNIN.pop`
-generated from `burnin.py`
-- `Rand_Batches.pl` will perform burnins and then run all simulations in batch. 
-- `gather_finished.sh` will gather all of the finished simulation files into a
-single directory.
-- `demo_script.py` serves as scratch space
+This directory contains scripts used for organizing and transferring the output.
 
+#### [pop2feather.py][pop2feather]
 
-## Original workflow/implementation
-
-The original way this was done was to generate configuration files with
-`CFGenerator.py` and then to use `Rand_Batches.pl` to first generate all of the
-burnin populations. The point of the burnins was to have populations undergo
-sexual recombination for 1000 generations to ensure equilibrium. After the
-burnins were generated, all of the simulations would begin under the specified
-parameters.
-
+This will convert the populations to the [feather format][feather], which allows
+crosstalk between python and R for faster read/write than traditional csv.
 
 [conda]: http://conda.pydata.org/docs/intro.html
 [modules]: ./modules
 [simulations]: ./simulations
+[random_alleles]: ./modules/random_alleles.py
+[zk_utils]: ./modules/zk_utils.py
+[pop2df]: ./modules/pop2df.py
+[pop2feather]: ./organizing/pop2feather.py
+[organizing]: ./organizing
+[feather]: https://blog.rstudio.org/2016/03/29/feather/
