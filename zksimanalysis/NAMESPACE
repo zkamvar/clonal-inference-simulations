@@ -3,3 +3,6 @@
 export(example_data)
 export(feather2genind)
 export(tidy_ia)
+import(dplyr)
+import(feather)
+import(poppr)

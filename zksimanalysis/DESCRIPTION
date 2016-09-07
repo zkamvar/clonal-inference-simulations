@@ -12,6 +12,8 @@ Depends:
     poppr (>= 2.2.1),
     feather (>= 0.3.0),
     dplyr (>= 0.5.0)
+Suggests:
+	tidyr
 Remotes: grunwaldlab/poppr
 License: MIT + file LICENSE
 Encoding: UTF-8
