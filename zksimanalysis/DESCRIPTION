@@ -12,12 +12,14 @@ Depends:
     adegenet (>= 2.0.2),
     poppr (>= 2.2.1),
     feather (>= 0.3.0),
-    dplyr (>= 0.5.0)
+    dplyr (>= 0.5.0),
+    vcfR (>= 1.2.0)
 Suggests:
 	tidyr
 Remotes: 
   grunwaldlab/poppr,
-  thibautjombart/adegenet
+  thibautjombart/adegenet,
+  knausb/vcfR
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

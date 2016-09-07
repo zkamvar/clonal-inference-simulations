@@ -18,4 +18,5 @@
 #' @import poppr
 #' @import dplyr
 #' @import feather
+#' @import vcfR
 NULL

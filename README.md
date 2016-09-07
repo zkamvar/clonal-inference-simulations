@@ -50,7 +50,7 @@ The default version of g++ on the CGRB is 4.4, which is not great since both
 4.7. Luckily, there is a workaround. It turns out that there are developer tools
 installed: http://superuser.com/a/542091
 
-Matthew Peterson suggested this to utilize the correct versions:
+Matthew Peterson, (whom I owe a :beer:) suggested this to utilize the correct versions:
 
 ```sh
 $ bash; source /opt/centos/devtoolset-1.1/enable; gcc --version
