@@ -25,6 +25,9 @@ a genind object
 Convert a feather file to a genind object
 }
 \examples{
+ex  <- example_data()
+gid <- feather2genind(ex)
+gid
 
 }
 
