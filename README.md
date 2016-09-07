@@ -34,6 +34,16 @@ conda install numpy
 pip install feather-format # for transfer between python and R
 ```
 
+## R package
+
+To facilitate analysis of the simulations, I've written an R package called
+"zksimanalysis". It can be installed from the root directory in R with:
+
+```r
+devtools::install("zksimanalysis")
+```
+
+
 ## Current workflow/implementation
 
 (2016-08-18)
