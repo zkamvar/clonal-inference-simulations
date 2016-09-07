@@ -43,6 +43,29 @@ To facilitate analysis of the simulations, I've written an R package called
 devtools::install("zksimanalysis")
 ```
 
+### Installing on the CGRB cluster (CentOS 6.6)
+
+The default version of g++ on the CGRB is 4.4, which is not great since both
+*feather* and *vcfR* require C++11, which is only available in g++ version >= 
+4.7. Luckily, there is a workaround. It turns out that there are developer tools
+installed: http://superuser.com/a/542091
+
+Matthew Peterson suggested this to utilize the correct versions:
+
+```sh
+$ bash; source /opt/centos/devtoolset-1.1/enable; gcc --version
+# gcc (GCC) 4.7.2 20121015 (Red Hat 4.7.2-5)
+# Copyright (C) 2012 Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.  There is NO
+# warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+So, in order to install this on the CGRB, use:
+
+
+```sh
+SGE_Batch -r install_zksimanalysis -c 'bash; source /opt/centos/devtoolset-1.1/enable; R -e "devtools::install(\"zhian_simulations/zksimanalysis\")"'
+```
 
 ## Current workflow/implementation
 
