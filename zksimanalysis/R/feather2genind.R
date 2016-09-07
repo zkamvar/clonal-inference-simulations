@@ -37,20 +37,22 @@ feather2genind <- function(ff, locus_prefix = "Locus", sample = 50, genclone = T
 #' data(nancycats)
 #' nancycats %>%
 #'   seppop() %>%
-#'   lapply(ia_permute, sample = 99, hist = FALSE) %>%
+#'   lapply(tidy_ia, sample = 99, hist = FALSE) %>%
 #'   bind_rows
-ia_permute <- function(gid, ...){
+tidy_ia <- function(gid, ...){
   res <- poppr::ia(gid, ..., valuereturn = TRUE)
   vals <- res[[1]]
   pops <- popNames(gid)
   pops <- if (length(pops) > 1) list(pops) else pops
-  out <- list(Ia    = ~vals["Ia"],
-              p.Ia  = ~vals["p.Ia"],
-              rbarD = ~vals["rbarD"],
-              p.rD  = ~vals["p.rD"],
-              sample.ia = ~list(res[[2]]$Ia),
-              sample.rd = ~list(res[[2]]$rbarD),
-              pop = ~pops
+  out <- list(Ia         = ~vals["Ia"],
+              p.Ia       = ~vals["p.Ia"],
+              rbarD      = ~vals["rbarD"],
+              p.rD       = ~vals["p.rD"],
+              samples.ia = ~list(res[[2]]$Ia),
+              samples.rd = ~list(res[[2]]$rbarD),
+              pop        = ~pops
               )
   return(data_frame_(out))
 }
+
+
