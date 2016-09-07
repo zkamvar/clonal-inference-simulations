@@ -14,6 +14,7 @@
 #'  \item \code{\link{example_data}}
 #' }
 #'
+#' @import adegenet
 #' @import poppr
 #' @import dplyr
 #' @import feather

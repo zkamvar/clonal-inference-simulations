@@ -9,12 +9,15 @@ Description: This is a personal package to analyze simulations for the index of
     association.
 Depends:
     R (>= 3.3.1),
+    adegenet (>= 2.0.2),
     poppr (>= 2.2.1),
     feather (>= 0.3.0),
     dplyr (>= 0.5.0)
 Suggests:
 	tidyr
-Remotes: grunwaldlab/poppr
+Remotes: 
+  grunwaldlab/poppr,
+  thibautjombart/adegenet
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
