@@ -8,7 +8,7 @@ Authors@R: c(person(c("Zhian", "N."), "Kamvar", role = c("cre", "aut"), email =
 Description: This is a personal package to analyze simulations for the index of
     association.
 Depends:
-    R (>= 3.3.1),
+    R (>= 3.2.0),
     adegenet (>= 2.0.2),
     poppr (>= 2.2.1),
     feather (>= 0.3.0),
