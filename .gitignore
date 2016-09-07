@@ -5,3 +5,5 @@
 deleteme.csv
 Rplots.pdf
 *.pop
+pillow/*
+.Rhistory
