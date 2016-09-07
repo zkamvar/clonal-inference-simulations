@@ -25,9 +25,20 @@ a genind object
 Convert a feather file to a genind object
 }
 \examples{
+library("tidyr")
 ex  <- example_data()
 gid <- feather2genind(ex)
+# split the population name into its components
+ex_run  <- "twenty_loci([0-9]+?)/"
+ex_seed <- "seed_([0-9]+?)_"
+ex_sex  <- "sex_([0-9.]+?)_"
+ex_gen  <- "gen_([0-9]+?)_"
+ex_rep  <- "rep_([0-9]+?).pop"
+strata(gid) <- strata(gid) \%>\%
+  extract(pop, c("run", "seed", "sexrate", "gen", "rep"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep),
+          remove = FALSE)
+setPop(gid) <- ~run/rep/seed
 gid
-
 }
 
