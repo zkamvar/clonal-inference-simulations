@@ -6,11 +6,9 @@
 theFile=$1
 theScript=$2
 
-# Asses whether or not there are files in the temporary directory.
-anyFiles=$(ls $TMPDIR)
 
 # If there are, create a new directory and assign that to TMPDIR
-if [ $anyFiles != "" ]; then
+if [ "$(ls -A $TMPDIR)" ]; then
 	mkdir $TMPDIR/znk
 	TMPDIR=$TMPDIR/znk
 fi
