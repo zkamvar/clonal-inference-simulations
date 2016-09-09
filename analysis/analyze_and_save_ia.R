@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
+#
 suppressPackageStartupMessages(library("optparse"))
+suppressPackageStartupMessages(library("zksimanalysis"))
+
 option_list <- list(
     make_option(c("-f", "--files"), action = "store", type = "character",
                 help = "Feather formatted file(s) to analyze"),
@@ -9,5 +12,7 @@ option_list <- list(
     make_option(c("-p", "--permutations"), action = "store", type = "integer",
                 default = 99L,
                 help = "Number of permuatations to perform to calculate significance."),
-
 )
+
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
