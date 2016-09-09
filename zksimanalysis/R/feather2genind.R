@@ -53,7 +53,16 @@ feather2genind <- function(ff, locus_prefix = "Locus", sample = 50, genclone = T
 #'   seppop() %>%
 #'   lapply(tidy_ia, sample = 99, hist = FALSE) %>%
 #'   bind_rows
-tidy_ia <- function(gid, ...){
+tidy_ia <- function(gid, ..., verbose = TRUE){
+  if (verbose){
+    msg <- "Calculating ia for"
+    if (nPop(gid) == 1){
+      msg <- paste(msg, popNames(gid), "...")
+    } else {
+      msg <- paste(msg, nInd(gid), "samples ...")
+    }
+    message(msg)
+  }
   res <- poppr::ia(gid, ..., valuereturn = TRUE)
   vals <- res[[1]]
   pops <- popNames(gid)

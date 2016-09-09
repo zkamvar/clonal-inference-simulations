@@ -4,7 +4,7 @@
 \alias{tidy_ia}
 \title{permute the index of assocation and return a tibble}
 \usage{
-tidy_ia(gid, ...)
+tidy_ia(gid, ..., verbose = TRUE)
 }
 \arguments{
 \item{gid}{a genind or genclone object}
