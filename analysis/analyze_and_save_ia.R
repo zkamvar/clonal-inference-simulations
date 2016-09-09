@@ -2,36 +2,49 @@
 #
 suppressPackageStartupMessages(library("optparse"))
 suppressPackageStartupMessages(library("zksimanalysis"))
+suppressPackageStartupMessages(library("purrr"))
+"Usage: analyze_and_save_ia.R [-s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS] -o PATH -f FILES...
 
-option_list <- list(
-    make_option(c("-f", "--files"), action = "store", type = "character",
-                default = NULL,
-                help = "Feather formatted file(s) to analyze"),
-    make_option(c("-s", "--seed"), action = "store", type = "integer",
-                default = 20160909),
-    make_option(c("-n", "--nsample"), action = "store", type = "integer",
-                default = c(10L, 25L, 50L, 100L),
-                help = "Number of individuals to randomly sample from each population"),
-    make_option(c("-p", "--permutations"), action = "store", type = "integer",
-                default = 99L,
-                help = "Number of permuatations to perform to calculate significance."),
-    make_option(c("-l", "--locus"), action = "store", type = "character",
-                default = "Locus",
-                help = "Prefix for identifying locus columns")
-)
+Options:
+ -s SEED, --seed=SEED
+    random seed [default: 20160909]
+ -n NSAMPLE..., --nsample=NSAMPLE...
+    number of samples/population [default: 10 25 50 100]
+ -p PERMUTATIONS, --permutations=PERMUTATIONS
+    number of permutations for the index of association [default: 99]
+ -l LOCUS, --locus=LOCUS
+    prefix to identify the locus columns [default: Locus]
+ -o PATH, --outdir=PATH
+    the directory in which to store the rdata files [default: ~/rda_files]
+ -f FILES..., --files=FILES...
+    feather-format files to read" -> doc
 
-opt_parser <- OptionParser(option_list = option_list)
-opt        <- parse_args(opt_parser)
+docopt(doc)
 
 if (is.null(opt$files)){
   stop("must specify a file")
 }
 
+totsamp <- sum(opt$nsample)
+if (!dir.exists(opt$outdir)){
+  dir.create(opt$outdir)
+}
+
 for (f in opt$files){
   set.seed(opt$seed)
-  datalist <- lapply(f, feather2genind, locus_prefix = opt$locus, sample = opt$nsample) %>%
-    lapply(setPop, ~pop) %>%
-    lapply(seppop) %>%
-    lapply(lapply(tidy_ia, sample = opt$permutations, hist = FALSE, quiet = TRUE) %>% bind_rows()) %>%
+  indat <- feather2genind(f, locus_prefix = opt$locus, sample = totsamp) %>%
+    setPop(~pop)
+  subpops <- rep(opt$nsample, nPop(indat)) %>%
+    rep(., .) %>%
+    paste0("sam_", .)
+  res <- indat %>%
+    addStrata(data.frame(sample_size = subpops)) %>%
+    setPop(~pop/sample_size) %>%
+    seppop() %>%
+    map(tidy_ia, sample = opt$permutations, hist = FALSE, quiet = FALSE) %>%
     bind_rows()
+  outf <- make.names(f)
+  assign(x = outf, res)
+  outf_location <- paste0(opt$outdir, "/", outf, ".rda")
+  save(list = outf, file = outf_location)
 }
