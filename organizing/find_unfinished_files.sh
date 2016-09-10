@@ -7,6 +7,17 @@
 # Use:
 # bash zhian_simulations/organizing/find_unfinished_files.sh <path> <error message> <outfile>
 
+if [ $# -lt 3 ]; then
+	echo
+	echo "Find unfinished array files and create a new text file for running"
+	echo
+	echo "Usage:"
+	echo
+	echo "    bash find_unfinished_files.sh <path> <error message> <outfile>"
+	echo
+	exit
+fi
+
 dataDir=$1
 error=$2
 theFile=$3
