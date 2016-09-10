@@ -29,7 +29,7 @@ feather2genind <- function(ff, locus_prefix = "Locus", sample = 50, genclone = T
   if (verbose) message(paste0("Reading ", ff, " ..."))
   fdf  <- feather::read_feather(ff) %>% group_by_(~pop) %>% sample_n(sample)
   if (verbose) message(paste0("Converting to genind/genclone ..."))
-  loci <- fdf %>% select_(~starts_with(locus_prefix))
+  loci <- fdf %>% ungroup() %>% select_(~starts_with(locus_prefix))
   sta  <- fdf %>% select_(~-starts_with(locus_prefix))
   gid  <- df2genind(loci, sep = "/", strata = sta)
   gid  <- if (genclone) as.genclone(gid)
