@@ -84,11 +84,18 @@ for (f in opt$FILE){
     map(tidy_ia, sample = opt$permutations, keepdata = opt$keep,
         verbose = opt$verbose, hist = FALSE, quiet = !opt$debug) %>%
     bind_rows()
-  outf <- make.names(f)
+  outf     <- make.names(f)
+  outfDATA <- paste0(outf, ".DATA")
+  resDATA  <- res %>% select(dataset)
+  res      <- res %>% select(-dataset)
   assign(x = outf, res)
-  outf_location <- paste0(opt$output, "/", outf, ".rda")
-  if (opt$verbose) message(paste("saving data to", outf_location))
+  assign(x = outfDATA, resDATA)
+  outf_location      <- paste0(opt$output, "/", outf, ".rda")
+  outf_data_location <- paste0(opt$output, "/", outfDATA, ".rda")
+  if (opt$verbose) message(paste("saving results to", outf_location))
   save(list = outf, file = outf_location)
+  if (opt$verbose) message(paste("saving data to", outf_data_location))
+  save(list = outfDATA, file = outf_data_location)
 }
 if (opt$verbose){
   options(width = 100)
