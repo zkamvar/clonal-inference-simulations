@@ -4,12 +4,14 @@
 \alias{listfun}
 \title{Apply a function on a single element list}
 \usage{
-listfun(x, f)
+listfun(x, f, ...)
 }
 \arguments{
 \item{x}{a single element list}
 
 \item{f}{a function to apply to the first element of x}
+
+\item{...}{any arguments that go with f}
 }
 \value{
 the output of f
@@ -18,7 +20,7 @@ the output of f
 This allows one to work with list columns in dplyr
 }
 \examples{
-x <- list(y = 1:10)
-listfun(x, sum)
+x <- list(y = c(1:10, NA))
+listfun(x, sum, na.rm = TRUE)
 }
 
