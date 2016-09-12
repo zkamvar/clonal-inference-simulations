@@ -10,3 +10,5 @@ python simulations/simulate_sex_rate.py --POPSIZE 10000 --nseed 9 --murate $LOCI
 python simulations/simulate_sex_rate.py --POPSIZE 10000 --nseed 10 --murate $LOCI --nloc 20 --outfile twenty_loci14 &
 python simulations/simulate_sex_rate.py --POPSIZE 10000 --nseed 9 --murate $LOCI --nloc 20 --outfile twenty_loci15 &
 python simulations/simulate_sex_rate.py --POPSIZE 10000 --nseed 10 --murate $LOCI --nloc 20 --outfile twenty_loci16
+
+python organizing/dir2feather.py --prefix twenty_loci --group_by sex -z
