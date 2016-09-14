@@ -4,6 +4,11 @@ import numpy as np
 import math as math
 import sys
 
+class snps:
+	def __init__(self, nloc = 100, mu = 1e-5, nchrom = 10)
+	self.nloc = nloc
+	self.mu = mu
+	self.nchrom = nchrom
 
 class zk_locus:
 	"""
