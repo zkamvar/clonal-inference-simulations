@@ -1,4 +1,5 @@
 library('zksimanalysis')
+library('magrittr')
 library('viridis')
 library('dplyr')
 library('tidyr')
@@ -6,23 +7,20 @@ library('purrr')
 library('ggplot2')
 
 datfiles <- dir("rda_files/", full.names = TRUE) %>% grep("feather.rda$", ., value = TRUE)
-twenties <- grep("twenty", datfiles, value = TRUE)
-full     <- grep("twenty", datfiles, value = TRUE, invert = TRUE)
 
-
-for (i in full){
+for (i in datfiles){
   cat(i, "\n")
   load(i)
 }
 
-ex_run  <- "pt([0-9]+?)/"
+ex_run  <- "twenty_loci([0-9]+?)/"
 ex_seed <- "seed_([0-9]+?)_"
 ex_sex  <- "sex_([0-9.]+?)_"
 ex_gen  <- "gen_([0-9]+?)_"
 ex_rep  <- "rep_([0-9]+?).pop"
 ex_samp <- "_sam_([0-9]+?)$"
 
-datnames <- grep("^X.+?_pt.+?feather$", ls(), value = TRUE)
+datnames <- grep("^X.+?_twenty.+?feather$", ls(), value = TRUE)
 
 datalist <- datnames %>%
   lapply(get) %>%
@@ -56,6 +54,8 @@ ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
   facet_wrap(~sample, nrow = 1)
 
+p1 <- vals %>%
+  filter(p.rD == 1) %T>% I()
 
 
 

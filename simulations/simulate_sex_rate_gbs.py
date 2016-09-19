@@ -24,6 +24,18 @@ parser.add_argument(
     default = 1000
     )
 parser.add_argument(
+    "--nloc",
+    type = int,
+    help = "Number of loci in the genome",
+    default = 10000
+    )
+parser.add_argument(
+    "--nchrom",
+    type = int,
+    help = "Number of chromosomes in the genome",
+    default = 10
+    )
+parser.add_argument(
     "--outfile", 
     type = str,
     help = "Set the name of the output file.",
@@ -57,9 +69,8 @@ parser.add_argument(
 parser.add_argument(
     "--murate", 
     type = float,
-    nargs = "+",
     help = "mutation rate per locus",
-    default = [1e-05]
+    default = 1e-05
     )
 parser.add_argument(
     "--rep", 
@@ -110,11 +121,7 @@ def mix_mating(sexrate):
     rand_mate = sim.RandomMating(
         numOffspring=(sim.UNIFORM_DISTRIBUTION, 1, 3),
         ops = [
-            # sim.Stat(numOfMales = True, popSize = True),
-            # sim.IfElse('numOfMales == popSize or numOfMales == 0',
-            #     sim.CloneGenoTransmitter(),
-            #     sim.MendelianGenoTransmitter()
-            #     ),
+            sim.Recombinator(rates = 0.01),
             sim.MendelianGenoTransmitter(),
             sim.PedigreeTagger(infoFields=['mother_id', 'father_id']),
             sim.PyTagger(update_sex_proj),
@@ -141,12 +148,10 @@ def mix_mating(sexrate):
 
 def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep, infos, seed):
 
-    nloc = loci.nloc()
+    nloc = loci.nloc
     pop = sim.Population(
         size        = POPSIZE, 
-        loci        = [1]*nloc, 
-        lociNames   = loci.get_locus_names(), 
-        alleleNames = loci.get_allele_names(),
+        loci        = loci.get_loci(),
         infoFields  = infos
     )
     ng = len(str(GENERATIONS))
@@ -159,14 +164,13 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
 
     # Init ops
     # ==========================================================================
-    freqs = loci.get_frequencies()
     inits = [
         sim.Stat(effectiveSize=range(nloc), vars='Ne_temporal_base'),
         sim.InitSex(),                      # initialize sex for the populations
         sim.InitInfo(0, infoFields = infos) # set information fields to 0
     ]
     # initialize genotypes for each locus separately.
-    inits += [sim.InitGenotype(freq = freqs[i], loci = i) for i in range(nloc)]
+    inits += [sim.InitGenotype(prop = [0.5, 0.5])]
 
 
     # Pre Ops
@@ -174,7 +178,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     prelist = [
         sim.Stat(numOfMales = True, popSize = True),
         sim.TerminateIf('numOfMales == 0 or numOfMales == popSize'),
-        sim.StepwiseMutator(rates = loci.get_mu(), loci = range(nloc)),
+        sim.SNPMutator(u = loci.mu, v = loci.mu),
         sim.IdTagger(),
         ]
 
@@ -196,15 +200,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     # Joining the statistics together with pipes.
     stats = " | ".join([head, popsize, males, generations, reps, Ne, foot])
 
-    # Heterozygosity must be evaluate for each locus. This is a quick and dirty
-    # method of acheiving display of heterozygosity at each locus. 
-    # locrange = map(str, range(nloc))
-    # lochet = '], heteroFreq['.join(locrange)
-
-
     # The string for the evaluation of the stats.
-    # stateval = " % (popSize, numOfMales, heteroFreq["+lochet+"], gen, rep)"
-    # stateval  = " % "
     stateval = ".format("
     stateval += "popSize, "
     stateval += "numOfMales, "
@@ -320,7 +316,7 @@ if __name__ == '__main__':
     os.chdir(pars.outfile)
 
     for s in range(pars.nseed):
-        loci = generate_loci(pars.nloc, pars.murate, pars.amax, pars.amin)
+        loci = ra.snps(nloc = pars.nloc, nchrom = pars.nchrom, mu = pars.murate)
         for i in pars.sexrate:
             sim_partial_clone(loci, i, pars.STEPS, pars.GENERATIONS, \
                 pars.POPSIZE, True, pars.rep, infos, s)
