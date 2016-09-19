@@ -3,22 +3,33 @@
 import sys, os, re
 # Setting up options
 import simuOpt
-simuOpt.setOptions(optimized = False, 
-    gui = False, 
-    debug = 'DBG_WARNING',
-    alleleType = 'long', 
-    quiet = False, 
-    numThreads = 0)
+# simuOpt.setOptions(optimized = False, 
+#     gui = False, 
+#     debug = 'DBG_WARNING',
+#     alleleType = 'long', 
+#     quiet = False, 
+#     numThreads = 0)
 import simuPOP as sim
 import numpy as np
 import pandas as pd
 
 
-def trim_lociNames(pop):
+def trim_lociNames(pop, snps = False):
     '''
     Trim the last two elements of the locus names
     '''
-    return([l[:-2] for l in pop.lociNames()])
+    if not snps:
+        return([l[:-2] for l in pop.lociNames()])
+    else:
+        idx    = pop.indexesOfLoci()
+        out    = list()
+        chroms = range(pop.numChrom())
+        for c in chroms:
+            for l in range(pop.chromBegin(c), pop.chromEnd(c)):
+                out += ["_".join([str(c), str(idx[l])])]
+        return(out)
+
+
 
 def get_field(pops, regex = "gen_10"):
     '''
@@ -34,7 +45,7 @@ def get_field(pops, regex = "gen_10"):
     pops = [x[0] for x in pops if len(x) > 0]
     return(pops)
 
-def pop2dictlist(pop, popname = None):
+def pop2dictlist(pop, popname = None, snps = False):
     '''
     Convert pop data to a list of dictionaries
 
@@ -62,7 +73,7 @@ def pop2dictlist(pop, popname = None):
     '''
     nloc    = pop.totNumLoci()
     # The locus names need to be stripped of the repeat lengths
-    lnames  = trim_lociNames(pop)
+    lnames  = trim_lociNames(pop, snps = snps)
     infos   = pop.infoFields()
     ploid   = pop.ploidy()
     outlist = []
@@ -77,12 +88,16 @@ def pop2dictlist(pop, popname = None):
         # locus data
         for x in range(nloc):
             # list comprehension of alleles for each homologous chromosome
-            geno = "/".join([str(ind.allele(x, p) + 1) for p in range(ploid)])
+            geno = [ind.allele(x, p) for p in range(ploid)]
+            if not snps:
+                geno = "/".join([str(g + 1) for g in geno])
+            else:
+                geno = sum(geno)
             indict[lnames[x]] = geno
         outlist.append(indict)
     return(outlist)
 
-def pops2df(pops):
+def pops2df(pops, snps = False):
     '''
     Convert a list of populations to a pandas DataFrame
 
@@ -112,9 +127,9 @@ def pops2df(pops):
     # print(os.getcwd())
     for p in pops:
         pop = sim.loadPopulation(p)
-        dl += pop2dictlist(pop, p)
+        dl += pop2dictlist(pop, p, snps = snps)
         if not INFO:
-            lnames += trim_lociNames(pop)
+            lnames += trim_lociNames(pop, snps = snps)
             infos  += pop.infoFields()
             INFO   = True
     cols = infos + ["sex", "pop"] + lnames
