@@ -5,13 +5,14 @@ suppressPackageStartupMessages(library("stringr"))
 ================================================================================
 Parse feather formatted data, analyze the index of association and save the result
 
-Usage: analyze_and_save_ia.R [-dvk -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
+Usage: analyze_and_save_ia.R [-dvkc -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
 
 Options:
  -h,--help                                    show this message and exit
  -v,--verbose                                 record progress
  -d,--debug                                   record EVERYTHING
  -k,--keep                                    keep the data in the resulting data frame
+ -c,--clonecorrect                            add values from clone-correction
  -s SEED,--seed=SEED                          random seed [default: 20160909]
  -n NSAMPLE...,--nsample=NSAMPLE...           number of samples/population (single quoted list of integers) [default: 10 25 50 100]
  -p PERMUTATIONS,--permutations=PERMUTATIONS  number of permutations for the index of association [default: 99]
@@ -81,12 +82,18 @@ for (f in opt$FILE){
     addStrata(data.frame(sample_size = subpops)) %>%
     setPop(~pop/sample_size) %>%
     seppop() %>%
-    map(tidy_ia, sample = opt$permutations, keepdata = opt$keep,
-        verbose = opt$verbose, hist = FALSE, quiet = !opt$debug) %>%
+    map(tidy_ia, 
+        sample   = opt$permutations, 
+        keepdata = opt$keep,
+        cc       = opt$clonecorrect, 
+        strata   = ~pop/sample_size, 
+        verbose  = opt$verbose, 
+        hist     = FALSE, 
+        quiet    = !opt$debug) %>%
     bind_rows()
   outf     <- make.names(f)
   outfDATA <- paste0(outf, ".DATA")
-  resDATA  <- res %>% select(dataset)
+  resDATA  <- res %>% select(dataset, pop)
   res      <- res %>% select(-dataset)
   assign(x = outf, res)
   assign(x = outfDATA, resDATA)

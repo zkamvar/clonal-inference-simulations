@@ -2,9 +2,10 @@
 % Please edit documentation in R/tidy_ia.R
 \name{tidy_ia}
 \alias{tidy_ia}
-\title{Generate a tidy data frame of the index of assocation}
+\title{Generate a tidy data frame of the index of association}
 \usage{
-tidy_ia(gid, ..., verbose = TRUE, keepdata = TRUE)
+tidy_ia(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE,
+  strata = NA)
 }
 \arguments{
 \item{gid}{a genind or genclone object}
@@ -16,19 +17,25 @@ beginning of the analysis. \code{FALSE} suppresses this message.}
 
 \item{keepdata}{when \code{TRUE}, the data set is kept in a column called
 "dataset"}
+
+\item{cc}{return values of the clone-corrected data set (no re-sampling).}
+
+\item{strata}{the strata at which to clone-correct. Defaults to entire data
+set.}
 }
 \value{
 a tibble from the ia object
 }
 \description{
-Generate a tidy data frame of the index of assocation
+Generate a tidy data frame of the index of association
 }
 \examples{
 library('poppr')
-data(nancycats)
-nancycats \%>\%
+data(partial_clone)
+strata(partial_clone) <- data.frame(pop = pop(partial_clone))
+partial_clone \%>\%
   seppop() \%>\%
-  lapply(tidy_ia, sample = 99, hist = FALSE) \%>\%
-  bind_rows
+  lapply(tidy_ia, sample = 999, plot = FALSE) \%>\%
+  bind_rows()
 }
 
