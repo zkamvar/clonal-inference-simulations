@@ -31,10 +31,11 @@ Generate a tidy data frame of the index of association
 }
 \examples{
 library('poppr')
-data(nancycats)
-nancycats \%>\%
+data(partial_clone)
+strata(partial_clone) <- data.frame(pop = pop(partial_clone))
+partial_clone \%>\%
   seppop() \%>\%
-  lapply(tidy_ia, sample = 99, hist = FALSE) \%>\%
-  bind_rows
+  lapply(tidy_ia, sample = 999, plot = FALSE) \%>\%
+  bind_rows()
 }
 
