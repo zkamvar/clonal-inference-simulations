@@ -27,7 +27,11 @@
 #' gid
 feather2genind <- function(ff, locus_prefix = "Locus", sample = 50, genclone = TRUE, verbose = FALSE){
   if (verbose) message(paste0("Reading ", ff, " ..."))
-  fdf  <- feather::read_feather(ff) %>% group_by_(~pop) %>% sample_n(sample)
+  if (!is.null(sample)){
+    fdf  <- feather::read_feather(ff) %>% group_by_(~pop) %>% sample_n(sample)  	
+  } else {
+    fdf <- feather::read_feather(ff) %>% group_by_(~pop)
+  }
   if (verbose) message(paste0("Converting to genind/genclone ..."))
   loci <- fdf %>% ungroup() %>% select_(~starts_with(locus_prefix))
   sta  <- fdf %>% select_(~-starts_with(locus_prefix))
