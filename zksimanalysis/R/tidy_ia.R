@@ -1,4 +1,4 @@
-#' Generate a tidy data frame of the index of assocation
+#' Generate a tidy data frame of the index of association
 #'
 #' @param gid a genind or genclone object
 #' @param ... any parameters to be passed to \code{\link[poppr]{ia}}
@@ -6,6 +6,9 @@
 #'   beginning of the analysis. \code{FALSE} suppresses this message.
 #' @param keepdata when \code{TRUE}, the data set is kept in a column called
 #'   "dataset"
+#' @param cc return values of the clone-corrected data set (no re-sampling).
+#' @param strata the strata at which to clone-correct. Defaults to entire data
+#'   set.
 #'
 #' @return a tibble from the ia object
 #' @export
@@ -17,7 +20,7 @@
 #'   seppop() %>%
 #'   lapply(tidy_ia, sample = 99, hist = FALSE) %>%
 #'   bind_rows
-tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE){
+tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE, strata = NA){
   if (verbose){
     msg <- "Calculating ia for"
     if (nPop(gid) == 1){
@@ -26,6 +29,9 @@ tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE){
       msg <- paste(msg, nInd(gid), "samples ...")
     }
     message(msg)
+  }
+  if (cc){
+    rescc <- gid %>% clonecorrect(strata = strata) %>% poppr::ia()
   }
   res  <- poppr::ia(gid, ..., valuereturn = TRUE)
   pops <- popNames(gid)
@@ -45,6 +51,12 @@ tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE){
                 rbarD = ~res["rbarD"],
                 pop   = ~pops
                 )
+  }
+  if (cc){
+    ccout <- list(Iacc    = ~rescc["Ia"],
+                  rbarDcc = ~rescc["rbarD"]
+                  )
+    out <- c(out, ccout)
   }
   if (keepdata){
     out <- c(out, list(dataset = ~list(gid)))
