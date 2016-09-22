@@ -55,7 +55,7 @@ ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   facet_wrap(~sample, nrow = 1)
 
 p1 <- vals %>%
-  filter(p.rD == 1) %T>% I()
+  filter(p.rD == 1, !is.na(rbarD))
 
 
 
