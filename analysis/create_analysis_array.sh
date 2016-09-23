@@ -21,7 +21,7 @@ fi
 zipDir=$1
 theScript=$2
 theFile=$3
-controlScript="bash zhian_simulations/analysis/unzip_and_analyze.sh "
+controlScript="bash unzip_and_analyze.sh "
 
 if [ -e "$theFile" ]; then
 	if [ -s "$theFile" ]; then
