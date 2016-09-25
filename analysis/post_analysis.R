@@ -6,29 +6,26 @@ library('purrr')
 library('ggplot2')
 
 datfiles <- dir("rda_files/", full.names = TRUE) %>% grep("feather.rda$", ., value = TRUE)
-twenties <- grep("twenty", datfiles, value = TRUE)
-full     <- grep("twenty", datfiles, value = TRUE, invert = TRUE)
 
-
-for (i in full){
+for (i in datfiles){
   cat(i, "\n")
   load(i)
 }
 
-ex_run  <- "pt([0-9]+?)/"
+ex_run  <- "twenty_loci([0-9]+?)/"
 ex_seed <- "seed_([0-9]+?)_"
 ex_sex  <- "sex_([0-9.]+?)_"
 ex_gen  <- "gen_([0-9]+?)_"
 ex_rep  <- "rep_([0-9]+?).pop"
 ex_samp <- "_sam_([0-9]+?)$"
 
-datnames <- grep("^X.+?_pt.+?feather$", ls(), value = TRUE)
+datnames <- grep("^X.+?twenty.+?feather$", ls(), value = TRUE)
 
 datalist <- datnames %>%
   lapply(get) %>%
   setNames(datnames) %>%
   bind_rows(.id = "source") %>%
-  select(Ia:pop, source) %>%
+  select(Ia:rbarDcc, source) %>%
   extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
