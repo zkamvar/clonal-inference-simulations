@@ -51,7 +51,7 @@ parser.add_argument(
     "--GENERATIONS", 
     type = int,
     help = "Number of generations to evolve.",
-    default = 10001
+    default = 10000
     )
 parser.add_argument(
     "--STEPS", 
@@ -153,22 +153,6 @@ def mix_mating(sexrate):
         )
     return(sim.HeteroMating([rand_mate, clone_mate]))
 
-def saveSampleReps(the_simulator, generations, maxgen, samp, outfile, sampstring):
-    nrep = range(the_simulator.numRep())
-    for pop, gen, rep in zip(the_simulator.populations(), generations, nrep):
-        # Ensuring that we draw without replacement
-        if gen < maxgen:
-            continue
-        p = drawRandomSample(pop, sum(s))
-        current = 0
-        for s in samp:
-            current += s
-            outfile = outfile + "_sam_{:"+sampstring+"d}.pop"
-            outfile = outfile.format(gen, rep, s)
-            out = p.extractIndividuals(indexes = range(current, s))
-            out.SavePopulation(outfile)
-
-
 def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep, infos, seed, samp):
 
     nloc = loci.nloc
@@ -180,12 +164,19 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     ng = len(str(GENERATIONS))
     np = len(str(POPSIZE))
     ns = len(str(seed))
-    sm = len(str(samp - 1))
+    sm = len(str(max(samp)))
     NG = "0"+str(ng)
     NP = "0"+str(np)
     NS = "0"+str(ns)
     SM = "0"+str(sm)
     NE = str(np + 2)
+    if SAVEPOPS is True:
+        seedf     = "seed_{:" + NS + "d}"
+        sexf      = "_sex_{:1.4f}"
+        sexseed   = seedf.format(seed) + sexf.format(sexrate)
+        outfile   = "!'"+ sexseed + "_gen_{:"+NG+"d}_rep_{:02d}.pop'"
+        outfile   = outfile + ".format(gen, rep)"
+
 
     # Init ops
     # ==========================================================================
@@ -196,6 +187,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     ]
     # initialize genotypes for each locus separately.
     inits += [sim.InitGenotype(prop = [0.5, 0.5])]
+    inits += [sim.SavePopulation(output = outfile)]
 
 
     # Pre Ops
@@ -252,13 +244,13 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
         # sim.PyOperator(func = reassign_parents, step = STEPS),
     ]
 
-    finallist = []
+    finallist = [
+        sim.IfElse("gen >= "+str(GENERATIONS),
+            ifOps = [sim.SavePopulation(output = outfile)]
+        )
+    ]
 
-    if SAVEPOPS is True:
-        seedf     = "seed_{:" + NS + "d}"
-        sexf      = "_sex_{:1.4f}"
-        sexseed   = seedf.format(seed) + sexf.format(sexrate)
-        outfile   = "!'"+ sexseed + "_gen_{:"+NG+"d}_rep_{:02d}.pop'"
+
     # Argument Compilation
     # ==========================================================================
     # The arguments to sim.evolve can be stored as a dict and be passed as 
@@ -277,11 +269,11 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     sim.IdTagger().reset(1) # IdTagger must be reset before evolving.
     simu = sim.Simulator(pop, rep = rep)
 
-    # Saving initial simulations
-    repcount = 0
-    for pop in simu.populations():
-        pop.SavePopulation(output = outfile + ".format(0, " + repcount + ")")
-        repcount += 1
+    # # Saving initial simulations
+    # repcount = 0
+    # for pop in simu.populations():
+    #     pop.save(outfile.format(0, repcount))
+    #     repcount += 1
 
     # Print a description of the evolution process for debugging
     print(sim.describeEvolProcess(**EVOL))
@@ -300,12 +292,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
     # generations that were evolved for each replicate. Here, we are grabbing
     # the populations that didn't evolve to the correct number of generations.
     pops = [x for x, y in zip(simu.populations(), evol) if y < GENERATIONS]
-    fin  = [x for x, y in zip(simu.populations(), evol) if y >= GENERATIONS]
     gens = [x for x in evol if x < GENERATIONS]
-
-    foutfile = "!'"+ sexseed + "_gen_{:"+NG+"d}_rep_{:02d}'"
-    saveSampleReps(simu, evol, GENERATIONS, samp, foutfile, SM)
-
     # 
     # Because we only want to finish out the evolution here, we put a cap on the
     # number of generations needed to evolve.
@@ -323,9 +310,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
                 )
             )
     resim = sim.Simulator(pops)
-    evol2 = resim.evolve(**EVOL)
-
-    saveSampleReps(resim, evol2, GENERATIONS, samp, foutfile, SM)
+    resim.evolve(**EVOL)
 
 # ==============================================================================
 # MAIN PROGRAM
