@@ -20,13 +20,15 @@ ex_gen  <- "gen_([0-9]+?)_"
 ex_rep  <- "rep_([0-9]+?).pop"
 ex_samp <- "_sam_([0-9]+?)$"
 
+
 datnames <- grep("^X.+?_twenty.+?feather$", ls(), value = TRUE)
+
 
 datalist <- datnames %>%
   lapply(get) %>%
   setNames(datnames) %>%
   bind_rows(.id = "source") %>%
-  select(Ia:pop, source) %>%
+  select(Ia:rbarDcc, source) %>%
   extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
