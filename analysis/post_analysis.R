@@ -53,6 +53,18 @@ ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
   facet_wrap(~sample, nrow = 1)
 
+ggplot(vals, aes(x = sexrate, y = rbarD - rbarDcc, color = log(p.rD))) +
+  geom_point(alpha = 0.25, position = "jitter") +
+  geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
+  scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
+  facet_wrap(~sample, nrow = 1)
 
-
+ggplot(vals, aes(x = rbarD, y = rbarDcc, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  xlab(expression(bar(r)[d])) +
+  ylab(expression(paste(bar(r)[d], " (clone-corrected)")))
 
