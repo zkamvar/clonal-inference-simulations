@@ -1,6 +1,6 @@
 Package: zksimanalysis
 Title: Analysis of Simulations
-Version: 0.1.1.9000
+Version: 0.2.0.9000
 Authors@R: c(person(c("Zhian", "N."), "Kamvar", role = c("cre", "aut"), email =
   "kamvarz@science.oregonstate.edu"),
   person(c("Niklaus", "J."), "Grunwald", role = c("ths", "ctb"), email =
@@ -13,7 +13,8 @@ Depends:
     poppr (>= 2.2.1),
     feather (>= 0.3.0),
     dplyr (>= 0.5.0),
-    vcfR (>= 1.2.0)
+    vcfR (>= 1.2.0),
+    poweRlaw (>= 0.60.3)
 Suggests:
 	tidyr
 Remotes:

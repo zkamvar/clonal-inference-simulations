@@ -1,3 +1,14 @@
+# zksimanalysis 0.2.0.9000
+
+## NEW FUNCTION
+
+* The new function `tidy_diversity()` will get diversity estimates and return
+  a tidy data frame with the estimates and their variances.
+  
+## NEW IMPORTS
+
+* poweRlaw is now imported.
+
 # zksimanalysis 0.1.1.9000
 
 * The `sample` argument for `feather2genind()` can now be NULL to read in the
