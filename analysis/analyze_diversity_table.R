@@ -69,7 +69,7 @@ uSimp <- function(x){
 
 # This estimates the slope of a log-log power law linear model.
 power_law_beta <- function(x){
-  if (length(x) == 1) return(NA_real_)
+  if (sum(x > 0) <= 1) return(NA_real_)    # Can't calculate for a single MLG.
   xpow <- displ(x[x > 0])                  # Generate the distribution
   xpow$setPars(estimate_pars(xpow))        # Estimate the parameters
   xdat <- plot(xpow, draw = FALSE)         # Extract the data
