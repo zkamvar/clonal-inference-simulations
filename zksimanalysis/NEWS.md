@@ -1,3 +1,9 @@
+# zksimanalysis 0.3.0.9000
+
+## NEW FUNCTION
+
+* `tidy_locus_table()` is here to calculate the diversity of your loci.
+
 # zksimanalysis 0.2.0.9000
 
 ## NEW FUNCTION
