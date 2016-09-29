@@ -19,4 +19,5 @@
 #' @import dplyr
 #' @import feather
 #' @import vcfR
+#' @import poweRlaw
 NULL
