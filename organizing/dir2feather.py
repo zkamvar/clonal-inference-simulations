@@ -102,7 +102,7 @@ if __name__ == '__main__':
             pops   = ptd.get_field(pops, pars.regex)
         if pars.separate:
             for p in pops:
-                tempfname = fname + p
+                tempfname = fname + os.path.basename(p)
                 ruffle([p], pars.snp, pars.out, tempfname, pars.zip)
         elif pars.group_by is not None:
             finder  = re.compile('^.+?(' + pars.group_by + '_[^_]+).*?\.pop$')
