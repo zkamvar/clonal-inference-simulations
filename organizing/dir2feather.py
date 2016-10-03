@@ -53,11 +53,11 @@ parser.add_argument(
     action = "store_true")
 
 
-def ruffle(pops, out, fname, zip):
+def ruffle(pops, snp, out, fname, zip):
     '''
     Write feather files to a directory
     '''
-    df = ptd.pops2df(pops)
+    df = ptd.pops2df(pops, snp)
     outname = out + "/" + fname + ".feather"
     print("writing file " + outname)
     feather.write_dataframe(df, outname)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 tempfname = fname + "_group_" + g
                 print(tempfname)
                 pop_group = ptd.get_field(pops, g)
-                ruffle(pop_group, pars.out, tempfname, pars.zip)
+                ruffle(pop_group, pars.snp, pars.out, tempfname, pars.zip)
         else:
             ruffle(pops, pars.out, fname, pars.zip)
 
