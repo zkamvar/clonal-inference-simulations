@@ -103,6 +103,6 @@ if __name__ == '__main__':
                 pop_group = ptd.get_field(pops, g)
                 ruffle(pop_group, pars.snp, pars.out, tempfname, pars.zip)
         else:
-            ruffle(pops, pars.out, fname, pars.zip)
+            ruffle(pops, pars.snp, pars.out, fname, pars.zip)
 
 
