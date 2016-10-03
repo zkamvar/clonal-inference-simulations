@@ -30,6 +30,12 @@ parser.add_argument(
     )
 
 parser.add_argument(
+    "--separate",
+    action = "store_true",
+    help = "if this flag is signalled, each file will be processed separately. This overrides group_by"
+    )
+
+parser.add_argument(
     "--group_by",
     type = str,
     help = "by what elements should the feather files be grouped?",
@@ -94,7 +100,11 @@ if __name__ == '__main__':
         if pars.regex is not None:
             fname += "_" + pars.regex
             pops   = ptd.get_field(pops, pars.regex)
-        if pars.group_by is not None:
+        if pars.separate:
+            for p in pops:
+                tempfname = fname + p
+                ruffle([p], pars.snp, pars.out, tempfname, pars.zip)
+        elif pars.group_by is not None:
             finder  = re.compile('^.+?(' + pars.group_by + '_[^_]+).*?\.pop$')
             matches = set([re.sub(finder, r'\1', i) for i in pops])
             for g in matches:
