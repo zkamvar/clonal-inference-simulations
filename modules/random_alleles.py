@@ -5,10 +5,28 @@ import math as math
 import sys
 
 class snps:
-	def __init__(self, nloc = 100, mu = 1e-5, nchrom = 10)
-	self.nloc = nloc
-	self.mu = mu
-	self.nchrom = nchrom
+	def __init__(self, nloc = 100, mu = 1e-5, nchrom = 10):
+		self.nloc = nloc
+		self.mu = mu
+		self.nchrom = nchrom
+	def nloc(self):
+		return(self.nloc)
+	def nchrom(self):
+		return(self.nchrom)
+	def get_loci(self):
+		remain       = self.nloc % self.nchrom
+		loci_x_chrom = math.floor(self.nloc/self.nchrom)
+		out = [loci_x_chrom for x in range(self.nchrom)]
+		if remain > 0:
+			outr = -1
+			for r in range(remain):
+				outr += 1
+				if (outr > len(out)):
+					outr = 0
+				out[outr] = out[outr] + 1
+		return(out)
+	def mu(self):
+		return(self.mu)
 
 class zk_locus:
 	"""

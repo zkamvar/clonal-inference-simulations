@@ -1,4 +1,5 @@
 library('zksimanalysis')
+library('magrittr')
 library('viridis')
 library('dplyr')
 library('tidyr')
