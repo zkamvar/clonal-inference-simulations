@@ -47,6 +47,11 @@ parser.add_argument(
     help = "directory in which to place the feather output",
     default = "pillow")
 
+parser.add_argument(
+    "-s", "--snp",
+    help = "Is the data SNP data? Setting this flag will process the genotypes as SNP data, summing the minor allele",
+    action = "store_true")
+
 
 def ruffle(pops, out, fname, zip):
     '''
