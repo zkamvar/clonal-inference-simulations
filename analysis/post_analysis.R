@@ -7,15 +7,24 @@ library('ggplot2')
 
 datfiles <- dir("rda_files/", full.names = TRUE) %>% grep("feather.rda$", ., value = TRUE)
 divfiles <- dir("diversity_rda_files/", full.names = TRUE)
+locfiles <- dir("locus_rda_files/", full.names = TRUE)
+
 
 for (i in datfiles){
   cat(i, "\n")
   load(i)
 }
+
 for (i in divfiles){
   cat(i, "\n")
   load(i)
 }
+
+for (i in locfiles){
+  cat(i, "\n")
+  load(i)
+}
+
 
 ex_run  <- "twenty_loci([0-9]+?)/"
 ex_seed <- "seed_([0-9]+?)_"
@@ -26,6 +35,7 @@ ex_samp <- "_sam_([0-9]+?)$"
 
 datnames <- grep("^X.+?twenty.+?feather$", ls(), value = TRUE)
 divnames <- grep("^X.+?twenty.+?feather.divtable.rda$", ls(), value = TRUE)
+locnames <- grep("^X.+?twenty.+?feather.locustable.rda$", ls(), value = TRUE)
 
 datalist <- datnames %>%
   lapply(get) %>%
@@ -42,6 +52,12 @@ divlist <- divnames %>%
   setNames(divnames) %>%
   bind_rows()
 
+loclist <- locnames %>%
+  lapply(get) %>%
+  setNames(locnames) %>%
+  bind_rows()
+
+
 CF <- function(NMLG, sample){
   sample <- as.integer(as.character(sample))
   cf <- 1 - (NMLG/sample)
@@ -51,6 +67,7 @@ CF <- function(NMLG, sample){
 
 
 datalist <- full_join(datalist, divlist, by = "pop") %>%
+  full_join(loclist, by = "pop") %>%
   mutate(CF = CF(NMLG, sample))
 
 vals <- datalist %>%
@@ -63,6 +80,32 @@ vals <- datalist %>%
 
 ggplot(vals, aes(x = sexrate, y = rbarD, fill = sample)) +
   geom_boxplot()
+
+ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis()
+
+
+
+ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis() +
+  facet_grid(sexrate~sample)
+
+
+ggplot(vals, aes(x = Evenness, y = E.5, color = rbarD)) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis() +
+  facet_grid(sexrate~sample)
+
+
+ggplot(filter(vals, p.rD > 0.75), aes(x = Evenness, y = rbarD, color = E.5)) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis(option = "magma", direction = -1) +
+  facet_grid(sexrate~sample) +
+  theme_dark()
+
+
 ggplot(vals, aes(x = sexrate, y = E.5, fill = sample)) +
   geom_boxplot()
 ggplot(vals, aes(x = sexrate, y = H, fill = sample)) +
