@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 tempfname = fname + "_group_" + g
                 print(tempfname)
                 pop_group = ptd.get_field(pops, g)
-                ruffle(pop_group, snp, pars.out, tempfname, pars.zip)
+                ruffle(pop_group, pars.snp, pars.out, tempfname, pars.zip)
         else:
             ruffle(pops, pars.out, fname, pars.zip)
 
