@@ -1,3 +1,10 @@
+# zksimanalysis 0.3.1.9000
+
+## ENHANCEMENTS
+
+* The function `tidy_locus_table()` will now report clone-corrected data.
+* Clone-corrected data from `tidy_ia()` will now undergo permutation testing.
+
 # zksimanalysis 0.3.0.9000
 
 ## NEW FUNCTION

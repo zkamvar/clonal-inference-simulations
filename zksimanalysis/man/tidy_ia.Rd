@@ -18,7 +18,7 @@ beginning of the analysis. \code{FALSE} suppresses this message.}
 \item{keepdata}{when \code{TRUE}, the data set is kept in a column called
 "dataset"}
 
-\item{cc}{return values of the clone-corrected data set (no re-sampling).}
+\item{cc}{return values of the clone-corrected data set.}
 
 \item{strata}{the strata at which to clone-correct. Defaults to entire data
 set.}

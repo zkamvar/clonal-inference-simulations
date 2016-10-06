@@ -4,14 +4,18 @@
 \alias{tidy_locus_table}
 \title{Give a tidy locus table}
 \usage{
-tidy_locus_table(gid, ..., verbose = TRUE)
+tidy_locus_table(gid, ..., verbose = TRUE, cc = TRUE, strata = NA)
 }
 \arguments{
 \item{gid}{a genclone object}
 
 \item{...}{parameters to be passed on}
 
-\item{verbose}{shoudl this be noisy?}
+\item{verbose}{should this be noisy?}
+
+\item{cc}{should the data be clone corrected as well?}
+
+\item{strata}{The population strata to use with cc.}
 }
 \value{
 a tibble
