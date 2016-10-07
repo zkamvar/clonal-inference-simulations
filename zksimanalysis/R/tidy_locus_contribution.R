@@ -31,7 +31,7 @@ tidy_locus_contribution <- function(gid, n = 999, verbose = TRUE, ...){
   NMLL     <- nmll(gid)
   rrmat    <- rrmlg(gid)
   pgen_gid <- poppr::pgen(gid, mul = 1/2, log = FALSE, by_pop = FALSE)
-  gc       <- genotype_curve(gid, plot = FALSE, sample = n, quiet = !verbose)
+  gc       <- genotype_curve(gid, plot = FALSE, sample = n, quiet = TRUE)
   cont_div <- locus_contribution(rrmat, NMLL) %>%
     diversity_stats(...) %>%
     as.list()
