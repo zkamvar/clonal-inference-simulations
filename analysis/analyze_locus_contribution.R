@@ -54,8 +54,7 @@ suppressPackageStartupMessages(library("purrr"))
 
 
 # Processing data ---------------------------------------------------------
-# Number of multilocus genotypes for a matrix of genotypes
-# Number of multilocus genotypes for a matrix of genotypes
+# Number of loci
 NMLG <- function(x){
   if (length(dim(x)) > 1){
     N <- rep(ncol(x), nrow(x))
@@ -65,7 +64,7 @@ NMLG <- function(x){
   return(N)
 }
 
-# Unbiased simpson's diversity is corrected for sample size.
+# Unbiased Simpson's diversity is corrected for sample size.
 uSimp <- function(x){
   lambda <- vegan::diversity(x, "simpson")
   N      <- NMLG(x)
@@ -75,9 +74,9 @@ uSimp <- function(x){
 # For each file we will
 # 1. Load the file into R (since it will be an Rda file)
 # 2. Select the dataset column
-# 3. apply the tidy_diversity function to each data set
+# 3. apply the tidy_locus_contribution function to each data set
 # 4. store each result as a row in the table with pop as the key.
-# 5. save the results to the file name, replacing data with "divtable".
+# 5. save the results to the file name, replacing data with "contrib".
 for (f in opt$FILE){
   indat <- load(f) 
   if (opt$verbose) message(paste("Analyzing", nrow(get(indat)), "populations ... "))
