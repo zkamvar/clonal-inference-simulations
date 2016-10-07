@@ -6,7 +6,7 @@
 #'   beginning of the analysis. \code{FALSE} suppresses this message.
 #' @param keepdata when \code{TRUE}, the data set is kept in a column called
 #'   "dataset"
-#' @param cc return values of the clone-corrected data set (no re-sampling).
+#' @param cc return values of the clone-corrected data set.
 #' @param strata the strata at which to clone-correct. Defaults to entire data
 #'   set.
 #'
@@ -32,11 +32,27 @@ tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE, strata
     message(msg)
   }
   if (cc){
-    rescc <- gid %>% clonecorrect(strata = strata) %>% poppr::ia()
+    rescc <- gid %>% 
+      clonecorrect(strata = strata) %>% 
+      poppr::ia(..., valuereturn = TRUE)
   }
   res  <- poppr::ia(gid, ..., valuereturn = TRUE)
   pops <- popNames(gid)
   pops <- if (length(pops) > 1) list(pops) else pops
+  out  <- process_ialist(res)
+  if (cc){
+    ccout        <- process_ialist(rescc)
+    names(ccout) <- paste0(names(ccout), "cc")
+    out          <- c(out, ccout)
+  }
+  if (keepdata){
+    out <- c(out, list(dataset = ~list(gid)))
+  }
+  out <- c(out, list(pop = ~pops))
+  return(data_frame_(out))
+}
+
+process_ialist <- function(res){
   if (inherits(res, "ialist")){
     vals <- res[[1]]
     out  <- list(Ia         = ~vals["Ia"],
@@ -44,23 +60,12 @@ tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE, strata
                  rbarD      = ~vals["rbarD"],
                  p.rD       = ~vals["p.rD"],
                  samples.ia = ~list(res[[2]]$Ia),
-                 samples.rd = ~list(res[[2]]$rbarD),
-                 pop        = ~pops
+                 samples.rd = ~list(res[[2]]$rbarD)
                  )
   } else {
     out <- list(Ia    = ~res["Ia"],
-                rbarD = ~res["rbarD"],
-                pop   = ~pops
+                rbarD = ~res["rbarD"]
                 )
   }
-  if (cc){
-    ccout <- list(Iacc    = ~rescc["Ia"],
-                  rbarDcc = ~rescc["rbarD"]
-                  )
-    out <- c(out, ccout)
-  }
-  if (keepdata){
-    out <- c(out, list(dataset = ~list(gid)))
-  }
-  return(data_frame_(out))
+  return(out)
 }
