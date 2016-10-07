@@ -37,7 +37,7 @@ opt$permutations <- as.integer(opt$permutations)
 
 if (!dir.exists(opt$output)){
   dir.create(opt$output)
-
+}
 
 
 # Initializing packages ---------------------------------------------------
@@ -78,16 +78,16 @@ uSimp <- function(x){
 # 4. store each result as a row in the table with pop as the key.
 # 5. save the results to the file name, replacing data with "contrib".
 for (f in opt$FILE){
-  indat <- load(f) 
+  indat <- load(f)
   if (opt$verbose) message(paste("Analyzing", nrow(get(indat)), "populations ... "))
   set.seed(opt$seed)
-  res <- indat %>% 
+  res <- indat %>%
     get() %>%
-    select(dataset) %>% 
-    apply(1, listfun, tidy_locus_contribution, 
-          uSimp = uSimp, 
-          n = opt$permutations, 
-          verbose = opt$debug) %>% 
+    select(dataset) %>%
+    apply(1, listfun, tidy_locus_contribution,
+          uSimp = uSimp,
+          n = opt$permutations,
+          verbose = opt$verbose) %>%
     bind_rows()
   outf <- gsub(".DATA", ".contrib", basename(f))
   assign(x = outf, res)
