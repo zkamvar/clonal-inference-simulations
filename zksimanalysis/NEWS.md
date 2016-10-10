@@ -1,3 +1,11 @@
+# zksimanalysis 0.4.0.9000
+
+## NEW FUNCTION
+
+* `tidy_locus_contribution()` will calculate pgen, genotype accumulation curve,
+  round-robin multilocus genotypes, and the diversity of contributions of each
+  locus to the number of multilocus genotypes.
+
 # zksimanalysis 0.3.1.9000
 
 ## ENHANCEMENTS
