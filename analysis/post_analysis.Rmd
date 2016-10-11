@@ -26,36 +26,53 @@ library('ggplot2')       # magic plotting action!
 
 This here will load in all of the results of the analyses
 
-```{r, load_data, cache = TRUE, results = "hide"}
+```{r, load_data, cache = TRUE, results = "hide", cache.lazy = FALSE}
 # Here we have to filter out the stored genetic data
-datfiles  <- dir("../simulation_results/rda_files/", full.names = TRUE) %>% 
+datfiles  <- dir("../../simulation_results/rda_files/", full.names = TRUE) %>% 
   grep("feather.rda$", ., value = TRUE)
-divfiles  <- dir("../simulation_results/diversity_rda_files/", full.names = TRUE)
-locfiles  <- dir("../simulation_results/locus_rda_files/", full.names = TRUE)
-contfiles <- dir("../simulation_results/contrib_rda_files/", full.names = TRUE)
+divfiles  <- dir("../../simulation_results/diversity_rda_files/", full.names = TRUE)
+locfiles  <- dir("../../simulation_results/locus_rda_files/", full.names = TRUE)
+contfiles <- dir("../../simulation_results/contrib_rda_files/", full.names = TRUE)
 
 for (i in datfiles){
-  cat(i, "\n")
   load(i)
 }
 
 for (i in divfiles){
-  cat(i, "\n")
   load(i)
 }
 
 for (i in locfiles){
-  cat(i, "\n")
   load(i)
 }
 
 for (i in contfiles){
-  cat(i, "\n")
   load(i)
 }
 ```
 
-```{r, data_tidy, cache = TRUE}
+
+After all of that's done, we can clean and prepare the data. We have to first
+set the variables by which we want to extract columns. These are:
+
+| Column | Description |
+| ------ | ----------- |
+|    run | Each run is a separate instance of simuPOP run on the server. |
+|   seed | The seeds are a unique instance within each run that represents a different combination of allelic states |
+|   sex  | The amount of sexual reproduction in that particular simulation. |
+|   gen  | The number of generations evovled (this is only marginally useful as quality control) |
+|   rep  | Each seed has 10 replicates. |
+|   samp | When analyzed, the data were read in and subsampled without replacement to different population sizes. This indicate the size of those populations |
+
+
+The steps are to:
+
+1. Gather all of the loaded data
+2. clean up the data containing the values of $\bar{r}_d$ and $I_A$.
+3. Gather the MLG diversity table, allelic diversity table, and locus contribution table
+4. Do a full join of all the tables by the population and calculate clonal fraction
+
+```{r, data_tidy, cache = TRUE, cache.lazy = FALSE}
 ex_run  <- "twenty_loci([0-9]+?)/"
 ex_seed <- "seed_([0-9]+?)_"
 ex_sex  <- "sex_([0-9.]+?)_"
@@ -109,19 +126,63 @@ datalist <- full_join(datalist, divlist, by = "pop") %>%
   full_join(contlist, by = "pop") %>%
   mutate(CF = CF(NMLG, sample))
 
-vals <- datalist %>%
+# cleaning up merged data
+rm(list = datnames)
+rm(list = divnames)
+rm(list = locnames)
+rm(list = contnames)
+rm(divlist)
+rm(loclist)
+rm(contlist)
+```
+
+Now we can 
+
+```{r, data_cleaning, cache = TRUE, cache.lazy = FALSE}
+
+datalist %>%
   mutate(mean.rd = vapply(samples.rd, mean, numeric(1), na.rm = TRUE)) %>%
   mutate(sd.rd   = vapply(samples.rd, sd, numeric(1), na.rm = TRUE)) %>%
-  mutate(var.rd  = vapply(samples.rd, var, numeric(1), na.rm = TRUE)) %>%
+  mutate(mad.rd  = vapply(samples.rd, mad, numeric(1), na.rm = TRUE)) %>%
   mutate(min.rd  = vapply(samples.rd, min, numeric(1), na.rm = TRUE)) %>%
   mutate(max.rd  = vapply(samples.rd, max, numeric(1), na.rm = TRUE)) %>%
-  # mutate(mean.rdcc = vapply(samples.rdcc, mean, numeric(1), na.rm = TRUE)) %>%
-  # mutate(sd.rdcc   = vapply(samples.rdcc, sd, numeric(1), na.rm = TRUE)) %>%
-  # mutate(var.rdcc  = vapply(samples.rdcc, var, numeric(1), na.rm = TRUE)) %>%
-  # mutate(min.rdcc  = vapply(samples.rdcc, min, numeric(1), na.rm = TRUE)) %>%
-  # mutate(max.rdcc  = vapply(samples.rdcc, max, numeric(1), na.rm = TRUE)) %>%
-  select(-starts_with("samples"))
+  mutate(mean.rdcc = vapply(samples.rdcc, mean, numeric(1), na.rm = TRUE)) %>%
+  mutate(sd.rdcc   = vapply(samples.rdcc, sd, numeric(1), na.rm = TRUE)) %>%
+  mutate(mad.rdcc  = vapply(samples.rdcc, mad, numeric(1), na.rm = TRUE)) %>%
+  mutate(min.rdcc  = vapply(samples.rdcc, min, numeric(1), na.rm = TRUE)) %>%
+  mutate(max.rdcc  = vapply(samples.rdcc, max, numeric(1), na.rm = TRUE)) %>%
+  select(-starts_with("samples")) -> vals
+vals %>% 
+  rename(H.gene  = H.x) %>%
+  rename(H.locus = H.y) %>%
+  rename(G.gene  = G.x) %>%
+  rename(G.locus = G.y) %>%
+  rename(lambda.gene  = lambda.x) %>%
+  rename(lambda.locus = lambda.y) %>%
+  rename(E.5.gene  = E.5.x) %>%
+  rename(E.5.locus = E.5.y) %>%
+  rename(uSimp.gene  = uSimp.x) %>%
+  rename(uSimp.locus = uSimp.y) -> vals
+clonetest <- function (p.rD, p.rDcc){
+  a <- p.rD < 0.05
+  b <- p.rDcc < 0.05
+  a[is.na(a)] <- TRUE
+  b[is.na(b)] <- TRUE
+  res <- 2 + (a - b) + a
+  factor(res , labels = c("clone-correct", "none", "both", "whole"))
+}
+vals %>% mutate(significance = clonetest(p.rD, p.rDcc)) -> vals
+vals
 ```
+
+
+```{r, plotting_params}
+log_rd_color <- scale_color_viridis(option = "viridis", 
+                                    breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), 
+                                    labels = c(0.005, 0.01, 0.025, 0.05, 0.1))
+
+```
+
 
 
 ```{r, rd_sexrate}
@@ -138,19 +199,28 @@ ggplot(vals, aes(x = sexrate, y = p.rD, fill = sample)) +
   theme_bw()
 ```
 
+```{r, rd_pval_cc}
+ggplot(vals, aes(x = p.rDcc, y = p.rD)) +
+  geom_point() +
+  theme_bw() +
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate)
+```
+
 ```{r, rd_sexrate_pval}
 ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   geom_jitter(alpha = 0.25, height = 0) +
   geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
-  scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
-  facet_wrap(~sample, nrow = 1)
+  log_rd_color + 
+  facet_wrap(~sample, nrow = 1) +
+  ylab(expression(bar(r)[d]))
 ```
 
 
 ```{r, clone-correction}
-ggplot(vals, aes(x = rbarD, y = rbarDcc, color = log(p.rD))) +
+ggplot(vals, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
   geom_point(alpha = 0.25) +
-  scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
+  scale_color_viridis() + 
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
@@ -159,11 +229,21 @@ ggplot(vals, aes(x = rbarD, y = rbarDcc, color = log(p.rD))) +
 ```
 
 
+```{r, clone-correction}
+ggplot(vals, aes(x = rbarD, y = rbarDcc, color = significance)) +
+  geom_point(alpha = 0.25) +
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  xlab(expression(bar(r)[d])) +
+  ylab(expression(paste(bar(r)[d], " (clone-corrected)")))
+```
+
 ```{r, rd-cc-sexrate}
 ggplot(vals, aes(x = sexrate, y = rbarD - rbarDcc, color = log(p.rD))) +
   geom_point(alpha = 0.25, position = "jitter") +
-  geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
-  scale_color_viridis(option = "viridis", breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), labels = c(0.005, 0.01, 0.025, 0.05, 0.1)) +
+  geom_boxplot(color = "black", width = 0.5, alpha = 0.25) +
+  log_rd_color +
   facet_wrap(~sample, nrow = 1)
 ```
 
@@ -173,35 +253,59 @@ ggplot(vals, aes(x = sexrate, y = rbarD - rbarDcc, color = log(p.rD))) +
 ```{r, Hexp_rbarD}
 ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  scale_color_viridis()
+  log_rd_color
 ```
 
 ```{r, Hexp_rbarD_facet}
 ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  scale_color_viridis() +
+  log_rd_color + 
   facet_grid(sexrate~sample)
 ```
 
 ```{r, gE5_lE5}
-ggplot(vals, aes(x = Evenness, y = E.5.x, color = rbarD)) +
+ggplot(vals, aes(x = Evenness, y = E.5.gene, color = rbarD)) +
   geom_point(alpha = 0.25) +
   scale_color_viridis() +
   facet_grid(sexrate~sample)
 ```
 
-```{r}
-ggplot(filter(vals, p.rD > 0.95), aes(x = Evenness, y = rbarD, color = E.5.x)) +
+```{r, gE5_rbarD}
+ggplot(vals, aes(x = E.5.gene, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  scale_color_viridis(option = "magma", direction = -1) +
-  facet_grid(sexrate~sample) +
-  theme_dark()
+  log_rd_color +
+  facet_grid(sexrate~sample)
 ```
 
+
+```{r}
+ggplot(filter(vals, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NMLG))) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis(option = "magma", direction = -1,
+                      breaks = log(c(2, 5, 10, 25, 50, 100)),
+                      labels = c(2, 5, 10, 25, 50, 100)) +
+  facet_grid(sexrate~sample) +
+  theme_dark() +
+  ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
+          subtitle = "For p >= 0.05") +
+  ylab(expression(bar(r)[d])) +
+  xlab(expression(paste(E[5], " (averaged over 20 loci)")))
+```
+
+
+```{r, rd_vs_uSimp.locus}
+ggplot(vals, aes(x = `1-D`, y = `1-Dcc`, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  geom_abline(slope = 1) +
+  log_rd_color +
+  facet_grid(sexrate~sample)
+```
+
+
 ```{r, grabbag}
-ggplot(vals, aes(x = sexrate, y = E.5.x, fill = sample)) +
+ggplot(vals, aes(x = sexrate, y = E.5.gene, fill = sample)) +
   geom_boxplot()
-ggplot(vals, aes(x = sexrate, y = H.x, fill = sample)) +
+ggplot(vals, aes(x = sexrate, y = H.gene, fill = sample)) +
   geom_boxplot()
 ggplot(vals, aes(x = sexrate, y = B, fill = sample)) +
   geom_boxplot()
