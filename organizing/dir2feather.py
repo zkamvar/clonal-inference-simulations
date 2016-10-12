@@ -69,6 +69,7 @@ def ruffle(pops, snp, out, fname, zip):
     feather.write_dataframe(df, outname)
     if zip:
         zipup(outname)
+        os.remove(outname)
 
 
 def zipup(fname):
