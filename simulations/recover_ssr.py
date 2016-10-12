@@ -102,8 +102,9 @@ def mix_mating(sexrate):
 
 if __name__ == '__main__':
     pars   = parser.parse_args()
-    infile = pars.popfile
-    the_path, the_dataset = infile.split("/")
+    infile = os.path.abspath(pars.popfile)
+    the_path = os.path.dirname(infile)
+    the_dataset = os.path.basename(infile)
     a, seed, b, sex, c, gen, d, rep = the_dataset.split(".p")[0].split("_")
     # seed_0_sex_0.0001_gen_10000_rep_06.pop
     GENRATIONS = 10000 - int(gen)
