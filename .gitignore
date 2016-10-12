@@ -7,3 +7,5 @@ Rplots.pdf
 *.pop
 pillow/*
 .Rhistory
+analysis/post_analysis_*
+analysis/post_analysis*html
