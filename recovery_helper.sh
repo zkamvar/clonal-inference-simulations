@@ -11,6 +11,7 @@ if [ $# -eq 0 ]; then
   exit
 fi
 
+# Reading in file line by line
 # http://stackoverflow.com/a/10929511
 foo=( )
 
@@ -23,9 +24,12 @@ done < "$1"
 
 PIDS=( )
 counter=0
+# Looping over an array with index
 # http://stackoverflow.com/a/6723516
 for i in "${!foo[@]}"; do 
   if ! ((i % 8)); then
+    # For the PID waiting
+    # http://stackoverflow.com/a/356154
     let counter=0
     for pid in "${!PIDS[@]}"; do
       printf "waiting on ${PID[$pid]}\n"
