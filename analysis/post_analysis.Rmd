@@ -136,11 +136,11 @@ rm(loclist)
 rm(contlist)
 ```
 
-Now we can 
+Now we can summarize the null distributions per sample.
 
 ```{r, data_cleaning, cache = TRUE, cache.lazy = FALSE}
 
-datalist %>%
+vals <- datalist %>%
   mutate(mean.rd = vapply(samples.rd, mean, numeric(1), na.rm = TRUE)) %>%
   mutate(sd.rd   = vapply(samples.rd, sd, numeric(1), na.rm = TRUE)) %>%
   mutate(mad.rd  = vapply(samples.rd, mad, numeric(1), na.rm = TRUE)) %>%
@@ -151,8 +151,8 @@ datalist %>%
   mutate(mad.rdcc  = vapply(samples.rdcc, mad, numeric(1), na.rm = TRUE)) %>%
   mutate(min.rdcc  = vapply(samples.rdcc, min, numeric(1), na.rm = TRUE)) %>%
   mutate(max.rdcc  = vapply(samples.rdcc, max, numeric(1), na.rm = TRUE)) %>%
-  select(-starts_with("samples")) -> vals
-vals %>% 
+  select(-starts_with("samples"), -rrmat, -curve, -pgen) # removing large data
+vals <- vals %>% 
   rename(H.gene  = H.x) %>%
   rename(H.locus = H.y) %>%
   rename(G.gene  = G.x) %>%
@@ -163,6 +163,7 @@ vals %>%
   rename(E.5.locus = E.5.y) %>%
   rename(uSimp.gene  = uSimp.x) %>%
   rename(uSimp.locus = uSimp.y) -> vals
+
 clonetest <- function (p.rD, p.rDcc){
   a <- p.rD < 0.05
   b <- p.rDcc < 0.05
@@ -171,8 +172,53 @@ clonetest <- function (p.rD, p.rDcc){
   res <- 2 + (a - b) + a
   factor(res , labels = c("clone-correct", "none", "both", "whole"))
 }
-vals %>% mutate(significance = clonetest(p.rD, p.rDcc)) -> vals
+vals <- vals %>% 
+  mutate(significance = clonetest(p.rD, p.rDcc))
 vals
+```
+
+
+All data coming in must be verified that we indeed have all data. Since we had a
+factorial design, we can create what we expect the populations (records of the
+simulations) to look like.
+
+```{r, quality_control}
+runs    <- as.character(1:16)
+tens    <- runs[9:16]          # The last 8 runs had 9 and 10 seeds, alternating
+nines   <- tens[1:8 %% 2 == 1] # If I ever do this again, tell me no. :/
+tens    <- tens[1:8 %% 2 == 0]
+sexrate <- c("0.0000", "1.0000", "0.0001", "0.0005", "0.0010", "0.0050", 
+             "0.0100", "0.0500", "0.1000", "0.5000")
+ten_seed <- expand.grid("twenty_loci", tens, 
+            "/seed_", as.character(0:9), # ten seeds
+            "_sex_", sexrate,
+            "_gen_10000", 
+            "_rep_", paste0("0", as.character(0:9)),
+            ".pop_sam_", as.character(c(10, 25, 50, 100))) %>% 
+  apply(1, paste, collapse = "")
+nine_seed <- expand.grid("twenty_loci", nines, 
+            "/seed_", as.character(0:8), # nine seeds
+            "_sex_", sexrate,
+            "_gen_10000", 
+            "_rep_", paste0("0", as.character(0:9)),
+            ".pop_sam_", as.character(c(10, 25, 50, 100))) %>% 
+  apply(1, paste, collapse = "")
+three_seed <- expand.grid("twenty_loci", runs[1:8], # The first eight runs
+            "/seed_", as.character(0:2),            # had three seeds.
+            "_sex_", sexrate,
+            "_gen_10000", 
+            "_rep_", paste0("0", as.character(0:9)),
+            ".pop_sam_", as.character(c(10, 25, 50, 100))) %>% 
+  apply(1, paste, collapse = "")
+expected <- sort(c(ten_seed, nine_seed, three_seed)) # Expect 40,000
+
+# Extracting the unique seeds
+mismatches <- !expected %in% (vals %>% arrange(pop))$pop
+strsplit(expected[mismatches], "_sam") %>%
+  vapply("[", character(1), 1) %>%
+  unique() %>%
+  cat(sep = "\n", file = "MISSING_DATASETS.txt")
+
 ```
 
 
@@ -229,7 +275,7 @@ ggplot(vals, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
 ```
 
 
-```{r, clone-correction}
+```{r, clone-correction-significance}
 ggplot(vals, aes(x = rbarD, y = rbarDcc, color = significance)) +
   geom_point(alpha = 0.25) +
   geom_abline(slope = 1) +
