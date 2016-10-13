@@ -2,6 +2,7 @@
 
 export(example_data)
 export(feather2genind)
+export(feather2genlight)
 export(listfun)
 export(tidy_diversity)
 export(tidy_ia)
