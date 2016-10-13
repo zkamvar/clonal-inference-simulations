@@ -96,39 +96,42 @@ for (f in opt$FILE){
   # processed again.
     if (opt$verbose) message(paste("Analyzing populations without first locus ... "))
     mres <- indat[loc = -1, mlg.reset = TRUE] %>%
-    addStrata(data.frame(sample_size = subpops)) %>%
-    setPop(~pop/sample_size) %>%
-    seppop() %>%
-    map(tidy_ia,
-        sample   = opt$permutations,
-        keepdata = opt$keep,
-        cc       = opt$clonecorrect,
-        strata   = ~pop/sample_size,
-        verbose  = opt$verbose,
-        hist     = FALSE,
-        quiet    = !opt$debug) %>%
-    bind_rows()
+      addStrata(data.frame(sample_size = subpops)) %>%
+      setPop(~pop/sample_size) %>%
+      seppop() %>%
+      map(tidy_ia,
+          sample   = opt$permutations,
+          keepdata = FALSE,
+          cc       = opt$clonecorrect,
+          strata   = ~pop/sample_size,
+          verbose  = opt$verbose,
+          hist     = FALSE,
+          quiet    = !opt$debug) %>%
+      bind_rows()
   }
-  outf     <- make.names(f)
-  outfDATA <- paste0(outf, ".DATA")
-  resDATA  <- res %>% select(dataset, pop)
-  res      <- res %>% select(-dataset)
+  # Saving everything.
+  outf <- make.names(f)
+  if (opt$keep){
+    outfDATA <- paste0(outf, ".DATA")
+    resDATA  <- res %>% dplyr::select(matches("dataset"), matches("pop"))    
+    assign(x = outfDATA, resDATA)
+    outf_data_location <- paste0(opt$output, "/", outfDATA, ".rda")
+    if (opt$verbose) message(paste("saving data to", outf_data_location))
+    save(list = outfDATA, file = outf_data_location)
+  }
+  res  <- res %>% dplyr::select(-matches("dataset"))
   assign(x = outf, res)
-  assign(x = outfDATA, resDATA)
-  outf_location      <- paste0(opt$output, "/", outf, ".rda")
-  outf_data_location <- paste0(opt$output, "/", outfDATA, ".rda")
+  outf_location <- paste0(opt$output, "/", outf, ".rda")
   if (opt$verbose) message(paste("saving results to", outf_location))
   save(list = outf, file = outf_location)
+
   if (opt$mutant){
-    moutf <- paste0(outf, "mutant")
-    mres  <- mres %>% select(-dataset)
+    moutf <- paste0(outf, ".mutant")
     assign(x = moutf, mres)
     moutf_location <- paste0(opt$output, "/", moutf, ".rda")
     if (opt$verbose) message(paste("saving mutant results to", moutf_location))
     save(list = moutf, file = moutf_location)
   }
-  if (opt$verbose) message(paste("saving data to", outf_data_location))
-  save(list = outfDATA, file = outf_data_location)
 }
 if (opt$verbose){
   options(width = 100)
