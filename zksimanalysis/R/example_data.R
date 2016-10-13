@@ -1,12 +1,13 @@
 #' A wrapper to get example data
 #'
+#' @param set the name of the data set you want to use. Defaults to "sample_data.feather"
 #' @return a string with the path to the example
 #' @export
 #'
 #' @examples
 #' example_data()
-example_data <- function(){
-  system.file("files", "sample_data.feather", package = "zksimanalysis")
+example_data <- function(set = "sample_data.feather"){
+  system.file("files", set, package = "zksimanalysis")
 }
 
 #' Example simulation data

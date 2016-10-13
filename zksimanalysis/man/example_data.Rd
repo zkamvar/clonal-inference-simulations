@@ -4,7 +4,10 @@
 \alias{example_data}
 \title{A wrapper to get example data}
 \usage{
-example_data()
+example_data(set = "sample_data.feather")
+}
+\arguments{
+\item{set}{the name of the data set you want to use. Defaults to "sample_data.feather"}
 }
 \value{
 a string with the path to the example
