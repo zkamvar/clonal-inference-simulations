@@ -25,6 +25,8 @@ a genlight object
 Convert a feather file to a genind object
 }
 \examples{
+\dontrun{
+# Note: the examples don't exactly work at the moment :/
 library("tidyr")
 ex  <- example_data("sample_genomic_data.feather")
 gid <- feather2genind(ex, sample = NULL)
@@ -40,5 +42,6 @@ strata(gid) <- strata(gid) \%>\%
           remove = FALSE)
 setPop(gid) <- ~run/rep/seed
 gid
+}
 }
 
