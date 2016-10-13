@@ -1,3 +1,20 @@
+# zksimanalysis 0.5.0.9000
+
+## NEW FUNCTION
+
+* `feather2genlight()` will convert feather formatted files to genlight/snpclone
+  formatted data. 
+* `genomic_ia()` Calculates and resamples the standardized index of association
+  from your data.
+* `sample_bitwise_ia()` Resamples your data once and calculates the standardized
+  index of association
+* `shuffle_genlight()` shuffles a genlight/snpclone object to unlink markers.
+
+## MISC
+
+* Added internal functions from
+  https://github.com/grunwaldlab/supplementary-poppr-2.0/blob/master/Rscripts/my_functions.R
+
 # zksimanalysis 0.4.0.9000
 
 ## NEW FUNCTION
