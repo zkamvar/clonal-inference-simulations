@@ -169,6 +169,7 @@ if __name__ == '__main__':
     outfile           = "!'"+ sexseed + "_gen_{:05d}_rep_"+rep+".pop'"
     outfile           = outfile + ".format(gen)"
     EVOL['postOps']  += [sim.SavePopulation(output = outfile, step = STEPS)]
+    EVOL['finalOps']  = sim.SavePopulation(output = outfile)
     
     GENERATIONS = 10000 - int(gen)
     print(GENERATIONS)
