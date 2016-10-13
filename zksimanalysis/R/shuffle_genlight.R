@@ -1,6 +1,7 @@
 #' resample a genlight/genclone object and produce a
 #'
 #' @param x a snpclone or genlight object
+#' @param mat a matrix derived from x
 #'
 #' @return a snpclone or genlight object
 #' @export
@@ -9,11 +10,10 @@
 #' gl <- glSim(100, 100, 100, parallel = FALSE)
 #' gl
 #' bitwise.ia(gl)
-#' gls <- shuffle_genlight(gl)
+#' gls <- shuffle_genlight(gl, as.matrix(gl))
 #' gls
 #' bitwise.ia(gls)
-shuffle_genlight <- function(x){
-  mat   <- as.matrix(x)
+shuffle_genlight <- function(mat, x){
   shuff <- new("genlight",
                apply(mat, 2, sample),
                parallel = FALSE)
@@ -23,8 +23,8 @@ shuffle_genlight <- function(x){
 
 #' Calculate index of association from reshuffled genlight object
 #'
-#' @param i an integer, only used as a placeholder for the apply functions
 #' @param x a genlight or snpclone object
+#' @param mat a matrix derived from x
 #'
 #' @return a value of the index of association
 #' @export
@@ -32,9 +32,9 @@ shuffle_genlight <- function(x){
 #' @examples
 #' gl <- glSim(100, 100, 100, parallel = FALSE)
 #' bitwise.ia(gl)
-#' sample_bitwise_ia(1, gl)
-sample_bitwise_ia <- function(i, x){
-  bitwise.ia(shuffle_genlight(x))
+#' sample_bitwise_ia(gl, as.matrix(gl))
+sample_bitwise_ia <- function(mat, x){
+  bitwise.ia(shuffle_genlight(mat, x))
 }
 
 #' A test for significance with genomic ia
@@ -54,9 +54,12 @@ sample_bitwise_ia <- function(i, x){
 #' genomic_ia(gl, sample = 999)
 genomic_ia <- function(x, sample = 0){
   obs  <- bitwise.ia(x)
+  mat  <- as.matrix(x)
   if (sample == 0) return(c(rbarD = obs))
-  exp  <- vector(mode = "numeric", length = )
-  exp  <- vapply(seq(sample), sample_bitwise_ia, numeric(1), x)
+  exp  <- vector(mode = "numeric", length = sample)
+  for (i in seq(sample)){
+    exp[i] <- sample_bitwise_ia(mat, x)
+  }
   pval <- (sum(exp >= obs) + 1)/(sample + 1)
   return(list(observed = c(rbarD = obs, p.rD = pval), samples = exp))
 }

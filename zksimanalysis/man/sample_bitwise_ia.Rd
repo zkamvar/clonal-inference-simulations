@@ -4,10 +4,10 @@
 \alias{sample_bitwise_ia}
 \title{Calculate index of association from reshuffled genlight object}
 \usage{
-sample_bitwise_ia(i, x)
+sample_bitwise_ia(mat, x)
 }
 \arguments{
-\item{i}{an integer, only used as a placeholder for the apply functions}
+\item{mat}{a matrix derived from x}
 
 \item{x}{a genlight or snpclone object}
 }
@@ -20,6 +20,6 @@ Calculate index of association from reshuffled genlight object
 \examples{
 gl <- glSim(100, 100, 100, parallel = FALSE)
 bitwise.ia(gl)
-sample_bitwise_ia(1, gl)
+sample_bitwise_ia(gl, as.matrix(gl))
 }
 

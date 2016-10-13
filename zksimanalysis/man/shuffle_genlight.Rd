@@ -4,9 +4,11 @@
 \alias{shuffle_genlight}
 \title{resample a genlight/genclone object and produce a}
 \usage{
-shuffle_genlight(x)
+shuffle_genlight(mat, x)
 }
 \arguments{
+\item{mat}{a matrix derived from x}
+
 \item{x}{a snpclone or genlight object}
 }
 \value{
@@ -19,7 +21,7 @@ resample a genlight/genclone object and produce a
 gl <- glSim(100, 100, 100, parallel = FALSE)
 gl
 bitwise.ia(gl)
-gls <- shuffle_genlight(gl)
+gls <- shuffle_genlight(gl, as.matrix(gl))
 gls
 bitwise.ia(gls)
 }

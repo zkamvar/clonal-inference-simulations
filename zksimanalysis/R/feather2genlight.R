@@ -58,7 +58,7 @@ feather2genlight <- function(ff, locus_regex = "^[0-9]+?_[0-9]+?$", sample = 50,
 #' the chromosome
 #'
 #' @return an integer vector
-#' @export
+#' @noRd
 #'
 #' @examples
 #' x <- as.character(0:999) # 10 chromosomes with 100 SNPs each
