@@ -44,9 +44,10 @@ feather2genlight <- function(ff, locus_regex = "^[0-9]+?_[0-9]+?$", sample = 50,
   res <- new("genlight", loci,
              chromosome = chrom_loc[1, ],
              position = get_position(chrom_loc[2, ]),
-             strata = sta
+             strata = sta,
+             parallel = FALSE
              )
-  res <- if (snpclone) as.snpclone(res)
+  res <- if (snpclone) as.snpclone(res, parallel = FALSE)
   if (verbose) message("Done.")
   return(res)
 }
