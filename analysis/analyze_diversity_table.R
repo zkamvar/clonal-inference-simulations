@@ -5,15 +5,16 @@ suppressPackageStartupMessages(library("docopt"))
 Parse RDA files containing genclone objects, analyze diversity statistics, and
 save the resulting data frames.
 
-Usage: analyze_and_save_ia.R [-dv -s SEED -p PERMUTATIONS -o PATH] [FILE...]
+Usage: analyze_and_save_ia.R [-dvm -s SEED -p PERMUTATIONS -o PATH] [FILE...]
 
 Options:
  -h,--help                                    show this message and exit
  -v,--verbose                                 record progress
  -d,--debug                                   record EVERYTHING
+ -m,--mutant                                  flag for indicating single mutant locus. If this is flagged, two analyses are run.
  -s SEED,--seed=SEED                          random seed [default: 20160909]
  -p PERMUTATIONS,--permutations=PERMUTATIONS  number of permutations for the index of association [default: 99]
- -o PATH,--output=PATH                        default path to place Rdata files [default: ~/rda_files]
+ -o PATH,--output=PATH                        default path to place Rdata files [default: ~/diversity_rda_files]
 
 ================================================================================
 " -> doc
@@ -88,6 +89,11 @@ Beta <- function(x){
   return(res)
 }
 
+# wrapper to exclude first locus before analyzing diversity.
+tidy_no_first_locus <- function(x, ...){
+  tidy_diversity(x[loc = -1, mlg.reset = TRUE], ...)
+}
+
 # For each file we will
 # 1. Load the file into R (since it will be an Rda file)
 # 2. Select the dataset column
@@ -108,11 +114,32 @@ for (f in opt$FILE){
           n = opt$permutations, 
           verbose = opt$debug) %>% 
     bind_rows()
+  if (opt$mutant){
+    if (opt$verbose) message(paste("Analyzing populations without first locus ... "))
+    set.seed(opt$seed)
+    mres <- indat %>% 
+      get() %>%
+      select(dataset) %>% 
+      apply(1, listfun, tidy_no_first_locus, 
+            B = Beta, 
+            uSimp = uSimp, 
+            NMLG = NMLG,
+            n = opt$permutations, 
+            verbose = opt$debug) %>% 
+      bind_rows()
+  }
   outf <- gsub(".DATA", ".divtable", basename(f))
   assign(x = outf, res)
   outf_location <- file.path(opt$output, outf)
   if (opt$verbose) message(paste("saving results to", outf_location))
   save(list = outf, file = outf_location)
+  if (opt$mutant){
+    moutf <- gsub(".DATA", ".divtable.mutant", basename(f))
+    assign(x = moutf, mres)
+    moutf_location <- file.path(opt$output, moutf)
+    if (opt$verbose) message(paste("saving results to", moutf_location))
+    save(list = moutf, file = moutf_location)
+  }
 }
 if (opt$verbose){
   options(width = 100)
