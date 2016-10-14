@@ -34,7 +34,7 @@ shuffle_genlight <- function(mat, x){
 #' bitwise.ia(gl)
 #' sample_bitwise_ia(gl, as.matrix(gl))
 sample_bitwise_ia <- function(mat, x){
-  bitwise.ia(shuffle_genlight(mat, x))
+  bitwise.ia(shuffle_genlight(mat, x), threads = 1L)
 }
 
 #' A test for significance with genomic ia
@@ -53,7 +53,7 @@ sample_bitwise_ia <- function(mat, x){
 #' gl <- glSim(100, 200, 0, parallel = FALSE)
 #' genomic_ia(gl, sample = 999)
 genomic_ia <- function(x, sample = 0, quiet = FALSE){
-  obs  <- bitwise.ia(x)
+  obs  <- bitwise.ia(x, threads = 1L)
   mat  <- as.matrix(x)
   if (sample == 0) return(c(rbarD = obs))
   exp  <- vector(mode = "numeric", length = sample)
