@@ -73,14 +73,14 @@ full_analysis <- . %>%
 # Missing analysis will calculate the value of $\bar{r}_d$ for all the data 
 # sets with missing data and bind them into a tibble.
 missing_analysis_match <- . %>%
-  map(seppop) %>%
+  map(seppop, parallel = FALSE) %>%
   map(map_dbl, 
       bitwise.ia,
       threads = 1L) %>%
   bind_rows()
 
 missing_analysis_nomatch <- . %>%
-  map(seppop) %>%
+  map(seppop, parallel = FALSE) %>%
   map(map_dbl, 
       bitwise.ia,
       missing_match = FALSE,
@@ -129,7 +129,7 @@ for (f in opt$FILE){
   # Preserve the augmented data sets.
   mdat <- miss %>% 
     setNames(paste0("dataset_", opt$missing)) %>%
-    map(seppop) %>% 
+    map(seppop, parallel = FALSE) %>% 
     bind_rows()
   res <- bind_cols(mres, mres_nomatch, res, mdat)
   
