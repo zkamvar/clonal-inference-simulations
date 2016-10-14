@@ -4,7 +4,7 @@
 \alias{genomic_ia}
 \title{A test for significance with genomic ia}
 \usage{
-genomic_ia(x, sample = 0)
+genomic_ia(x, sample = 0, quiet = FALSE)
 }
 \arguments{
 \item{x}{a genlight or snpclone object}

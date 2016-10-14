@@ -4,15 +4,15 @@
 #'
 #' @param n the number of random names to generate
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
 getNames <- function(n){
   vapply(1:n, function(x) paste(sample(letters, 10, replace = TRUE), collapse = ""), character(1))
@@ -31,17 +31,17 @@ getNames <- function(n){
 #' @details the XOR gate is utilized to flip a single bit.
 #'
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
-#' @keyword internal
+#' @keywords internal
 snp_mutator <- function(chrom, mutation = sample(2^(0:7), 1)){
   posi        <- sample(length(chrom) - 1, 1) # sample chunk of 8 loci
   orig        <- as.integer(chrom[posi])      # convert to integer
@@ -64,15 +64,15 @@ snp_mutator <- function(chrom, mutation = sample(2^(0:7), 1)){
 #'
 #' @return a mutated SNPbin object
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
 sample_mutator <- function(snpbin, mu, nLoc, rawchars = 2^(0:7)){
   nmutations <- rpois(1, lambda = round(nLoc*mu))
@@ -92,17 +92,18 @@ sample_mutator <- function(snpbin, mu, nLoc, rawchars = 2^(0:7)){
 #' @param mu a mutation rate
 #' @param samples a vector indicating which samples should be mutated
 #'
+#' @export
 #' @return a mutated genlight object
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
 pop_mutator <- function(glt, mu = 0.05, samples = TRUE){
   rawchrs <- 2^(0:7)
@@ -131,17 +132,17 @@ pop_mutator <- function(glt, mu = 0.05, samples = TRUE){
 #'   because the input was in the "on" position.
 #'
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
-#' @keyword internal
+#' @keywords internal
 NA_zeromancer <- function(chrom, NA.posi, rawchars = 2^(0:7)){
   nas <- ceiling(NA.posi/8) # Getting the location in the RAW vector
   zero_bits <- NA.posi %% 8 # Getting the location of the locus in a RAW element.
@@ -172,17 +173,17 @@ NA_zeromancer <- function(chrom, NA.posi, rawchars = 2^(0:7)){
 #'   poisson distribution.
 #'
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
-#' @keyword internal
+#' @keywords internal
 NA_generator <- function(snpbin, nloc, na.perc = 0.01, rawchars = 2^(0:7)){
   nas <- rpois(1, lambda = round(nloc*na.perc))
   NA.posi <- sort(sample(nloc, nas))
@@ -202,16 +203,17 @@ NA_generator <- function(snpbin, nloc, na.perc = 0.01, rawchars = 2^(0:7)){
 #'
 #' @return a genlight object with missing data propogated.
 #'
+#' @export
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
 pop_NA <- function(glt, na.perc = 0.01, parallel = require('parallel'), n.cores = 2L){
   rawchars <- 2^(0:7)
@@ -235,17 +237,17 @@ pop_NA <- function(glt, na.perc = 0.01, parallel = require('parallel'), n.cores 
 #'   diploid snpbin object and create a crossover event.
 #'
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
-#' @keyword internal
+#' @keywords internal
 crossover <- function(snpbin){
   chr1 <- snpbin@snp[[1]]
   chr2 <- snpbin@snp[[2]]
@@ -269,17 +271,17 @@ crossover <- function(snpbin){
 #'   different), have them each undergo crossover, and then randomly sample one
 #'   chromosome from each to create the offspring.
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
-#' @keyword internal
+#' @keywords internal
 mate <- function(snpbin, ind1, ind2){
   snpbin@gen[[ind1]] <- crossover(snpbin@gen[[ind1]])
   snpbin@gen[[ind2]] <- crossover(snpbin@gen[[ind2]])
@@ -300,17 +302,17 @@ mate <- function(snpbin, ind1, ind2){
 #'
 #' @return a genlight object with the same number of individuals as glt
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
-#' @keyword internal
+#' @keywords internal
 random_mate <- function(glt, err){
   mat_pair <- matrix(integer(1), nrow = nInd(glt), ncol = 2)
   mat_pair[, 1] <- sample(nInd(glt), replace = TRUE)
@@ -329,15 +331,15 @@ random_mate <- function(glt, err){
 #'
 #' @return a genlight object
 #' @author Zhian N. Kamvar
-#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary 
-#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for 
+#' @references ZN Kamvar, JC Brooks, and NJ Grünwald. 2015. Supplementary
+#'   Material for Frontiers Plant Genetics and Genomics 'Novel R tools for
 #'   analysis of genome-wide population genetic data with emphasis on
 #'   clonality'. DOI:
 #'   \href{http://dx.doi.org/10.5281/zenodo.17424}{10.5281/zenodo.17424}
-#'   
-#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of 
+#'
+#'   Kamvar ZN, Brooks JC and Grünwald NJ (2015) Novel R tools for analysis of
 #'   genome-wide population genetic data with emphasis on clonality. Front.
-#'   Genet. 6:208. doi: 
+#'   Genet. 6:208. doi:
 #'   \href{http://dx.doi.org/10.3389/fgene.2015.00208}{10.3389/fgene.2015.00208}
 random_mate_gen <- function(glt, err = 5e-3, gen = 1){
   for (i in seq(gen)){
