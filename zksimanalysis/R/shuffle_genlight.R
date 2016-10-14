@@ -52,14 +52,17 @@ sample_bitwise_ia <- function(mat, x){
 #' @examples
 #' gl <- glSim(100, 200, 0, parallel = FALSE)
 #' genomic_ia(gl, sample = 999)
-genomic_ia <- function(x, sample = 0){
+genomic_ia <- function(x, sample = 0, quiet = FALSE){
   obs  <- bitwise.ia(x)
   mat  <- as.matrix(x)
   if (sample == 0) return(c(rbarD = obs))
   exp  <- vector(mode = "numeric", length = sample)
+  if (!quiet) p <- dplyr::progress_estimated(sample)
   for (i in seq(sample)){
     exp[i] <- sample_bitwise_ia(mat, x)
+    if (!quiet) p$tick()$print()
   }
+  if (!quiet) cat("\n")
   pval <- (sum(exp >= obs) + 1)/(sample + 1)
   return(list(observed = c(rbarD = obs, p.rD = pval), samples = exp))
 }
