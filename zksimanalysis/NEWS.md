@@ -1,3 +1,16 @@
+# zksimanalysis 0.6.0.9000
+
+## NEW FUNCTION
+
+* The manipulation functions `pop_NA()` and `pop_mutator()` have been exported.
+
+## NEW FEATURES
+
+* `tidy_ia()` can now take genomic data
+* `genomic_ia()` now has a reporter when interactive.
+* parallel processing is hard-coded to FALSE in shuffling and data import for
+  genomic data.
+
 # zksimanalysis 0.5.0.9000
 
 ## NEW FUNCTION
