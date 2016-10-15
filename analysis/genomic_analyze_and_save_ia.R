@@ -3,9 +3,11 @@ suppressPackageStartupMessages(library("docopt"))
 suppressPackageStartupMessages(library("stringr"))
 "
 ================================================================================
-Parse feather formatted data, analyze the index of association and save the result
+Parse feather formatted data, analyze the index of association on the whole data
+set, propogate missing data, analyze the index of association there, and save
+the result.
 
-Usage: analyze_and_save_ia.R [-hdvk [-m MISSING...] -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
+Usage: genomic_analyze_and_save_ia.R [-hdvk [-m MISSING...] -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
 
 Options:
  -h,--help                                    show this message and exit
