@@ -5,14 +5,14 @@ suppressPackageStartupMessages(library("stringr"))
 ================================================================================
 Parse feather formatted data, analyze the index of association and save the result
 
-Usage: analyze_and_save_ia.R [-dvk [-m MISSING...] -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
+Usage: analyze_and_save_ia.R [-hdvk [-m MISSING...] -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
 
 Options:
  -h,--help                                    show this message and exit
  -v,--verbose                                 record progress
  -d,--debug                                   record EVERYTHING
  -k,--keep                                    keep the data in the resulting data frame
- -m MISSING...,--missing=MISSING              include analyze missing data percentage (no permutation) [default 0.01 0.05 0.10]
+ -m MISSING...,--missing=MISSING...           include analyze missing data percentage (no permutation) [default: 0.01 0.05 0.10]
  -s SEED,--seed=SEED                          random seed [default: 20160909]
  -n NSAMPLE...,--nsample=NSAMPLE...           number of samples/population (single quoted list of integers) [default: 10 25 50 100]
  -p PERMUTATIONS,--permutations=PERMUTATIONS  number of permutations for the index of association [default: 99]
@@ -26,6 +26,7 @@ Options:
 # Processing command line arguments ---------------------------------------
 
 opt <- docopt(doc, help = TRUE)
+print(opt)
 
 if (length(opt$FILE) == 0){
   message("\nFILE required. See options below\n")
@@ -35,6 +36,7 @@ if (length(opt$FILE) == 0){
 opt$seed         <- as.integer(opt$seed)
 opt$permutations <- as.integer(opt$permutations)
 opt$nsample      <- as.integer(str_split(opt$nsample, "[[:blank:]]")[[1]])
+print(opt$missing)
 opt$missing      <- as.numeric(str_split(opt$missing, "[[:blank:]]")[[1]])
 
 totsamp <- sum(opt$nsample)
@@ -70,18 +72,18 @@ full_analysis <- . %>%
       quiet    = !opt$debug) %>%
   bind_rows()
 
-# Missing analysis will calculate the value of $\bar{r}_d$ for all the data 
+# Missing analysis will calculate the value of $\bar{r}_d$ for all the data
 # sets with missing data and bind them into a tibble.
 missing_analysis_match <- . %>%
   map(seppop, parallel = FALSE) %>%
-  map(map_dbl, 
+  map(map_dbl,
       bitwise.ia,
       threads = 1L) %>%
   bind_rows()
 
 missing_analysis_nomatch <- . %>%
   map(seppop, parallel = FALSE) %>%
-  map(map_dbl, 
+  map(map_dbl,
       bitwise.ia,
       missing_match = FALSE,
       threads = 1L) %>%
@@ -110,12 +112,12 @@ for (f in opt$FILE){
     set.seed(opt$seed)
     pop_NA(indat, na.perc = ., parallel = FALSE)
   }
-  miss <- map(opt$missing, set_missing) %>% 
-    setNames(paste0("missing_", opt$missing)) 
-  
+  miss <- map(opt$missing, set_missing) %>%
+    setNames(paste0("missing_", opt$missing))
+
   if (opt$verbose) message(paste("Analyzing", allpops, "populations ... "))
   # Analyze $\bar{r}_d$ with permutations
-  res  <- indat %>% 
+  res  <- indat %>%
     full_analysis
   if (opt$verbose) message(paste("Analyzing missing data (with matching) ... "))
   # Analyze $\bar{r}_d$ with missing data (missing data always matches)
@@ -127,17 +129,17 @@ for (f in opt$FILE){
     setNames(paste0("missing_nomatch_", opt$missing)) %>%
     missing_analysis_nomatch
   # Preserve the augmented data sets.
-  mdat <- miss %>% 
+  mdat <- miss %>%
     setNames(paste0("dataset_", opt$missing)) %>%
-    map(seppop, parallel = FALSE) %>% 
+    map(seppop, parallel = FALSE) %>%
     bind_rows()
   res <- bind_cols(mres, mres_nomatch, res, mdat)
-  
+
   # Saving everything.
   outf <- make.names(f)
   if (opt$keep){
     outfDATA <- paste0(outf, ".DATA")
-    resDATA  <- res %>% dplyr::select(matches("dataset"), matches("pop"))    
+    resDATA  <- res %>% dplyr::select(matches("dataset"), matches("pop"))
     assign(x = outfDATA, resDATA)
     outf_data_location <- paste0(opt$output, "/", outfDATA, ".rda")
     if (opt$verbose) message(paste("saving data to", outf_data_location))
