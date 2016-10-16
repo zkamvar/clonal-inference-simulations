@@ -85,48 +85,39 @@ divnames  <- grep("^X.+?high_mutation.+?feather.(divtable|divtable.mutant).rda$"
 locnames  <- grep("^X.+?high_mutation.+?feather.(locustable|locustable.mutant).rda$", ls(), value = TRUE)
 contnames <- grep("^X.+?high_mutation.+?feather.(contrib|contrib.mutant).rda$", ls(), value = TRUE)
 
+account_for_source <- . %>%
+  bind_rows(.id = "source") %>%
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+
 datalist <- datnames %>%
   lapply(get) %>%
-  setNames(datnames) %>%
-  bind_rows(.id = "source") %>%
-  select(Ia:pop, source) %>%
+  setNames(datnames) %>% 
+  account_for_source %>%
   extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
-  mutate(sample = factor(sample, unique(sample))) %>%
-  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
-  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+  mutate(sample = factor(sample, unique(sample)))
 
 divlist <- divnames %>%
   lapply(get) %>%
   setNames(divnames) %>%
-  bind_rows(.id = "source") %>%
-  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
-  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
-  # rename(H.gene  = H) %>%
-  # rename(G.gene  = G) %>%
-  # rename(lambda.gene  = lambda) %>%
-  # rename(E.5.gene  = E.5) %>%
-  # rename(uSimp.gene  = uSimp)
+  account_for_source
 
 loclist <- locnames %>%
   lapply(get) %>%
   setNames(locnames) %>%
-  bind_rows(.id = "source") %>%
-  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
-  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+  account_for_source
 
 contlist <- contnames %>%
   lapply(get) %>%
   setNames(contnames) %>%
-  bind_rows(.id = "source") %>% 
+  account_for_source %>%
   rename(H.locus = H) %>%
   rename(G.locus = G) %>%
   rename(lambda.locus = lambda) %>%
   rename(E.5.locus = E.5) %>%
-  rename(uSimp.locus = uSimp) %>%
-  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
-  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+  rename(uSimp.locus = uSimp)
 
 
 
@@ -142,7 +133,8 @@ CF <- function(NMLG, sample){
 datalist <- inner_join(datalist, divlist, by = c("pop", "source", "mutation_rate")) %>%
   inner_join(loclist, by = c("pop", "source", "mutation_rate")) %>%
   inner_join(contlist, by = c("pop", "source", "mutation_rate")) %>%
-  mutate(CF = CF(NMLG, sample))
+  mutate(CF = CF(NMLG, sample)) %>%
+  select(Ia:CF, source)
 
 # cleaning up merged data
 rm(list = datnames)
@@ -186,7 +178,8 @@ clonetest <- function (p.rD, p.rDcc){
 vals <- vals %>% 
   mutate(significance = clonetest(p.rD, p.rDcc))
   
-save(vals, file = "../../simulation_results/processed_results.rda")
+# save(vals, file = "../../simulation_results/processed_results.rda")
+# save(datalist, file = "../../simulation_results/full_results.rda")
 (even_mutation <- vals %>% filter(mutation_rate == "even"))
 (odd_mutation <- vals %>% filter(mutation_rate == "uneven"))
 
