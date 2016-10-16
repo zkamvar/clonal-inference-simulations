@@ -23,6 +23,21 @@ library('tidyr')         # more magic
 library('purrr')         # magic dealing with lists
 ```
 
+## Data retrieval
+
+The data were downloaded from the CGRB server using rsync with the following
+command.
+
+> Note: replace XXXXX with the port number. I am not writing it here for
+security reasons.
+
+```
+rsync --update -avz -e "ssh -p XXXXX" --exclude 'twenty_loci_results' \ 
+kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulation_analysis/results \ 
+../simulation_results
+```
+
+
 This here will load in all of the results of the analyses
 
 ```{r, load_data, results = "hide"}
