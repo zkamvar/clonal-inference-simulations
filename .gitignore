@@ -8,4 +8,4 @@ Rplots.pdf
 pillow/*
 .Rhistory
 analysis/post_analysis_*
-analysis/post_analysis*html
+analysis/*html
