@@ -239,31 +239,50 @@ ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   geom_jitter(alpha = 0.25, height = 0) +
   geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
   log_rd_color + 
-  facet_wrap(~sample, nrow = 1) +
+  facet_grid(sample~mutation_rate) +
   ylab(expression(bar(r)[d]))
 ```
 
 
 ```{r, clone-correction}
-ggplot(vals, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
+ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
   geom_point(alpha = 0.25) +
   scale_color_viridis() + 
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
   xlab(expression(bar(r)[d])) +
-  ylab(expression(paste(bar(r)[d], " (clone-corrected)")))
+  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  ggtitle("Differences in probability due to clone correction", subtitle = "20 loci; even mutation rate")
+ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis() + 
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  xlab(expression(bar(r)[d])) +
+  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  ggtitle("Differences in probability due to clone correction", subtitle = "21 loci; uneven mutation rate")
 ```
 
 
 ```{r, clone-correction-significance}
-ggplot(vals, aes(x = rbarD, y = rbarDcc, color = significance)) +
+ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
   geom_point(alpha = 0.25) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
   xlab(expression(bar(r)[d])) +
-  ylab(expression(paste(bar(r)[d], " (clone-corrected)")))
+  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  ggtitle("Differences in probability due to clone correction", subtitle = "20 loci; even mutation rate")
+ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
+  geom_point(alpha = 0.25) +
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  xlab(expression(bar(r)[d])) +
+  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  ggtitle("Differences in probability due to clone correction", subtitle = "21 loci; uneven mutation rate")
 ```
 
 ```{r, rd-cc-sexrate}
@@ -271,7 +290,7 @@ ggplot(vals, aes(x = sexrate, y = rbarD - rbarDcc, color = log(p.rD))) +
   geom_point(alpha = 0.25, position = "jitter") +
   geom_boxplot(color = "black", width = 0.5, alpha = 0.25) +
   log_rd_color +
-  facet_wrap(~sample, nrow = 1)
+  facet_grid(sample~mutation_rate)
 ```
 
 
@@ -280,7 +299,8 @@ ggplot(vals, aes(x = sexrate, y = rbarD - rbarDcc, color = log(p.rD))) +
 ```{r, Hexp_rbarD}
 ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  log_rd_color
+  log_rd_color +
+  facet_wrap(~mutation_rate)
 ```
 
 ```{r, Hexp_rbarD_facet}
@@ -306,7 +326,7 @@ ggplot(vals, aes(x = E.5.gene, y = rbarD, color = log(p.rD))) +
 
 
 ```{r}
-ggplot(filter(vals, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NMLG))) +
+ggplot(filter(even_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NMLG))) +
   geom_point(alpha = 0.25) +
   scale_color_viridis(option = "magma", direction = -1,
                       breaks = log(c(2, 5, 10, 25, 50, 100)),
@@ -314,9 +334,20 @@ ggplot(filter(vals, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NM
   facet_grid(sexrate~sample) +
   theme_dark() +
   ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
-          subtitle = "For p >= 0.05") +
+          subtitle = "For p >= 0.05 with even mutation rates") +
   ylab(expression(bar(r)[d])) +
   xlab(expression(paste(E[5], " (averaged over 20 loci)")))
+ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NMLG))) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis(option = "magma", direction = -1,
+                      breaks = log(c(2, 5, 10, 25, 50, 100)),
+                      labels = c(2, 5, 10, 25, 50, 100)) +
+  facet_grid(sexrate~sample) +
+  theme_dark() +
+  ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
+          subtitle = "For p >= 0.05 with uneven mutation rates") +
+  ylab(expression(bar(r)[d])) +
+  xlab(expression(paste(E[5], " (averaged over 21 loci)")))
 ```
 
 
@@ -331,11 +362,14 @@ ggplot(vals, aes(x = `1-D`, y = `1-Dcc`, color = log(p.rD))) +
 
 ```{r, grabbag}
 ggplot(vals, aes(x = sexrate, y = E.5.gene, fill = sample)) +
-  geom_boxplot()
+  geom_boxplot() +
+  facet_wrap(~mutation_rate)
 ggplot(vals, aes(x = sexrate, y = H.gene, fill = sample)) +
-  geom_boxplot()
+  geom_boxplot() +
+  facet_wrap(~mutation_rate)
 ggplot(vals, aes(x = sexrate, y = B, fill = sample)) +
-  geom_boxplot()
+  geom_boxplot() +
+  facet_wrap(~mutation_rate)
 ```
 
 
