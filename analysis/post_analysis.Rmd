@@ -93,22 +93,40 @@ datalist <- datnames %>%
   extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
-  mutate(sample = factor(sample, unique(sample)))
+  mutate(sample = factor(sample, unique(sample))) %>%
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
 
 divlist <- divnames %>%
   lapply(get) %>%
   setNames(divnames) %>%
-  bind_rows()
+  bind_rows(.id = "source") %>%
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+  # rename(H.gene  = H) %>%
+  # rename(G.gene  = G) %>%
+  # rename(lambda.gene  = lambda) %>%
+  # rename(E.5.gene  = E.5) %>%
+  # rename(uSimp.gene  = uSimp)
 
 loclist <- locnames %>%
   lapply(get) %>%
   setNames(locnames) %>%
-  bind_rows()
+  bind_rows(.id = "source") %>%
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
 
 contlist <- contnames %>%
   lapply(get) %>%
   setNames(contnames) %>%
-  bind_rows()
+  bind_rows(.id = "source") %>% 
+  rename(H.locus = H) %>%
+  rename(G.locus = G) %>%
+  rename(lambda.locus = lambda) %>%
+  rename(E.5.locus = E.5) %>%
+  rename(uSimp.locus = uSimp) %>%
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
 
 
 
@@ -121,9 +139,9 @@ CF <- function(NMLG, sample){
 }
 
 
-datalist <- full_join(datalist, divlist, by = "pop") %>%
-  full_join(loclist, by = "pop") %>%
-  full_join(contlist, by = "pop") %>%
+datalist <- inner_join(datalist, divlist, by = c("pop", "source", "mutation_rate")) %>%
+  inner_join(loclist, by = c("pop", "source", "mutation_rate")) %>%
+  inner_join(contlist, by = c("pop", "source", "mutation_rate")) %>%
   mutate(CF = CF(NMLG, sample))
 
 # cleaning up merged data
@@ -134,6 +152,7 @@ rm(list = contnames)
 rm(divlist)
 rm(loclist)
 rm(contlist)
+gc(verbose = TRUE)
 ```
 
 Now we can summarize the null distributions per sample.
@@ -154,17 +173,7 @@ vals <- datalist %>%
   mutate(max.rdcc  = vapply(samples.rdcc, max, numeric(1), na.rm = TRUE)) %>%
   select(-starts_with("samples"), -rrmat, -curve, -pgen) # removing large data
 })
-vals <- vals %>% 
-  rename(H.gene  = H.x) %>%
-  rename(H.locus = H.y) %>%
-  rename(G.gene  = G.x) %>%
-  rename(G.locus = G.y) %>%
-  rename(lambda.gene  = lambda.x) %>%
-  rename(lambda.locus = lambda.y) %>%
-  rename(E.5.gene  = E.5.x) %>%
-  rename(E.5.locus = E.5.y) %>%
-  rename(uSimp.gene  = uSimp.x) %>%
-  rename(uSimp.locus = uSimp.y)
+
 
 clonetest <- function (p.rD, p.rDcc){
   a <- p.rD < 0.05
@@ -175,12 +184,12 @@ clonetest <- function (p.rD, p.rDcc){
   factor(res , labels = c("clone-correct", "none", "both", "whole"))
 }
 vals <- vals %>% 
-  mutate(significance = clonetest(p.rD, p.rDcc)) %>%
-  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven"))
+  mutate(significance = clonetest(p.rD, p.rDcc))
   
-vals <- vals %>% distinct(pop, source, .keep_all = TRUE)
+save(vals, file = "../../simulation_results/processed_results.rda")
 (even_mutation <- vals %>% filter(mutation_rate == "even"))
 (odd_mutation <- vals %>% filter(mutation_rate == "uneven"))
+
 ```
 
 
@@ -198,40 +207,46 @@ nrow(odd_mutation) == 40000
 log_rd_color <- scale_color_viridis(option = "viridis", 
                                     breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), 
                                     labels = c(0.005, 0.01, 0.025, 0.05, 0.1))
-
+rd   <- quote(expression(bar(r)[d]))
+rdcc <- quote(expression(paste(bar(r)[d], " (clone-corrected)")))
+prd   <- quote(expression(paste("p (", bar(r)[d], ")")))
+prdcc <- quote(expression(paste("p (", bar(r)[d], " (clone-corrected))")))
+E5g  <- quote(expression(paste("Genotypic evenness (", E[5][G], ")")))
+E5a  <- quote(expression(paste("Mean allelic evenness (", E[5][A], ")")))
+Hexp <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
 ```
 
 
 
 ```{r, rd_sexrate}
 ggplot(vals, aes(x = sexrate, y = rbarD, fill = sample)) +
-  geom_boxplot(outlier.size = 0.5) +
-  facet_wrap(~mutation_rate)
+  geom_boxplot(outlier.size = 0.25) +
+  facet_wrap(~mutation_rate) +
+  ylab(eval(rd))
+  
 ```
 
 
 ```{r, rd_pval}
 ggplot(vals, aes(x = sexrate, y = p.rD, fill = sample)) +
-  geom_boxplot(outlier.size = 0.5) +
+  geom_boxplot(outlier.size = 0.25) +
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
   theme_bw() +
-  facet_wrap(~mutation_rate)
+  facet_wrap(~mutation_rate) +
+  ylab(eval(rd))
 ```
 
 ```{r, rd_pval_cc}
-ggplot(even_mutation, aes(x = p.rDcc, y = p.rD)) +
-  geom_point() +
+ggplot(vals, aes(x = p.rDcc, y = p.rD, color = mutation_rate)) +
+  geom_point(alpha = 0.25) +
   theme_bw() +
   geom_abline(slope = 1) +
+  scale_x_log10() +
+  scale_y_log10() +
   facet_grid(sample~sexrate) +
-  ggtitle("20 loci with even mutation rates")
-ggplot(odd_mutation, aes(x = p.rDcc, y = p.rD)) +
-  geom_point() +
-  theme_bw() +
-  geom_abline(slope = 1) +
-  facet_grid(sample~sexrate) +
-  ggtitle("21 loci; one locus with a fast mutation rate")
+  ylab(eval(prd)) +
+  xlab(eval(prdcc))
 ```
 
 ```{r, rd_sexrate_pval}
@@ -251,8 +266,8 @@ ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  xlab(expression(bar(r)[d])) +
-  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  xlab(eval(rd)) +
+  ylab(eval(rdcc)) +
   ggtitle("Differences in probability due to clone correction", subtitle = "20 loci; even mutation rate")
 ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
   geom_point(alpha = 0.25) +
@@ -260,8 +275,8 @@ ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  xlab(expression(bar(r)[d])) +
-  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  xlab(eval(rd)) +
+  ylab(eval(rdcc)) +
   ggtitle("Differences in probability due to clone correction", subtitle = "21 loci; uneven mutation rate")
 ```
 
@@ -272,76 +287,94 @@ ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  xlab(expression(bar(r)[d])) +
-  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  xlab(eval(rd)) +
+  ylab(eval(rdcc)) +
   ggtitle("Differences in probability due to clone correction", subtitle = "20 loci; even mutation rate")
 ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
   geom_point(alpha = 0.25) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  xlab(expression(bar(r)[d])) +
-  ylab(expression(paste(bar(r)[d], " (clone-corrected)"))) +
+  xlab(eval(rd)) +
+  ylab(eval(rdcc)) +
   ggtitle("Differences in probability due to clone correction", subtitle = "21 loci; uneven mutation rate")
 ```
-
-```{r, rd-cc-sexrate}
-ggplot(vals, aes(x = sexrate, y = rbarD - rbarDcc, color = log(p.rD))) +
-  geom_point(alpha = 0.25, position = "jitter") +
-  geom_boxplot(color = "black", width = 0.5, alpha = 0.25) +
-  log_rd_color +
-  facet_grid(sample~mutation_rate)
-```
-
-
 
 
 ```{r, Hexp_rbarD}
 ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
   log_rd_color +
-  facet_wrap(~mutation_rate)
+  facet_wrap(~mutation_rate) +
+  xlab(eval(Hexp)) +
+  ylab(eval(rd))
 ```
 
 ```{r, Hexp_rbarD_facet}
-ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+ggplot(odd_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
   log_rd_color + 
-  facet_grid(sexrate~sample)
+  facet_grid(sexrate~sample) +
+  xlab(eval(Hexp)) +
+  ylab(eval(rd))
+ggplot(even_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color + 
+  facet_grid(sexrate~sample) +
+  xlab(eval(Hexp)) +
+  ylab(eval(rd))
 ```
 
 ```{r, gE5_lE5}
-ggplot(vals, aes(x = Evenness, y = E.5.gene, color = rbarD)) +
+ggplot(even_mutation, aes(x = Evenness, y = E.5, color = rbarD)) +
   geom_point(alpha = 0.25) +
   scale_color_viridis() +
-  facet_grid(sexrate~sample)
+  facet_grid(sexrate~sample) +
+  xlab(eval(E5a)) +
+  ylab(eval(E5g))
+ggplot(odd_mutation, aes(x = Evenness, y = E.5, color = rbarD)) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis() +
+  facet_grid(sexrate~sample) +
+  xlab(eval(E5a)) +
+  ylab(eval(E5g))
 ```
 
 ```{r, gE5_rbarD}
-ggplot(vals, aes(x = E.5.gene, y = rbarD, color = log(p.rD))) +
+ggplot(even_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
   log_rd_color +
-  facet_grid(sexrate~sample)
+  facet_grid(sexrate~sample) +
+  xlab(eval(E5g)) +
+  ylab(eval(rd))
+ggplot(odd_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color +
+  facet_grid(sexrate~sample) +
+  xlab(eval(E5g)) +
+  ylab(eval(rd))
 ```
 
 
 ```{r}
-ggplot(filter(even_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NMLG))) +
+ggplot(filter(even_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  scale_color_viridis(option = "magma", direction = -1,
-                      breaks = log(c(2, 5, 10, 25, 50, 100)),
-                      labels = c(2, 5, 10, 25, 50, 100)) +
+  # scale_color_viridis(option = "magma", direction = -1,
+  #                     breaks = log(c(2, 5, 10, 25, 50, 100)),
+  #                     labels = c(2, 5, 10, 25, 50, 100)) +
+  log_rd_color + 
   facet_grid(sexrate~sample) +
   theme_dark() +
   ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
           subtitle = "For p >= 0.05 with even mutation rates") +
   ylab(expression(bar(r)[d])) +
   xlab(expression(paste(E[5], " (averaged over 20 loci)")))
-ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(NMLG))) +
+ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  scale_color_viridis(option = "magma", direction = -1,
-                      breaks = log(c(2, 5, 10, 25, 50, 100)),
-                      labels = c(2, 5, 10, 25, 50, 100)) +
+  log_rd_color + 
+  # scale_color_viridis(option = "magma", direction = -1,
+  #                     breaks = log(c(2, 5, 10, 25, 50, 100)),
+  #                     labels = c(2, 5, 10, 25, 50, 100)) +
   facet_grid(sexrate~sample) +
   theme_dark() +
   ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
@@ -352,7 +385,12 @@ ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color 
 
 
 ```{r, rd_vs_uSimp.locus}
-ggplot(vals, aes(x = `1-D`, y = `1-Dcc`, color = log(p.rD))) +
+ggplot(even_mutation, aes(x = `1-D`, y = `1-Dcc`, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  geom_abline(slope = 1) +
+  log_rd_color +
+  facet_grid(sexrate~sample)
+ggplot(odd_mutation, aes(x = `1-D`, y = `1-Dcc`, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
   geom_abline(slope = 1) +
   log_rd_color +
@@ -361,10 +399,10 @@ ggplot(vals, aes(x = `1-D`, y = `1-Dcc`, color = log(p.rD))) +
 
 
 ```{r, grabbag}
-ggplot(vals, aes(x = sexrate, y = E.5.gene, fill = sample)) +
+ggplot(vals, aes(x = sexrate, y = E.5, fill = sample)) +
   geom_boxplot() +
   facet_wrap(~mutation_rate)
-ggplot(vals, aes(x = sexrate, y = H.gene, fill = sample)) +
+ggplot(vals, aes(x = sexrate, y = H, fill = sample)) +
   geom_boxplot() +
   facet_wrap(~mutation_rate)
 ggplot(vals, aes(x = sexrate, y = B, fill = sample)) +
@@ -376,6 +414,6 @@ ggplot(vals, aes(x = sexrate, y = B, fill = sample)) +
 ```{r, CF_B}
 ggplot(vals, aes(x = CF, y = B, color = sample)) +
   geom_point() +
-  facet_wrap(~sample)
+  facet_grid(sample~mutation_rate)
 ```
 
