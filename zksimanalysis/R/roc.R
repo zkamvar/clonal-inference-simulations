@@ -12,9 +12,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' lapply(seq(0, 1, 0.01), function(a){
-#'   roc(vals, group = c("sexrate", "sample"), count.na = TRUE, alpha = a)
-#'   }) %>%
+#' lapply(seq(0, 1, 0.01), roc, vals, group = c("sexrate", "sample"), count.na = TRUE) %>%
 #'   bind_rows %>%
 #'   ungroup() %>%
 #'   select(-sexrate) %>%
@@ -24,9 +22,8 @@
 #'   geom_point() +
 #'   geom_abline(slope = 1, lty = 2)
 #' }
-roc <- function(df, compare = c("0.0000", "1.0000"), stat = "p.rD",
-                count.na = TRUE, group = c("sexrate", "run", "seed", "sample"),
-                alpha = 0.05){
+roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"), stat = "p.rD",
+                count.na = TRUE, group = c("sexrate", "run", "seed", "sample")){
   if (count.na){
       pf <- lazyeval::interp(~(sum(stat <= alpha, na.rm = TRUE) + sum(is.na(stat)))/n(),
                          stat = as.name(stat), alpha = alpha)
@@ -41,5 +38,11 @@ roc <- function(df, compare = c("0.0000", "1.0000"), stat = "p.rD",
     group_by_(.dots = group) %>%
     summarize_(.dots = list(positive_fraction = pf,
                             alpha = alpha)) %>%
-    mutate_(.dots = list(score = ~ifelse(sexrate == compare[1], "Hit", "Miss")))
+    mutate_(.dots = list(score = ~ifelse(sexrate == compare[1], "True Positive", "False Positive"))) %>%
+    ungroup() %>%
+    mutate_(.dots = list(sexrate = compare[1]))
+}
+
+roc_curve <- function(alpha = seq(0, 1, by = 0.05), df, ...){
+
 }
