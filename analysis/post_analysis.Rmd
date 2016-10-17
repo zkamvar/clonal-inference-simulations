@@ -67,9 +67,12 @@ asp       <- function(r) theme(aspect.ratio = r)
 # The p-value for rd is best visualized on a log scale. This provides that
 # the color scaling for that transformation, emphasizing smaller p-values over
 # larger ones.
-log_rd_color <- scale_color_viridis(option = "viridis", 
-                                    breaks = log(c(0.005, 0.01, 0.025, 0.05, 0.1)), 
-                                    labels = c(0.005, 0.01, 0.025, 0.05, 0.1))
+log_rd_color <- function(breaks = c(0.005, 0.01, 0.025, 0.05, 0.1)){
+  scale_color_viridis(option = "viridis", 
+                      breaks = log(breaks), 
+                      labels = breaks)
+}
+  
 # Various labels with mathematical expressions are used for the plots. 
 # Pre-defining them here allows us to use eval(exp) instead of re-typing the
 # entire expression every time.
@@ -132,7 +135,7 @@ ggplot(vals, aes(x = p.rDcc, y = p.rD, pch = mutation_rate)) +
 ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   geom_jitter(alpha = 0.25, height = 0) +
   geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
-  log_rd_color + 
+  log_rd_color() + 
   facet_grid(sample~mutation_rate) +
   labs(list(
     x = "Rate of Sexual Reproduction",
@@ -179,7 +182,7 @@ ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
 ```{r, Hexp_rbarD, fig.width = 10}
 ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  log_rd_color +
+  log_rd_color() +
   facet_wrap(~mutation_rate) +
   labs(list(
     title = "Index of association vs. Gene Diversity",
@@ -193,7 +196,7 @@ ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
 ```{r, Hexp_rbarD_facet, fig.width = 10}
 ggplot(even_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  log_rd_color + 
+  log_rd_color() + 
   asp(1) +
   facet_grid(sample~sexrate) +
   labs(list(
@@ -205,7 +208,7 @@ ggplot(even_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
     )
 ggplot(odd_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  log_rd_color + 
+  log_rd_color() + 
   asp(1) +
   facet_grid(sample~sexrate) +
   labs(list(
@@ -239,14 +242,14 @@ ggplot(odd_mutation, aes(x = Evenness, y = E.5, color = rbarD)) +
 ```{r, gE5_rbarD, fig.width = 10}
 ggplot(even_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  log_rd_color +
+  log_rd_color() +
   asp(0.75) +
   facet_grid(sample~sexrate) +
   xlab(eval(E5g)) +
   ylab(eval(rd))
 ggplot(odd_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  log_rd_color +
+  log_rd_color() +
   asp(0.75) +
   facet_grid(sample~sexrate) +
   xlab(eval(E5g)) +
@@ -257,10 +260,7 @@ ggplot(odd_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
 ```{r, eveness_rd, fig.height = 10, fig.width = 10}
 ggplot(filter(even_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  # scale_color_viridis(option = "magma", direction = -1,
-  #                     breaks = log(c(2, 5, 10, 25, 50, 100)),
-  #                     labels = c(2, 5, 10, 25, 50, 100)) +
-  log_rd_color + 
+  log_rd_color(c(0.05, 0.1, 0.25, 0.5, 1)) + 
   facet_grid(sexrate~sample) +
   theme_dark() +
   geom_vline(xintercept = max((even_mutation %>% filter(sexrate == "1.0000"))$Evennesscc), lty = 2) +
@@ -271,10 +271,7 @@ ggplot(filter(even_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color
   xlab(expression(paste(E[5], " (averaged over 20 loci)")))
 ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
-  # scale_color_viridis(option = "magma", direction = -1,
-  #                     breaks = log(c(2, 5, 10, 25, 50, 100)),
-  #                     labels = c(2, 5, 10, 25, 50, 100)) +
-  log_rd_color + 
+  log_rd_color(c(0.05, 0.1, 0.25, 0.5, 1)) + 
   facet_grid(sexrate~sample) +
   theme_dark() +
   geom_vline(xintercept = max((odd_mutation %>% filter(sexrate == "1.0000"))$Evennesscc), lty = 2) +

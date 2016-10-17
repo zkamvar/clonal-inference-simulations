@@ -43,12 +43,8 @@ for each seed.
 
 ### Area Under the ROC Curve (AURC)
 
-The Area under the ROC Curve will be calcuated via the `trapz()` function via
-*pracma*. To assess the effect of sexual reproduction, sample size, and variable
-mutation rate, we will construct an ANOVA model on the distributions of AURC by
-seed:
-
-> AURC ~ Sex Rate + Sample Size + Variable Mutation Rate
+The Area under the ROC Curve will be calcuated via the `auc()` function via
+*flux*. 
 
 ## Setup
 
@@ -61,6 +57,7 @@ library('tidyr')         # more magic
 library('purrr')         # magic dealing with lists
 library('ggplot2')       # magic plotting action!
 library('flux')
+library('broom')
 ```
 
 This here will load in all of the results of the analyses. These were previously
@@ -85,11 +82,11 @@ odd_mutation
 ```{r, generate_sexrate}
 sex <- unique(vals$sexrate)
 sex <- sex[!sex %in% "1.0000"]
-alpha <- seq(0, 1, by = 0.05)
+alpha <- seq(0, 1, by = 0.01)
 ```
 
 
-```{r, roc_overall}
+```{r, roc_overall, cache = TRUE}
 roc_overall <- sex %>% map(map2, alpha,
             ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE,
                 group = c("mutation_rate", "sexrate", "sample")
@@ -118,7 +115,7 @@ old_theme <- theme_set(theme_bw())
 ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`, 
                         color = sample)) +
   geom_line(aes(lty = mutation_rate)) +
-  geom_point(aes(pch = sample)) +
+  # geom_point(aes(pch = sample)) +
   facet_wrap(~sexrate) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
@@ -132,7 +129,7 @@ ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`,
 ggplot(roc_overall_cc, aes(x = `False Positive`, y = `True Positive`, 
                         color = sample)) +
   geom_line(aes(lty = mutation_rate)) +
-  geom_point(aes(pch = sample)) +
+  # geom_point(aes(pch = sample)) +
   facet_wrap(~sexrate) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
@@ -145,7 +142,7 @@ ggplot(roc_overall_cc, aes(x = `False Positive`, y = `True Positive`,
   scale_color_brewer(palette = "Set1")
 ```
 
-```{r, roc_by_seed}
+```{r, roc_by_seed, cache = TRUE}
 roc_by_seed <- sex %>% map(map2, alpha,
             ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE,
                 group = c("mutation_rate", "sexrate", "run", "seed", "sample")
@@ -155,31 +152,99 @@ roc_by_seed <- sex %>% map(map2, alpha,
   ungroup() %>%
   spread(score, positive_fraction)
 roc_by_seed
+roc_by_seed_cc <- sex %>% map(map2, alpha,
+            ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE, stat = "p.rDcc",
+                group = c("mutation_rate", "sexrate", "run", "seed", "sample")
+                )) %>%
+  flatten() %>%
+  bind_rows(.id = "runseed") %>%
+  ungroup() %>%
+  spread(score, positive_fraction)
+roc_by_seed_cc
 ```
 
 ### AURC
 
-```{r, AUPC, fig.width = 10, fig.height = 10}
-AURC_overall <- roc_overall %>% 
+Here we calculate the Area Under the ROC Curve using the function `auc()` from
+the package *flux*.
+
+```{r, AURC_calc, cache = TRUE}
+# Calculate ROC over all seeds, produce points
+overall_roc <- . %>% 
   group_by(sexrate, sample, mutation_rate) %>%
   summarize(AURC = auc(`False Positive`, `True Positive`))
 
-AURC_by_seed <- roc_by_seed %>%
-  group_by(sexrate, run, seed, sample, mutation_rate) %>%
+# Calculate ROC for each seed separately, produce distributions
+by_seed_roc <- . %>% 
+  group_by(run, seed, sexrate, sample, mutation_rate) %>%
   summarize(AURC = auc(`False Positive`, `True Positive`))
 
-ggplot(AURC_overall, aes(x = factor(sexrate), y = AURC)) +
-  geom_point(aes(group = factor(sexrate), color = sample)) +
-  facet_grid(sample~mutation_rate)
+AURC_overall <- roc_overall %>% overall_roc
+AURC_by_seed <- roc_by_seed %>% by_seed_roc
 
-ggplot(AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
-  geom_violin(aes(group = factor(sexrate), fill = sample)) +
-  facet_grid(sample~mutation_rate) +
-  geom_point(aes(x = factor(sexrate), y = AURC), data = AURC_overall) +
+AURC_overall_cc <- roc_overall_cc %>% overall_roc
+AURC_by_seed_cc <- roc_by_seed_cc %>% by_seed_roc
+
+# Combine clone-corrected and un-corrected
+by_seed <- bind_rows(AURC_by_seed_cc, AURC_by_seed, .id = "CC") %>%
+  mutate(CC = ifelse(CC == 1, "clone-corrected", "uncorrected")) %>%
+  ungroup() %>% 
+  mutate(sample = factor(paste("n =", sample), paste("n =", c(10, 25, 50, 100))))
+
+overall <- bind_rows(AURC_overall_cc, AURC_overall, .id = "CC") %>%
+  mutate(CC = ifelse(CC == 1, "clone-corrected", "uncorrected")) %>%
+  ungroup() %>% 
+  mutate(sample = factor(paste("n =", sample), paste("n =", c(10, 25, 50, 100))))
+
+```
+
+Now we can visualize the data as facetted boxplots
+
+```{r, AURC_plot, fig.width = 10, fig.height = 10}
+
+# Add an annotation indicating that 0.5 is random assignment.
+text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", 
+                              sample = "n = 10", mutation_rate = "even")
+
+ggplot(by_seed, aes(x = factor(sexrate), y = AURC)) +
+  geom_boxplot(aes(fill = CC)) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = .2) +
-  annotate(y = 0.5, x = 0, geom = "text", label = "random", hjust = -0.5, vjust = -0.5, color = "gray40") +
-  scale_fill_brewer(palette = "Set1")
+  geom_boxplot(aes(fill = CC)) +
+  facet_grid(sample~mutation_rate) +
+  geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
+            data = text_annotation) +
+  geom_point(aes(x = factor(sexrate), y = AURC, pch = CC), data = overall,
+             position = position_dodge(width = 0.75), color = "black", fill = "white") +
+  scale_shape_manual(values = c(21, 24)) + 
+  labs(list(
+    fill = "Clone Correction",
+    pch = "Overall",
+    x = "Rate of Sexual Reproduction",
+    title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
+    subtitle = "calculated over sample size and mutation rate"
+  )) +
+  scale_fill_brewer(palette = "Set2")
 
 
+```
+
+
+
+```{r}
+by_seed %>%
+  group_by(sexrate, sample, mutation_rate, CC) %>%
+  do(shapiro.test(.$AURC) %>% tidy()) %>%
+  ungroup() %>% 
+  summarize(percent_normal = sum(p.value >= 0.1)/n())
+car::leveneTest(AURC ~ factor(sexrate) * sample * mutation_rate * CC, data = by_seed)
+
+```
+
+
+## Session Information
+
+```{r session_info}
+options(width = 100)
+devtools::session_info()
 ```
 
