@@ -22,27 +22,25 @@
 #'   geom_point() +
 #'   geom_abline(slope = 1, lty = 2)
 #' }
-roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"), stat = "p.rD",
-                count.na = TRUE, group = c("sexrate", "run", "seed", "sample")){
-  if (count.na){
-      pf <- lazyeval::interp(~(sum(stat <= alpha, na.rm = TRUE) + sum(is.na(stat)))/n(),
-                         stat = as.name(stat), alpha = alpha)
-  } else {
-      pf <- lazyeval::interp(~sum(stat <= alpha, na.rm = TRUE)/n(),
-                         stat = as.name(stat), alpha = alpha)
-  }
-  transform <- lazyeval::interp(~ifelse(sexrate == ~x, "Hit", "Miss"),
-                                x = compare[1])
+roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"),
+                stat = "p.rD", augment = NULL, count.na = TRUE,
+                group = c("sexrate", "run", "seed", "sample")){
+
+  pf <- lazyeval::interp(~n_hits(stat, alpha, count.na)/n(),
+                         stat = as.name(stat), alpha = alpha, count.na = count.na)
+  score_column <- list(score = ~ifelse(sexrate == compare[1], "True Positive", "False Positive"))
   df %>%
     filter_(.dots = list(~sexrate %in% compare)) %>%
     group_by_(.dots = group) %>%
-    summarize_(.dots = list(positive_fraction = pf,
-                            alpha = alpha)) %>%
-    mutate_(.dots = list(score = ~ifelse(sexrate == compare[1], "True Positive", "False Positive"))) %>%
+    summarize_(.dots = list(positive_fraction = pf, alpha = alpha)) %>%
+    mutate_(.dots = score_column) %>%
     ungroup() %>%
     mutate_(.dots = list(sexrate = compare[1]))
 }
 
-roc_curve <- function(alpha = seq(0, 1, by = 0.05), df, ...){
-
+n_hits <- function(stat, alpha, count.na = TRUE){
+  res <- sum(stat <= alpha, na.rm = TRUE)
+  res <- if (count.na) res + sum(is.na(stat)) else res
+  return(res)
 }
+
