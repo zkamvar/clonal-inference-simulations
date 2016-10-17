@@ -48,16 +48,8 @@ The Area under the ROC Curve will be calcuated via the `auc()` function via
 
 ## Setup
 
-```{r, required_packages, message = FALSE}
-library('zksimanalysis') # Main package for analysis
-library('magrittr')      # For the %T>%
-library('viridis')       # Excellent color scaling
-library('dplyr')         # Magic data manipulation
-library('tidyr')         # more magic
-library('purrr')         # magic dealing with lists
-library('ggplot2')       # magic plotting action!
-library('flux')
-library('broom')
+```{r, required_packages}
+library('zksimanalysis')
 ```
 
 This here will load in all of the results of the analyses. These were previously
@@ -225,18 +217,6 @@ ggplot(by_seed, aes(x = factor(sexrate), y = AURC)) +
   )) +
   scale_fill_brewer(palette = "Set2")
 
-
-```
-
-
-
-```{r}
-by_seed %>%
-  group_by(sexrate, sample, mutation_rate, CC) %>%
-  do(shapiro.test(.$AURC) %>% tidy()) %>%
-  ungroup() %>% 
-  summarize(percent_normal = sum(p.value >= 0.1)/n())
-car::leveneTest(AURC ~ factor(sexrate) * sample * mutation_rate * CC, data = by_seed)
 
 ```
 

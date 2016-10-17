@@ -14,14 +14,8 @@ simulations.
 
 ## Setup
 
-```{r, required_packages, message = FALSE}
-library('zksimanalysis') # Main package for analysis
-library('magrittr')      # For the %T>%
-library('viridis')       # Excellent color scaling
-library('dplyr')         # Magic data manipulation
-library('tidyr')         # more magic
-library('purrr')         # magic dealing with lists
-library('ggplot2')       # magic plotting action!
+```{r, required_packages}
+library('zksimanalysis')
 ```
 
 This here will load in all of the results of the analyses. These were previously
