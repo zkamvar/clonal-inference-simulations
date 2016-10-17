@@ -84,7 +84,7 @@ Hexp  <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
 
 
 
-```{r, rd_sexrate}
+```{r, rd_sexrate, fig.width = 10}
 ggplot(vals, aes(x = sexrate, y = rbarD, fill = sample)) +
   geom_boxplot(outlier.size = 0.25) +
   facet_wrap(~mutation_rate) +
@@ -97,7 +97,7 @@ ggplot(vals, aes(x = sexrate, y = rbarD, fill = sample)) +
 ```
 
 
-```{r, rd_pval}
+```{r, rd_pval, fig.width = 10}
 ggplot(vals, aes(x = sexrate, y = p.rD, fill = sample)) +
   geom_boxplot(outlier.size = 0.25) +
   scale_y_log10(breaks = c(0.01, 0.1, 1),
@@ -120,40 +120,27 @@ ggplot(vals, aes(x = p.rDcc, y = p.rD, pch = mutation_rate)) +
   facet_grid(sample~sexrate) +
   ylab(eval(prd)) +
   xlab(eval(prdcc)) +
+  ggtitle("Index of Association p-values over sex rate and sample size", 
+          subtitle = "with log-transformed axes") +
+  labs(list(pch = "Mutation Rate")) +
+  guides(pch = guide_legend(override.aes = list(alpha = 1))) +
+  theme(legend.position = "bottom") +
   asp(1)
 ```
 
-```{r, rd_sexrate_pval}
+```{r, rd_sexrate_pval, fig.width = 10, fig.height = 10}
 ggplot(vals, aes(x = sexrate, y = rbarD, color = log(p.rD))) +
   geom_jitter(alpha = 0.25, height = 0) +
-  geom_boxplot(color = "black", notch = TRUE, fig.width = 0.5, alpha = 0.25) +
+  geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
   log_rd_color + 
   facet_grid(sample~mutation_rate) +
-  ylab(expression(bar(r)[d]))
-```
-
-
-```{r, clone-correction, fig.width = 10}
-ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
-  geom_point(alpha = 0.25) +
-  scale_color_viridis() + 
-  geom_abline(slope = 1) +
-  facet_grid(sample~sexrate) +
-  scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  xlab(eval(rd)) +
-  ylab(eval(rdcc)) +
-  asp(1) +
-  ggtitle("Differences in probability due to clone correction", subtitle = "20 loci; even mutation rate")
-ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = p.rD - p.rDcc)) +
-  geom_point(alpha = 0.25) +
-  scale_color_viridis() + 
-  geom_abline(slope = 1) +
-  facet_grid(sample~sexrate) +
-  scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  xlab(eval(rd)) +
-  ylab(eval(rdcc)) +
-  asp(1) +
-  ggtitle("Differences in probability due to clone correction", subtitle = "21 loci; uneven mutation rate")
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    y = eval(rd),
+    color = eval(prd),
+    title = "Detection of clonal reproduction",
+    subtitle = "for even and uneven mutation rates")
+    )
 ```
 
 
@@ -163,46 +150,71 @@ ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
   asp(1) +
-  xlab(eval(rd)) +
-  ylab(eval(rdcc)) +
-  ggtitle("Differences in probability due to clone correction", subtitle = "20 loci; even mutation rate")
+  labs(list(
+    x = eval(rd),
+    y = eval(rdcc),
+    title = "Differences in probability due to clone correction", 
+    subtitle = "20 loci; even mutation rate")
+  ) 
 ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
   geom_point(alpha = 0.25) +
   geom_abline(slope = 1) +
   facet_grid(sample~sexrate) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
   asp(1) +
-  xlab(eval(rd)) +
-  ylab(eval(rdcc)) +
-  ggtitle("Differences in probability due to clone correction", subtitle = "21 loci; uneven mutation rate")
+  labs(list(
+    x = eval(rd),
+    y = eval(rdcc),
+    title = "Differences in probability due to clone correction", 
+    subtitle = "21 loci; uneven mutation rate")
+  ) 
 ```
 
 
-```{r, Hexp_rbarD}
+```{r, Hexp_rbarD, fig.width = 10}
 ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
   log_rd_color +
   facet_wrap(~mutation_rate) +
-  xlab(eval(Hexp)) +
-  ylab(eval(rd))
+  labs(list(
+    title = "Index of association vs. Gene Diversity",
+    subtitle = "for even and uneven mutation rates",
+    y = eval(rd),
+    x = eval(Hexp),
+    color = eval(prd))
+    )
 ```
 
 ```{r, Hexp_rbarD_facet, fig.width = 10}
-ggplot(odd_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
-  geom_point(alpha = 0.25) +
-  log_rd_color + 
-  asp(1) +
-  facet_grid(sample~sexrate) +
-  xlab(eval(Hexp)) +
-  ylab(eval(rd))
 ggplot(even_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
   geom_point(alpha = 0.25) +
   log_rd_color + 
   asp(1) +
   facet_grid(sample~sexrate) +
-  xlab(eval(Hexp)) +
-  ylab(eval(rd))
+  labs(list(
+    title = "Index of association vs. Gene Diversity",
+    subtitle = "by sex rate and sample size for 20 loci; even mutation rate",
+    y = eval(rd),
+    x = eval(Hexp),
+    color = eval(prd))
+    )
+ggplot(odd_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color + 
+  asp(1) +
+  facet_grid(sample~sexrate) +
+  labs(list(
+    title = "Index of association vs. Gene Diversity",
+    subtitle = "by sex rate and sample size for 21 loci; uneven mutation rate",
+    y = eval(rd),
+    x = eval(Hexp),
+    color = eval(prd))
+    )
 ```
 
 ```{r, gE5_lE5, fig.width = 10}
