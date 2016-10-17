@@ -5,7 +5,8 @@
 \title{Receiver Operator Characteristic}
 \usage{
 roc(alpha = 0.05, df, compare = c("0.0000", "1.0000"), stat = "p.rD",
-  count.na = TRUE, group = c("sexrate", "run", "seed", "sample"))
+  augment = NULL, count.na = TRUE, group = c("sexrate", "run", "seed",
+  "sample"))
 }
 \arguments{
 \item{alpha}{the level at which to compare}

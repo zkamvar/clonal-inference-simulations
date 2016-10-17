@@ -1,3 +1,16 @@
+# zksimanalysis 0.7.0.9000
+
+## NEW FUNCTION
+
+* `roc()` calculates the receiver operator characteristic.
+
+## NEW DEPENDENCIES
+
+* The package _tidyverse_ has been added to replace _dplyr_ and _magrittr_. This
+  also adds _purrr_.
+* The color package _viridis_ has been added for plotting.
+* The _flux_ package has been added for calculation of area under ROC curves.
+
 # zksimanalysis 0.6.0.9000
 
 ## NEW FUNCTION

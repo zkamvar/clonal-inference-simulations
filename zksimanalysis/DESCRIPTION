@@ -9,12 +9,14 @@ Description: This is a personal package to analyze simulations for the index of
     association.
 Depends:
     R (>= 3.2.0),
+    tidyverse (>= 0.5.0),
     adegenet (>= 2.0.2),
     poppr (>= 2.2.1),
     feather (>= 0.3.0),
-    dplyr (>= 0.5.0),
     vcfR (>= 1.2.0),
-    poweRlaw (>= 0.60.3)
+    poweRlaw (>= 0.60.3),
+    flux (>= 0.3-0),
+    viridis (>= 0.3.4)
 Suggests:
 	tidyr
 Remotes:
