@@ -1,0 +1,185 @@
+---
+title: "ROC Analysis"
+author: "Zhian N. Kamvar"
+date: "October 16, 2016"
+output: html_document
+---
+
+## Introduction
+
+I've created 10,000 simulations of populations undergoing different levels of
+sexual reproduction and analyzed the index of association along with genotypic
+and allelic diversity metrics, including an analysis of the contribution of each
+locus to the genotypic diversity. 
+
+This document will perform a power analysis of $\bar{r}_d$ by calculating
+Receiver Operator Characteristic (ROC) Curves. These curves are useful in
+assessing the power of an analysis by assessing the true positive fraction and
+false positive fraction against different values of $\alpha$. 
+
+In our case, we are asking the question:
+
+> How well can $\bar{r}_d$ detect non-random mating (clonal reproduction)?
+
+
+## Analysis
+
+### Overall ROC Curve
+
+We will be looking at factors such as sample size, percent of clonal 
+reproduction, and variable mutation rates. To perform the analyis, the data will
+be split up into two sets: "Random Mating" and "Non-Random Mating". The Random 
+mating set will always be the data set where the sex rate is one. This will
+serve to assess our Type 1 (False Positive) fraction. The Non-Random mating
+component will each rate of sexual reproduction less than one. In this data set,
+that means that 9 total ROC curves will be produced for each overall comparison.
+
+### ROC Curve by Seed
+
+Since we simulated the populations in a way such that each parent population is
+one of 10 replicates spawned from 100 unique seeds across rates of sexual
+reproduction, we can group the populations by seed and calculate an ROC Curve
+for each seed.
+
+### Area Under the ROC Curve (AURC)
+
+The Area under the ROC Curve will be calcuated via the `trapz()` function via
+*pracma*. To assess the effect of sexual reproduction, sample size, and variable
+mutation rate, we will construct an ANOVA model on the distributions of AURC by
+seed:
+
+> AURC ~ Sex Rate + Sample Size + Variable Mutation Rate
+
+## Setup
+
+```{r, required_packages, message = FALSE}
+library('zksimanalysis') # Main package for analysis
+library('magrittr')      # For the %T>%
+library('viridis')       # Excellent color scaling
+library('dplyr')         # Magic data manipulation
+library('tidyr')         # more magic
+library('purrr')         # magic dealing with lists
+library('ggplot2')       # magic plotting action!
+library('flux')
+```
+
+This here will load in all of the results of the analyses. These were previously
+processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
+"vals".
+
+```{r, load_data, cache = TRUE, results = "hide", cache.lazy = FALSE}
+system.time({
+res           <- load("../../simulation_results/processed_results.rda")
+even_mutation <- vals %>% filter(mutation_rate == "even")
+odd_mutation  <- vals %>% filter(mutation_rate == "uneven")
+})
+res
+even_mutation
+odd_mutation
+```
+
+## Data Analysis
+
+### Overall ROC Calculation
+
+```{r, generate_sexrate}
+sex <- unique(vals$sexrate)
+sex <- sex[!sex %in% "1.0000"]
+alpha <- seq(0, 1, by = 0.05)
+```
+
+
+```{r, roc_overall}
+roc_overall <- sex %>% map(map2, alpha,
+            ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE,
+                group = c("mutation_rate", "sexrate", "sample")
+                )) %>%
+  flatten() %>%
+  bind_rows(.id = "sex") %>%
+  ungroup() %>%
+  spread(score, positive_fraction)
+roc_overall
+
+roc_overall_cc <- sex %>% map(map2, alpha,
+            ~roc(.y, vals, compare = c(.x, "1.0000"), stat = "p.rDcc", 
+                 count.na = TRUE, group = c("mutation_rate", "sexrate", "sample")
+                )) %>%
+  flatten() %>%
+  bind_rows(.id = "sex") %>%
+  ungroup() %>%
+  spread(score, positive_fraction)
+roc_overall_cc
+
+```
+
+
+```{r, curves, fig.width = 10, fig.height = 10}
+old_theme <- theme_set(theme_bw())
+ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`, 
+                        color = sample)) +
+  geom_line(aes(lty = mutation_rate)) +
+  geom_point(aes(pch = sample)) +
+  facet_wrap(~sexrate) +
+  geom_abline(slope = 1, lty = 3) +
+  labs(list(
+    title = "ROC Curves over sex rate",
+    lty = "Mutation Rate",
+    pch = "Sample Size",
+    color = "Sample Size"
+  )) +
+  theme(aspect.ratio = 1) +
+  scale_color_brewer(palette = "Set1")
+ggplot(roc_overall_cc, aes(x = `False Positive`, y = `True Positive`, 
+                        color = sample)) +
+  geom_line(aes(lty = mutation_rate)) +
+  geom_point(aes(pch = sample)) +
+  facet_wrap(~sexrate) +
+  geom_abline(slope = 1, lty = 3) +
+  labs(list(
+    title = "ROC Curves over sex rate (clone-corrected)",
+    lty = "Mutation Rate",
+    pch = "Sample Size",
+    color = "Sample Size"
+  )) +
+  theme(aspect.ratio = 1) +
+  scale_color_brewer(palette = "Set1")
+```
+
+```{r, roc_by_seed}
+roc_by_seed <- sex %>% map(map2, alpha,
+            ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE,
+                group = c("mutation_rate", "sexrate", "run", "seed", "sample")
+                )) %>%
+  flatten() %>%
+  bind_rows(.id = "runseed") %>%
+  ungroup() %>%
+  spread(score, positive_fraction)
+roc_by_seed
+```
+
+### AURC
+
+```{r, AUPC, fig.width = 10, fig.height = 10}
+AURC_overall <- roc_overall %>% 
+  group_by(sexrate, sample, mutation_rate) %>%
+  summarize(AURC = auc(`False Positive`, `True Positive`))
+
+AURC_by_seed <- roc_by_seed %>%
+  group_by(sexrate, run, seed, sample, mutation_rate) %>%
+  summarize(AURC = auc(`False Positive`, `True Positive`))
+
+ggplot(AURC_overall, aes(x = factor(sexrate), y = AURC)) +
+  geom_point(aes(group = factor(sexrate), color = sample)) +
+  facet_grid(sample~mutation_rate)
+
+ggplot(AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
+  geom_violin(aes(group = factor(sexrate), fill = sample)) +
+  facet_grid(sample~mutation_rate) +
+  geom_point(aes(x = factor(sexrate), y = AURC), data = AURC_overall) +
+  annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = .2) +
+  annotate(y = 0.5, x = 0, geom = "text", label = "random", hjust = -0.5, vjust = -0.5, color = "gray40") +
+  scale_fill_brewer(palette = "Set1")
+
+
+```
+
