@@ -17,7 +17,7 @@
 shuffle_genlight <- function(mat, x, blocksize = 100){
 
   if (blocksize == 1){
-    shuff <- new("genlight", apply(mat, 2, sample), parallel = FALSE)
+    mat <- apply(mat, 2, sample)
   } else {
     if (is.null(position(x))){
       position(x) <- seq(nLoc(x))

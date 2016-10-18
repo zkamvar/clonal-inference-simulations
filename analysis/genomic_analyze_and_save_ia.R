@@ -7,7 +7,7 @@ Parse feather formatted data, analyze the index of association on the whole data
 set, propogate missing data, analyze the index of association there, and save
 the result.
 
-Usage: genomic_analyze_and_save_ia.R [-hdvk [-m MISSING...] -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
+Usage: genomic_analyze_and_save_ia.R [-hdvk [-m MISSING...] -b BLOCK -s SEED [-n NSAMPLE...] -p PERMUTATIONS -l LOCUS -o PATH] [FILE...]
 
 Options:
  -h,--help                                    show this message and exit
@@ -16,6 +16,7 @@ Options:
  -k,--keep                                    keep the data in the resulting data frame
  -m MISSING...,--missing=MISSING...           include analyze missing data percentage (no permutation) [default: 0.01 0.05 0.10]
  -s SEED,--seed=SEED                          random seed [default: 20160909]
+ -b BLOCK,--blocksize=BLOCK                   number of blocks by which to sample [default: 1]
  -n NSAMPLE...,--nsample=NSAMPLE...           number of samples/population (single quoted list of integers) [default: 10 25 50 100]
  -p PERMUTATIONS,--permutations=PERMUTATIONS  number of permutations for the index of association [default: 99]
  -l LOCUS,--locus=LOCUS                       prefix to identify the locus columns [default: ^[0-9]+?_[0-9]+?$]
@@ -37,6 +38,7 @@ if (length(opt$FILE) == 0){
 
 opt$seed         <- as.integer(opt$seed)
 opt$permutations <- as.integer(opt$permutations)
+opt$blocksize    <- as.integer(opt$blocksize)
 opt$nsample      <- as.integer(str_split(opt$nsample, "[[:blank:]]")[[1]])
 print(opt$missing)
 opt$missing      <- as.numeric(str_split(opt$missing, "[[:blank:]]")[[1]])
@@ -58,9 +60,9 @@ if (opt$verbose){
 }
 suppressPackageStartupMessages(library("zksimanalysis"))
 suppressPackageStartupMessages(library("purrr"))
-
-
-
+if (opt$debug){
+  options(poppr.debug = TRUE)
+}
 # Helper Functions --------------------------------------------------------
 
 # Full analysis here takes the data, separates, populations, and analyzes
@@ -69,6 +71,7 @@ full_analysis <- . %>%
   seppop() %>%
   map(tidy_ia,
       sample   = opt$permutations,
+      blocksize = opt$blocksize,
       keepdata = opt$keep,
       verbose  = opt$verbose,
       quiet    = !opt$debug) %>%
