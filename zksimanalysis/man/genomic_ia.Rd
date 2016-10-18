@@ -4,12 +4,14 @@
 \alias{genomic_ia}
 \title{A test for significance with genomic ia}
 \usage{
-genomic_ia(x, sample = 0, quiet = FALSE)
+genomic_ia(x, sample = 0, blocksize = 100, quiet = FALSE)
 }
 \arguments{
 \item{x}{a genlight or snpclone object}
 
 \item{sample}{the number of samples for significance testing}
+
+\item{blocksize}{the size of the blocks at which genotypes should be shuffled.}
 }
 \value{
 a list with the observed value and pvalue and the samples used.

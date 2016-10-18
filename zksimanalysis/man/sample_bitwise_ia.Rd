@@ -4,12 +4,14 @@
 \alias{sample_bitwise_ia}
 \title{Calculate index of association from reshuffled genlight object}
 \usage{
-sample_bitwise_ia(mat, x)
+sample_bitwise_ia(mat, x, blocksize = 100)
 }
 \arguments{
 \item{mat}{a matrix derived from x}
 
 \item{x}{a genlight or snpclone object}
+
+\item{blocksize}{the size of the blocks at which genotypes should be shuffled.}
 }
 \value{
 a value of the index of association

@@ -4,12 +4,14 @@
 \alias{shuffle_genlight}
 \title{resample a genlight/genclone object and produce a}
 \usage{
-shuffle_genlight(mat, x)
+shuffle_genlight(mat, x, blocksize = 100)
 }
 \arguments{
 \item{mat}{a matrix derived from x}
 
 \item{x}{a snpclone or genlight object}
+
+\item{blocksize}{the size of the blocks at which genotypes should be shuffled.}
 }
 \value{
 a snpclone or genlight object
