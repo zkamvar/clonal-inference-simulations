@@ -50,7 +50,7 @@ tidy_locus_contribution <- function(gid, n = 999, verbose = TRUE, ...){
 #' @param rrmat a matrix of round-robin multilocus genotypes for each locus
 #' @param NMLL the number of multilocus genotypes in the sample
 #'
-#' @return
+#' @return a vector
 #' @noRd
 #'
 #' @examples

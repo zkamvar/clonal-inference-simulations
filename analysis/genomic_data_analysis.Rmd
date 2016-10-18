@@ -1,0 +1,99 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Introduction
+
+I've created 1,000 simulations of populations undergoing different levels of 
+sexual reproduction and analyzed the index of association over 10,000 loci. I 
+have analyzed the index of association for 10, 25, 50, and 100 samples from 
+each population and analyzed $\bar{r}_d$ for the data set with different levels
+of missing data: 1%, 5%, and 10%
+
+## Setup
+
+```{r, required_packages}
+library('zksimanalysis')
+```
+
+## Data retrieval
+
+The data were downloaded from the CGRB server using rsync with the following
+command.
+
+> Note: replace XXXXX with the port number. I am not writing it here for
+security reasons.
+
+```
+rsync --update -avz -e "ssh -p XXXXX" --exclude 'twenty_loci_results' \ 
+kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulation_analysis/results \ 
+../simulation_results
+```
+
+
+```{r, load_data, results = "hide"}
+# Here we have to filter out the stored genetic data
+datfiles <- dir("../../simulation_results/genomic_rda_files/", full.names = TRUE) %>% 
+  grep("feather.rda$", ., value = TRUE)
+
+ex_run  <- "genomic([0-9]+?)/"
+ex_seed <- "seed_([0-9]+?)_"
+ex_sex  <- "sex_([0-9.]+?)_"
+ex_gen  <- "gen_([0-9]+?)_"
+ex_rep  <- "rep_([0-9]+?).pop"
+ex_samp <- "_sam_([0-9]+?)$"
+
+for (i in datfiles){
+  load(i)
+}
+
+datnames  <- grep("^X.+?feather$", ls(), value = TRUE)
+
+datalist <- datnames %>%
+  lapply(get) %>%
+  setNames(datnames) %>% 
+  bind_rows(.id = "source") %>%
+  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
+          remove = FALSE) %>%
+  mutate(sample = factor(sample, unique(sample))) %>%
+  select(missing_0.01:sample, source) %>%
+  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE)
+
+datalist <- datalist  %>%
+  gather(missingness, rd, starts_with("missing"), rbarD) %>%
+  extract(missingness, c("matching", "missing"), 
+          "missing_([a-z]*)_*([0-9.]*)$", convert = TRUE) %>%
+  mutate(pop = gsub("^.+?pop_(.+?)$", "\\1", pop)) %>% 
+  mutate(matching = ifelse(is.na(matching), "none", matching)) %>%
+  mutate(matching = ifelse(matching == "", "match", matching)) %>%
+  mutate(missing = ifelse(is.na(missing), 0, missing)) %>%
+  mutate(sample = forcats::fct_inorder(sample))
+
+missing_stats <- filter(datalist, matching != "none")
+original <- filter(datalist, matching == "none")
+```
+
+```{r}
+ggplot(original, aes(x = sexrate, y = rd, fill = sample)) +
+  geom_boxplot()
+
+ggplot(original, aes(x = sexrate, y = p.rD, fill = sample)) +
+  geom_boxplot() + theme(title = element_blank())
+```
+
+```{r}
+ggplot(unnest(original, samples), aes(x = samples)) + 
+  geom_density() + 
+  geom_rug() + facet_grid(sexrate~sample, scales = "free_y")
+```
+
+
+
+```{r, missingness}
+ggplot(missing_stats, aes(x = sexrate, y = rd, fill = sample)) +
+  geom_boxplot() +
+  facet_grid(matching~missing)
+```
+

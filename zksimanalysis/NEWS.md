@@ -1,3 +1,55 @@
+# zksimanalysis 0.7.0.9000
+
+## NEW FUNCTION
+
+* `filter_maf()` will filter genlight objects based on minor allele frequency.
+
+## NEW FEATURES
+
+* `shuffle_genlight()` can now shuffle blocks of SNPs.
+# zksimanalysis 0.7.0.9000
+
+## NEW FUNCTION
+
+* `roc()` calculates the receiver operator characteristic.
+
+## NEW DEPENDENCIES
+
+* The package _tidyverse_ has been added to replace _dplyr_ and _magrittr_. This
+  also adds _purrr_.
+* The color package _viridis_ has been added for plotting.
+* The _flux_ package has been added for calculation of area under ROC curves.
+
+# zksimanalysis 0.6.0.9000
+
+## NEW FUNCTION
+
+* The manipulation functions `pop_NA()` and `pop_mutator()` have been exported.
+
+## NEW FEATURES
+
+* `tidy_ia()` can now take genomic data
+* `genomic_ia()` now has a reporter when interactive.
+* parallel processing is hard-coded to FALSE in shuffling and data import for
+  genomic data.
+
+# zksimanalysis 0.5.0.9000
+
+## NEW FUNCTION
+
+* `feather2genlight()` will convert feather formatted files to genlight/snpclone
+  formatted data. 
+* `genomic_ia()` Calculates and resamples the standardized index of association
+  from your data.
+* `sample_bitwise_ia()` Resamples your data once and calculates the standardized
+  index of association
+* `shuffle_genlight()` shuffles a genlight/snpclone object to unlink markers.
+
+## MISC
+
+* Added internal functions from
+  https://github.com/grunwaldlab/supplementary-poppr-2.0/blob/master/Rscripts/my_functions.R
+
 # zksimanalysis 0.4.0.9000
 
 ## NEW FUNCTION

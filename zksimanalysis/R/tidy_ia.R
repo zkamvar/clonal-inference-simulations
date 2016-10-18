@@ -21,7 +21,8 @@
 #'   seppop() %>%
 #'   lapply(tidy_ia, sample = 999, plot = FALSE) %>%
 #'   bind_rows()
-tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE, strata = NA){
+tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE,
+                    strata = NA){
   if (verbose){
     msg <- "Calculating ia for"
     if (nPop(gid) == 1){
@@ -31,9 +32,12 @@ tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE, strata
     }
     message(msg)
   }
+  if (inherits(gid, "genlight")){
+    return(tidy_genomic_ia(gid, ..., keepdata = keepdata, cc = cc, strata = strata))
+  }
   if (cc){
-    rescc <- gid %>% 
-      clonecorrect(strata = strata) %>% 
+    rescc <- gid %>%
+      clonecorrect(strata = strata) %>%
       poppr::ia(..., valuereturn = TRUE)
   }
   res  <- poppr::ia(gid, ..., valuereturn = TRUE)
@@ -68,4 +72,24 @@ process_ialist <- function(res){
                 )
   }
   return(out)
+}
+
+tidy_genomic_ia <- function(gid, ..., keepdata, cc, strata){
+  res  <- genomic_ia(gid, ...)
+  pops <- popNames(gid)
+  pops <- if (length(pops) > 1) list(pops) else pops
+  if (inherits(res, "list")){
+    out  <- list(rbarD   = ~res$observed["rbarD"],
+                 p.rD    = ~res$observed["p.rD"],
+                 samples = ~list(res$samples)
+                 )
+  } else {
+    out  <- list(rbarD = ~res["rbarD"])
+  }
+
+  if (keepdata){
+    out <- c(out, list(dataset = ~list(gid)))
+  }
+  out <- c(out, list(pop = ~pops))
+  return(data_frame_(out))
 }

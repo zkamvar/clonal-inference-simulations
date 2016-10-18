@@ -1,0 +1,225 @@
+---
+title: "SSR Data Cleaning"
+author: "Zhian N. Kamvar"
+date: "October 16, 2016"
+output: html_document
+---
+
+## Introduction
+
+I've created 10,000 simulations of populations undergoing different levels of 
+sexual reproduction and analyzed the index of association along with genotypic 
+and allelic diversity metrics, including an analysis of the contribution of each
+locus to the genotypic diversity. This report serves to document the
+pre-processing steps
+
+## Setup
+
+```{r, required_packages, message = FALSE}
+library('zksimanalysis') # Main package for analysis
+library('magrittr')      # For the %T>%
+library('dplyr')         # Magic data manipulation
+library('tidyr')         # more magic
+library('purrr')         # magic dealing with lists
+```
+
+## Data retrieval
+
+The data were downloaded from the CGRB server using rsync with the following
+command.
+
+> Note: replace XXXXX with the port number. I am not writing it here for
+security reasons.
+
+```
+rsync --update -avz -e "ssh -p XXXXX" --exclude 'twenty_loci_results' \ 
+kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulation_analysis/results \ 
+../simulation_results
+```
+
+
+This here will load in all of the results of the analyses
+
+```{r, load_data, results = "hide"}
+# Here we have to filter out the stored genetic data
+datfiles  <- dir("../../simulation_results/rda_files/", full.names = TRUE) %>% 
+  grep("feather[.a-z]*.rda$", ., value = TRUE)
+divfiles  <- dir("../../simulation_results/diversity_rda_files/", full.names = TRUE)
+locfiles  <- dir("../../simulation_results/locus_rda_files/", full.names = TRUE)
+contfiles <- dir("../../simulation_results/locus_contribution_rda_files/", full.names = TRUE)
+
+for (i in datfiles){
+  load(i)
+}
+
+for (i in divfiles){
+  load(i)
+}
+
+for (i in locfiles){
+  load(i)
+}
+
+for (i in contfiles){
+  load(i)
+}
+```
+
+
+After all of that's done, we can clean and prepare the data. We have to first
+set the variables by which we want to extract columns. These are:
+
+| Column | Description |
+| ------ | ------------------------------------------------------------------- |
+|    run | Each run is a separate instance of simuPOP run on the server. |
+|   seed | The seeds are a unique instance within each run that represents a different combination of allelic states |
+|   sex  | The amount of sexual reproduction in that particular simulation. |
+|   gen  | The number of generations evovled (this is only marginally useful as quality control) |
+|   rep  | Each seed has 10 replicates. |
+|   samp | When analyzed, the data were read in and subsampled without replacement to different population sizes. This indicate the size of those populations |
+
+
+The steps are to:
+
+1. Gather all of the loaded data
+2. clean up the data containing the values of $\bar{r}_d$ and $I_A$.
+3. Gather the MLG diversity table, allelic diversity table, and locus contribution table
+4. Do a join of all the tables by the population and calculate clonal fraction
+5. Save the results to a `.rda` file to be easily read in by other documents.
+
+```{r, data_tidy}
+ex_run  <- "high_mutation([0-9]+?)/"
+ex_seed <- "seed_([0-9]+?)_"
+ex_sex  <- "sex_([0-9.]+?)_"
+ex_gen  <- "gen_([0-9]+?)_"
+ex_rep  <- "rep_([0-9]+?).pop"
+ex_samp <- "_sam_([0-9]+?)$"
+
+datnames  <- grep("^X.+?high_mutation.+?(feather|feather.mutant)$", ls(), value = TRUE)
+divnames  <- grep("^X.+?high_mutation.+?feather.(divtable|divtable.mutant).rda$", ls(), value = TRUE)
+locnames  <- grep("^X.+?high_mutation.+?feather.(locustable|locustable.mutant).rda$", ls(), value = TRUE)
+contnames <- grep("^X.+?high_mutation.+?feather.(contrib|contrib.mutant).rda$", ls(), value = TRUE)
+
+account_for_source <- . %>%
+  bind_rows(.id = "source") %>%
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+
+datalist <- datnames %>%
+  lapply(get) %>%
+  setNames(datnames) %>% 
+  account_for_source %>%
+  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
+          remove = FALSE) %>%
+  mutate(sample = factor(sample, unique(sample)))
+
+divlist <- divnames %>%
+  lapply(get) %>%
+  setNames(divnames) %>%
+  account_for_source
+
+loclist <- locnames %>%
+  lapply(get) %>%
+  setNames(locnames) %>%
+  account_for_source
+
+contlist <- contnames %>%
+  lapply(get) %>%
+  setNames(contnames) %>%
+  account_for_source %>%
+  rename(H.locus = H) %>%
+  rename(G.locus = G) %>%
+  rename(lambda.locus = lambda) %>%
+  rename(E.5.locus = E.5) %>%
+  rename(uSimp.locus = uSimp)
+
+
+
+
+CF <- function(NMLG, sample){
+  sample <- as.integer(as.character(sample))
+  cf <- 1 - (NMLG/sample)
+  cf <- (sample/(sample - 1))*cf
+  return(cf)
+}
+
+
+datalist <- inner_join(datalist, divlist, by = c("pop", "source", "mutation_rate")) %>%
+  inner_join(loclist, by = c("pop", "source", "mutation_rate")) %>%
+  inner_join(contlist, by = c("pop", "source", "mutation_rate")) %>%
+  mutate(CF = CF(NMLG, sample)) %>%
+  select(Ia:CF, source)
+
+# cleaning up merged data
+rm(list = datnames)
+rm(list = divnames)
+rm(list = locnames)
+rm(list = contnames)
+rm(divlist)
+rm(loclist)
+rm(contlist)
+gc(verbose = TRUE)
+```
+
+Now that everything is joined, we can summarize the data. Since we saved the
+distributions for the index of association, it makes our data a lot larger than
+we need it to be. To allow us to more easily move it around, we are summarizing
+the following about these distributions:
+
+| Stat | Description |
+|------|------------------------------------|
+| mean | average |
+| sd   | standard deviation |
+| mad  | median absolute deviation |
+| min  | minimum value for the distribution |
+| max  | maximum value for the distribution |
+
+
+```{r, data_cleaning, warning = FALSE}
+
+suppressWarnings({
+vals <- datalist %>%
+  mutate(mean.rd = vapply(samples.rd, mean, numeric(1), na.rm = TRUE)) %>%
+  mutate(sd.rd   = vapply(samples.rd, sd, numeric(1), na.rm = TRUE)) %>%
+  mutate(mad.rd  = vapply(samples.rd, mad, numeric(1), na.rm = TRUE)) %>%
+  mutate(min.rd  = vapply(samples.rd, min, numeric(1), na.rm = TRUE)) %>%
+  mutate(max.rd  = vapply(samples.rd, max, numeric(1), na.rm = TRUE)) %>%
+  mutate(mean.rdcc = vapply(samples.rdcc, mean, numeric(1), na.rm = TRUE)) %>%
+  mutate(sd.rdcc   = vapply(samples.rdcc, sd, numeric(1), na.rm = TRUE)) %>%
+  mutate(mad.rdcc  = vapply(samples.rdcc, mad, numeric(1), na.rm = TRUE)) %>%
+  mutate(min.rdcc  = vapply(samples.rdcc, min, numeric(1), na.rm = TRUE)) %>%
+  mutate(max.rdcc  = vapply(samples.rdcc, max, numeric(1), na.rm = TRUE)) %>%
+  select(-starts_with("samples"), -rrmat, -curve, -pgen) # removing large data
+})
+
+
+clonetest <- function (p.rD, p.rDcc){
+  a <- p.rD < 0.05
+  b <- p.rDcc < 0.05
+  a[is.na(a)] <- TRUE
+  b[is.na(b)] <- TRUE
+  res <- 2 + (a - b) + a
+  factor(res , labels = c("clone-correct", "none", "both", "whole"))
+}
+vals <- vals %>% 
+  mutate(significance = clonetest(p.rD, p.rDcc))
+
+print(vals)
+```
+
+We should have 80,000 rows in vals. 40,000 for analysis with 20 loci (with a
+mutation rate at 1e-5) and 40,000 for analysis with 21 loci (where the first
+locus has a mutation rate of 1e-3).
+
+```{r, save_data, eval = FALSE}
+save(vals, file = "../../simulation_results/processed_results.rda")
+save(datalist, file = "../../simulation_results/full_results.rda")
+```
+
+
+```{r}
+options(width = 200)
+devtools::session_info()
+```
+
