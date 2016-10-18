@@ -3,6 +3,7 @@
 export(example_data)
 export(feather2genind)
 export(feather2genlight)
+export(filter_maf)
 export(genomic_ia)
 export(listfun)
 export(pop_NA)
