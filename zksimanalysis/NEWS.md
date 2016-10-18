@@ -2,6 +2,15 @@
 
 ## NEW FUNCTION
 
+* `filter_maf()` will filter genlight objects based on minor allele frequency.
+
+## NEW FEATURES
+
+* `shuffle_genlight()` can now shuffle blocks of SNPs.
+# zksimanalysis 0.7.0.9000
+
+## NEW FUNCTION
+
 * `roc()` calculates the receiver operator characteristic.
 
 ## NEW DEPENDENCIES
