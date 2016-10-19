@@ -75,25 +75,168 @@ missing_stats <- filter(datalist, matching != "none")
 original <- filter(datalist, matching == "none")
 ```
 
-```{r}
-ggplot(original, aes(x = sexrate, y = rd, fill = sample)) +
-  geom_boxplot()
+## Visualizations
 
-ggplot(original, aes(x = sexrate, y = p.rD, fill = sample)) +
-  geom_boxplot() + theme(title = element_blank())
-```
+Visualizations are one of the most important steps in an analysis. Here's why
 
 ```{r}
-ggplot(unnest(original, samples), aes(x = samples)) + 
-  geom_density() + 
-  geom_rug() + facet_grid(sexrate~sample, scales = "free_y")
-```
-
-
-
-```{r, missingness}
 ggplot(missing_stats, aes(x = sexrate, y = rd, fill = sample)) +
   geom_boxplot() +
-  facet_grid(matching~missing)
+  facet_grid(matching~missing) +
+  ggtitle("index of association across missing data")
+
+ggplot(original, aes(x = sexrate, y = rd, fill = sample)) +
+  geom_boxplot() +
+  ggtitle("index of association by sex rate")
+
+ggplot(original, aes(x = sexrate, y = p.rD, fill = sample)) +
+  geom_boxplot() + 
+  ggtitle("P-value for the index of assocation by sex rate")
+```
+
+
+This is quite weird. If you look at the value for the index of association, we
+can see that the minimum value is about 0.02. To get a better sense of what's
+going on, we need to take a look at the value of the null distributions
+
+
+```{r, distplot, fig.width = 10, fig.height = 10}
+ggplot(unnest(original, samples), aes(x = samples)) + 
+  geom_density() + 
+  facet_wrap(sexrate~sample, scales = "free_y") +
+  theme(strip.text = element_text(size = rel(0.5))) +
+  ggtitle("Null distributions for the index of assocation by sample size and sex rate")
+```
+
+## Explanation of weird phenomena
+
+These are narrow, but it's not like they don't have variation, so there must be
+something else going on. To illustrate, I'll load a clonal data set and a sexual
+data set. 
+
+```{r, load_examples}
+load("../../simulation_results/genomic_rda_files/X.data.3639601.100.bpp.dir_genomic10_gen_10seed_0_sex_1.0000_gen_10000_rep_09.pop.feather.DATA.rda") %>% 
+  get() %>% 
+  tidyr::gather(key = percent_missing, value = dataset, starts_with("dataset")) -> x
+
+xdat <- x$dataset[[2]]
+xdat
+load("../../simulation_results/genomic_rda_files/X.data.3639601.1.grungall1.dir_genomic10_gen_10seed_0_sex_0.0000_gen_10000_rep_01.pop.feather.DATA.rda") %>%
+  get() %>%
+  tidyr::gather(key = percent_missing, value = dataset, starts_with("dataset")) -> y
+
+ydat <- y$dataset[[2]]
+ydat
+```
+
+Now, I'll simulate a sexual population using the `glSim()` functin from *adegenet*:
+
+```{r, glsim}
+set.seed(20161018)
+xsim <- glSim(100, 1e4, 0, ploidy = 2) %>% as.snpclone()
+xsim
+```
+
+Now, let's look at the values of $\bar{r}_d$:
+
+```{r, datrd}
+barplot(c(sexual = bitwise.ia(xdat), clonal = bitwise.ia(ydat), simulated = bitwise.ia(xsim)), log = "y", ylab = "log index of association")
+```
+
+We can clearly see that the value of $\bar{r}_d$ is different between the sexual
+and simulated population. What's causing this difference? A quick look at the
+dendrograms produced will give us a good idea:
+
+```{r, dendrogrammin}
+library('ape')
+xdat %>% bitwise.dist() %>% nj() -> sexdist
+ydat %>% bitwise.dist() %>% nj() -> clonedist
+xsim %>% bitwise.dist() %>% nj() -> simdist
+par(mfrow = c(1, 3))
+plot(sexdist, main = "Sexual")
+add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
+plot(clonedist, main = "Clonal")
+add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
+plot(simdist,   main = "Simulated")
+add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
+par(mfrow = c(1, 1))
+```
+
+
+Okay, that clears things up a little bit. The simulated population has a LOT of
+variance. When happens to our populations if we shuffle them?
+
+```{r, dendrogrammin_2_electric_boogaloo}
+xdat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> sexdist
+ydat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> clonedist
+xsim %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> simdist
+par(mfrow = c(1, 3))
+plot(sexdist, main = "Sexual")
+add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
+plot(clonedist, main = "Clonal")
+add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
+plot(simdist,   main = "Simulated")
+add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
+par(mfrow = c(1, 1))
+```
+
+One question I still have is: what does it look like with under prinicpal
+component analysis. The goal of this is to find the variables that contribute to
+the separation of the data.
+
+```{r, prcomponents, cache = TRUE}
+xdat %>% glPca(nf = 100) -> xdat.pc
+ydat %>% glPca(nf = 100) -> ydat.pc
+xsim %>% glPca(nf = 100) -> xsim.pc
+
+xdat.s <- xdat.pc$scores[, 1:2]
+ydat.s <- ydat.pc$scores[, 1:2]
+xsim.s <- xsim.pc$scores[, 1:2]
+lims <- range(c(xdat.s, ydat.s, xsim.s))
+plot(xdat.s, xlim = lims, ylim = lims, col = "red")
+points(ydat.s, xlim = lims, ylim = lims, col = "blue")
+points(xsim.s, xlim = lims, ylim = lims)
+legend("topright", legend = c("sexual", "clonal", "random"), col = c("red", "blue", "black"), pch = 1)
+```
+
+
+```{r, redo_analysis, results = "hide"}
+# Here we have to filter out the stored genetic data
+datfiles <- dir("../../simulation_results/genomic_rda_files_redux/", full.names = TRUE)
+
+for (i in datfiles){
+  load(i)
+}
+
+shufffiles <- grep("^X.+?shufflechrom.rda$", ls(), value = TRUE)
+
+shuffs <- shufffiles %>% 
+  lapply(get) %>%
+  setNames(shufffiles) %>% 
+  bind_rows(.id = "source") %>%
+  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
+          remove = FALSE) %>%
+  mutate(sample = factor(sample, unique(sample))) %>%
+  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE)
+```
+
+```{r}
+ggplot(shuffs, aes(x = sexrate, y = rbarD, fill = sample)) +
+  geom_boxplot() +
+  ggtitle("index of association by sex rate")
+
+ggplot(shuffs, aes(x = sexrate, y = p.rD, fill = sample)) +
+  geom_boxplot() + 
+  geom_point(aes(color = sample, group = sample), alpha = 0.25) +
+  scale_y_log10() +
+  ggtitle("P-value for the index of assocation by sex rate")
+```
+
+```{r, dists}
+ggplot(shuffs %>% unnest(samples), aes(x = samples)) +
+  geom_density(aes(fill = sexrate), alpha = 0.5) +
+  scale_fill_viridis(discrete = TRUE) +
+  facet_wrap(~sample, ncol = 1, scale = "free_y")
 ```
 
