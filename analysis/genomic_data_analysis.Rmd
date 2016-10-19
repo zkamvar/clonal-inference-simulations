@@ -1,8 +1,8 @@
 ---
 title: "R Notebook"
 output:
-  html_notebook: default
   html_document: default
+  html_notebook: default
 ---
 
 ## Introduction
@@ -319,7 +319,13 @@ shuffs %>%
 shuffs %>% 
   group_by(sexrate, run) %>% 
   summarize(n = n()/4) %>% 
-  spread(key = run, value = n) %>%
-  knitr::kable()
+  spread(key = run, value = n)
+```
+
+## Session Information
+
+```{r session_info}
+options(width = 100)
+devtools::session_info()
 ```
 
