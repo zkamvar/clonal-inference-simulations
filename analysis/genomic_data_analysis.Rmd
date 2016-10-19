@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_notebook: default
+  html_document: default
 ---
 
 ## Introduction
@@ -57,7 +59,7 @@ datalist <- datnames %>%
   extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
-  mutate(sample = factor(sample, unique(sample))) %>%
+  mutate(sample = factor(sample)) %>%
   select(missing_0.01:sample, source) %>%
   distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE)
 
@@ -69,7 +71,7 @@ datalist <- datalist  %>%
   mutate(matching = ifelse(is.na(matching), "none", matching)) %>%
   mutate(matching = ifelse(matching == "", "match", matching)) %>%
   mutate(missing = ifelse(is.na(missing), 0, missing)) %>%
-  mutate(sample = forcats::fct_inorder(sample))
+  mutate(sample = forcats::fct_relevel(sample, 10, 25, 50))
 
 missing_stats <- filter(datalist, matching != "none")
 original <- filter(datalist, matching == "none")
@@ -77,21 +79,70 @@ original <- filter(datalist, matching == "none")
 
 ## Visualizations
 
+```{r, themes}
+old_theme <- theme_set(theme_bw())
+old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
+asp       <- function(r) theme(aspect.ratio = r)
+# The p-value for rd is best visualized on a log scale. This provides that
+# the color scaling for that transformation, emphasizing smaller p-values over
+# larger ones.
+log_rd_color <- function(breaks = c(0.005, 0.01, 0.025, 0.05, 0.1)){
+  scale_color_viridis(option = "viridis", 
+                      breaks = log(breaks), 
+                      labels = breaks)
+}
+  
+# Various labels with mathematical expressions are used for the plots. 
+# Pre-defining them here allows us to use eval(exp) instead of re-typing the
+# entire expression every time.
+rd    <- quote(expression(bar(r)[d]))
+rdcc  <- quote(expression(paste(bar(r)[d], " (clone-corrected)")))
+prd   <- quote(expression(paste("p-value (", bar(r)[d], ")")))
+prdcc <- quote(expression(paste("p-value (", bar(r)[d], " (clone-corrected))")))
+E5g   <- quote(expression(paste("Genotypic evenness (", E[5][G], ")")))
+E5a   <- quote(expression(paste("Mean allelic evenness (", E[5][A], ")")))
+Hexp  <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
+```
+
+
 Visualizations are one of the most important steps in an analysis. Here's why
 
 ```{r}
-ggplot(missing_stats, aes(x = sexrate, y = rd, fill = sample)) +
+missing_plot <- ggplot(missing_stats %>% select(sexrate, rd, sample, matching, missing), 
+       aes(x = sexrate, y = rd, fill = sample)) +
   geom_boxplot() +
   facet_grid(matching~missing) +
-  ggtitle("index of association across missing data")
+  labs(list(
+    title = "index of association across missing data",
+    x = "Rate of Sexual Reproduction",
+    y = eval(rd),
+    fill = "Sample Size"
+    ))
 
-ggplot(original, aes(x = sexrate, y = rd, fill = sample)) +
+main_rd_plot <- ggplot(original %>% select(sexrate, rd, sample), 
+       aes(x = sexrate, y = rd, fill = sample)) +
   geom_boxplot() +
-  ggtitle("index of association by sex rate")
+    labs(list(
+    title = "index of association by sex rate",
+    x = "Rate of Sexual Reproduction",
+    y = eval(rd),
+    fill = "Sample Size"
+    ))
 
-ggplot(original, aes(x = sexrate, y = p.rD, fill = sample)) +
+pval_rd_plot <- ggplot(original %>% select(sexrate, p.rD, sample), 
+       aes(x = sexrate, y = p.rD, fill = sample)) +
   geom_boxplot() + 
-  ggtitle("P-value for the index of assocation by sex rate")
+    labs(list(
+    title = "p-value for the index of association by sex rate",
+    subtitle = "out of 999 permutations",
+    x = "Rate of Sexual Reproduction",
+    y = eval(prd),
+    fill = "Sample Size"
+    ))
+
+missing_plot
+main_rd_plot
+pval_rd_plot
 ```
 
 
@@ -101,11 +152,13 @@ going on, we need to take a look at the value of the null distributions
 
 
 ```{r, distplot, fig.width = 10, fig.height = 10}
-ggplot(unnest(original, samples), aes(x = samples)) + 
-  geom_density() + 
-  facet_wrap(sexrate~sample, scales = "free_y") +
-  theme(strip.text = element_text(size = rel(0.5))) +
+null_dist <- ggplot(original %>% unnest(samples) %>% select(samples, sample, sexrate), 
+       aes(x = samples)) +
+  geom_density(aes(fill = sexrate), alpha = 0.5) +
+  scale_fill_viridis(discrete = TRUE) +
+  facet_wrap(~sample, ncol = 1, scale = "free_y") +
   ggtitle("Null distributions for the index of assocation by sample size and sex rate")
+null_dist
 ```
 
 ## Explanation of weird phenomena
@@ -157,7 +210,7 @@ plot(sexdist, main = "Sexual")
 add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
 plot(clonedist, main = "Clonal")
 add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
-plot(simdist,   main = "Simulated")
+plot(simdist,   main = "Random (adegenet::glSim)")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
 par(mfrow = c(1, 1))
 ```
@@ -175,7 +228,7 @@ plot(sexdist, main = "Sexual")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
 plot(clonedist, main = "Clonal")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
-plot(simdist,   main = "Simulated")
+plot(simdist,   main = "Random (adegenet::glSim)")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
 par(mfrow = c(1, 1))
 ```
@@ -196,7 +249,7 @@ lims <- range(c(xdat.s, ydat.s, xsim.s))
 plot(xdat.s, xlim = lims, ylim = lims, col = "red")
 points(ydat.s, xlim = lims, ylim = lims, col = "blue")
 points(xsim.s, xlim = lims, ylim = lims)
-legend("topright", legend = c("sexual", "clonal", "random"), col = c("red", "blue", "black"), pch = 1)
+legend("topright", legend = c("Sexual", "Clonal", "Random (adegenet::glSim)"), col = c("red", "blue", "black"), pch = 1)
 ```
 
 
@@ -217,26 +270,56 @@ shuffs <- shufffiles %>%
   extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
-  mutate(sample = factor(sample, unique(sample))) %>%
+  mutate(sample = factor(sample) %>% forcats::fct_relevel(10, 25, 50)) %>%
   distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE)
 ```
 
-```{r}
-ggplot(shuffs, aes(x = sexrate, y = rbarD, fill = sample)) +
+```{r, corrected_rd}
+corrected_rd <- ggplot(shuffs %>% select(sexrate, rbarD, sample), 
+       aes(x = sexrate, y = rbarD, fill = sample)) +
   geom_boxplot() +
-  ggtitle("index of association by sex rate")
+  scale_fill_grey() +
+    labs(list(
+    title = "index of association by sex rate",
+    x = "Rate of Sexual Reproduction",
+    y = eval(rd),
+    fill = "Sample Size"
+    ))
+corrected_rd
 
-ggplot(shuffs, aes(x = sexrate, y = p.rD, fill = sample)) +
+correcte_rd_p <- ggplot(shuffs %>% select(sexrate, p.rD, sample), 
+       aes(x = sexrate, y = p.rD, fill = sample)) +
   geom_boxplot() + 
-  geom_point(aes(color = sample, group = sample), alpha = 0.25) +
-  scale_y_log10() +
-  ggtitle("P-value for the index of assocation by sex rate")
+  scale_y_log10(breaks = c(0.01, 0.1, 1),
+                minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
+  scale_fill_grey(start = 0.25, end = 0.75) + 
+    labs(list(
+    title = "p-value for the index of association by sex rate",
+    subtitle = "out of 999 permutations",
+    x = "Rate of Sexual Reproduction",
+    y = eval(prd),
+    fill = "Sample Size"
+    ))
+correcte_rd_p
 ```
 
 ```{r, dists}
-ggplot(shuffs %>% unnest(samples), aes(x = samples)) +
+null_dist <- ggplot(shuffs %>% unnest(samples) %>% select(samples, sexrate, sample), 
+            aes(x = samples)) +
   geom_density(aes(fill = sexrate), alpha = 0.5) +
-  scale_fill_viridis(discrete = TRUE) +
+  scale_fill_viridis(discrete = TRUE, option = "plasma") +
   facet_wrap(~sample, ncol = 1, scale = "free_y")
+null_dist
+```
+
+```{r, index_table, resuts = "asis"}
+shuffs %>% 
+  group_by(sexrate) %>%
+  summarize(n = n()/4)
+shuffs %>% 
+  group_by(sexrate, run) %>% 
+  summarize(n = n()/4) %>% 
+  spread(key = run, value = n) %>%
+  knitr::kable()
 ```
 

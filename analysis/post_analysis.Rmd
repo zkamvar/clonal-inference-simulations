@@ -82,7 +82,8 @@ Hexp  <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
 
 
 ```{r, rd_sexrate, fig.width = 10}
-ggplot(vals, aes(x = sexrate, y = rbarD, fill = sample)) +
+rd_sexrate <- ggplot(vals %>% select(sexrate, rbarD, sample, mutation_rate), 
+                     aes(x = sexrate, y = rbarD, fill = sample)) +
   geom_boxplot(outlier.size = 0.25) +
   facet_wrap(~mutation_rate) +
   labs(list(
@@ -91,11 +92,13 @@ ggplot(vals, aes(x = sexrate, y = rbarD, fill = sample)) +
     title = "Standardized Index of Association vs Sex",
     subtitle = "for even and uneven mutation rates")
     ) 
+rd_sexrate
 ```
 
 
 ```{r, rd_pval, fig.width = 10}
-ggplot(vals, aes(x = sexrate, y = p.rD, fill = sample)) +
+rd_pval <- ggplot(vals %>% select(sexrate, p.rD, sample, mutation_rate), 
+       aes(x = sexrate, y = p.rD, fill = sample)) +
   geom_boxplot(outlier.size = 0.25) +
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
@@ -106,10 +109,12 @@ ggplot(vals, aes(x = sexrate, y = p.rD, fill = sample)) +
     title = "Detection of clonal reproduction",
     subtitle = "for even and uneven mutation rates")
     )
+rd_pval
 ```
 
 ```{r, rd_pval_cc, fig.width = 10}
-ggplot(vals, aes(x = p.rDcc, y = p.rD, pch = mutation_rate)) +
+rd_pval_cc <- ggplot(vals %>% select(p.rDcc, p.rD, mutation_rate, sample, sexrate), 
+       aes(x = p.rDcc, y = p.rD, pch = mutation_rate)) +
   geom_point(alpha = 0.25) +
   geom_abline(slope = 1) +
   scale_x_log10() +
@@ -123,6 +128,7 @@ ggplot(vals, aes(x = p.rDcc, y = p.rD, pch = mutation_rate)) +
   guides(pch = guide_legend(override.aes = list(alpha = 1))) +
   theme(legend.position = "bottom") +
   asp(1)
+rd_pval_cc
 ```
 
 ```{r, rd_sexrate_pval, fig.width = 10, fig.height = 10}
