@@ -304,12 +304,24 @@ correcte_rd_p
 ```
 
 ```{r, dists}
-null_dist <- ggplot(shuffs %>% unnest(samples) %>% select(samples, sexrate, sample), 
-            aes(x = samples)) +
+null_dist <- shuffs %>% 
+  unnest(samples) %>% 
+  select(samples, sexrate, sample) %>%
+  ggplot(aes(x = samples)) +
   geom_density(aes(fill = sexrate), alpha = 0.5) +
   scale_fill_viridis(discrete = TRUE, option = "plasma") +
   facet_wrap(~sample, ncol = 1, scale = "free_y")
 null_dist
+
+clone_dist <- shuffs %>% 
+  unnest(samples) %>% 
+  select(samples, sexrate, sample) %>%
+  filter(sexrate %in% c("0.0000", "0.0001", "0.0005")) %>%
+  ggplot(aes(x = samples)) +
+  geom_density(aes(fill = sexrate), alpha = 0.5) +
+  scale_fill_viridis(discrete = TRUE, option = "plasma") +
+  facet_wrap(~sample, ncol = 1, scale = "free_y")
+clone_dist
 ```
 
 ```{r, index_table, resuts = "asis"}
