@@ -15,6 +15,12 @@ of missing data: 1%, 5%, and 10%
 
 ## Setup
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.width = 10, fig.height = 10)
+```
+
+
+
 ```{r, required_packages}
 library('zksimanalysis')
 ```
@@ -82,6 +88,7 @@ original <- filter(datalist, matching == "none")
 ```{r, themes}
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
+old_theme <- theme_update(text = element_text(size = 14))
 asp       <- function(r) theme(aspect.ratio = r)
 # The p-value for rd is best visualized on a log scale. This provides that
 # the color scaling for that transformation, emphasizing smaller p-values over
@@ -252,6 +259,17 @@ points(xsim.s, xlim = lims, ylim = lims)
 legend("topright", legend = c("Sexual", "Clonal", "Random (adegenet::glSim)"), col = c("red", "blue", "black"), pch = 1)
 ```
 
+### Re-analyze index of association
+
+
+Since we saw all significant values for $\bar{r}_d$ based on randomly permuting
+linked markers, we'll test here what happens when we randomly permute the
+chromosomes. This was done on the OSU CGRB cluster and downloaded here.
+
+Since not all of the replicates from the simulations finished correctly, we are
+sampling the minimum number of working simulations from the data per seed, which
+is 6.
+
 
 ```{r, redo_analysis, results = "hide"}
 # Here we have to filter out the stored genetic data
@@ -263,6 +281,7 @@ for (i in datfiles){
 
 shufffiles <- grep("^X.+?shufflechrom.rda$", ls(), value = TRUE)
 
+set.seed(20161020)
 shuffs <- shufffiles %>% 
   lapply(get) %>%
   setNames(shufffiles) %>% 
@@ -271,8 +290,21 @@ shuffs <- shufffiles %>%
           paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
           remove = FALSE) %>%
   mutate(sample = factor(sample) %>% forcats::fct_relevel(10, 25, 50)) %>%
-  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE)
+  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE) %>%
+  group_by(run, seed, sexrate, sample) %>%
+  sample_n(6)
+shuffs
 ```
+```{r, index_table, resuts = "asis"}
+shuffs %>% 
+  group_by(sexrate) %>%
+  summarize(n = n()/4)
+shuffs %>% 
+  group_by(sexrate, run) %>% 
+  summarize(n = n()/4) %>% 
+  spread(key = run, value = n)
+```
+
 
 ```{r, corrected_rd}
 corrected_rd <- ggplot(shuffs %>% select(sexrate, rbarD, sample), 
@@ -303,6 +335,9 @@ correcte_rd_p <- ggplot(shuffs %>% select(sexrate, p.rD, sample),
 correcte_rd_p
 ```
 
+
+Now we can take a look at the null distributions by sex rate and sample size
+
 ```{r, dists}
 no_y <- theme(axis.title.y = element_blank()) +
   theme(axis.text.y = element_blank()) +
@@ -319,6 +354,7 @@ null_dist <- shuffs %>%
   no_y
 null_dist
 
+# Only the most clonal of the non-random mating
 clone_dist <- shuffs %>% 
   unnest(samples) %>% 
   select(samples, sexrate, sample) %>%
@@ -331,15 +367,17 @@ clone_dist <- shuffs %>%
 clone_dist
 ```
 
-```{r, index_table, resuts = "asis"}
-shuffs %>% 
-  group_by(sexrate) %>%
-  summarize(n = n()/4)
-shuffs %>% 
-  group_by(sexrate, run) %>% 
-  summarize(n = n()/4) %>% 
-  spread(key = run, value = n)
+
+Now we can save the results for ROC analysis:
+
+
+```{r, save_data}
+genomic_data <- shuffs
+save(genomic_data, file = "../../simulation_results/genomic_data.rda")
 ```
+
+
+
 
 ## Session Information
 
