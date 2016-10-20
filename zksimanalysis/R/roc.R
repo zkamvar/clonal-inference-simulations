@@ -12,15 +12,22 @@
 #'
 #' @examples
 #' \dontrun{
-#' lapply(seq(0, 1, 0.01), roc, vals, group = c("sexrate", "sample"), count.na = TRUE) %>%
-#'   bind_rows %>%
-#'   ungroup() %>%
-#'   select(-sexrate) %>%
-#'   spread(score, positive_fraction) -> y
-#' ggplot(y, aes(x = Miss, y = Hit, color = sample)) +
+#' # single value
+#' x <- roc(df = vals, group = c('sexrate'))
+#'
+#' # more granular
+#' y <- roc(df = vals, group = c('sexrate', 'sample', 'mutation_rate'))
+#'
+#' # very granular
+#' z <- roc(df = vals, group = c('sexrate', 'sample', 'mutation_rate', 'run', 'seed'))
+#'
+#' # Comparing clonal to sexual
+#' res <- map_df(seq(0, 1, by = 0.01), roc, df = vals,
+#'               group = c('sexrate', 'sample', 'mutation_rate'))
+#' ggplot(res, aes(x = `False Positive`, y = `True Positive`, color = sample)) +
 #'   geom_line() +
-#'   geom_point() +
-#'   geom_abline(slope = 1, lty = 2)
+#'   geom_abline(slope = 1, lty = 2) +
+#'   facet_wrap(~mutation_rate)
 #' }
 roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"),
                 stat = "p.rD", augment = NULL, count.na = TRUE,
@@ -28,18 +35,22 @@ roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"),
 
   pf <- lazyeval::interp(~n_hits(stat, alpha, count.na)/n(),
                          stat = as.name(stat), alpha = alpha, count.na = count.na)
-
-  # pfsd <- list(positive_fraction_sd = ~sqrt((positive_fraction * (1 - positive_fraction))/ (n() - 1)))
   score_column <- list(score = ~ifelse(sexrate == compare[1], "True Positive", "False Positive"))
+  psd <- list(TPsd = ~roc_sd(`True Positive`, ntp),
+              FPsd = ~roc_sd(`False Positive`, nfp))
+  np  <- list(ntp = ~sum(sexrate == compare[1]),
+              nfp = ~sum(sexrate == compare[2]))
   df %>%
     filter_(.dots = list(~sexrate %in% compare)) %>%
-    mutate_(.dots = list(ntp = ~sum(sexrate == compare[1]),
-                         nfp = ~sum(sexrate == compare[2]))) %>%
+    mutate_(.dots = np) %>%
     group_by_(.dots = c(group, "ntp", "nfp")) %>%
     summarize_(.dots = list(positive_fraction = pf, alpha = alpha)) %>%
     mutate_(.dots = score_column) %>%
     ungroup() %>%
-    mutate_(.dots = list(sexrate = ~compare[1]))
+    mutate_(.dots = list(sexrate = ~compare[1])) %>%
+    spread_(key_col = "score", value_col = "positive_fraction") %>%
+    mutate_(.dots = psd) %>%
+    select_(quote(-ntp), quote(-nfp))
 }
 
 n_hits <- function(stat, alpha, count.na = TRUE){
@@ -48,3 +59,6 @@ n_hits <- function(stat, alpha, count.na = TRUE){
   return(res)
 }
 
+roc_sd <- function(pf, n){
+  sqrt((pf * (1 - pf))/(n - 1))
+}
