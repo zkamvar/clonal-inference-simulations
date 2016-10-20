@@ -309,6 +309,7 @@ def sim_partial_clone(loci, sexrate, STEPS, GENERATIONS, POPSIZE, SAVEPOPS, rep,
                 numOffspring = (sim.UNIFORM_DISTRIBUTION, 1, 3)
                 )
             )
+    EVOL['finalOps'] = [sim.SavePopulation(output = outfile)]
     resim = sim.Simulator(pops)
     resim.evolve(**EVOL)
 
