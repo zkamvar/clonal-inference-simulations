@@ -58,13 +58,12 @@ processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
 
 ```{r, load_data, cache = TRUE, results = "hide", cache.lazy = FALSE}
 system.time({
-res           <- load("../../simulation_results/processed_results.rda")
-even_mutation <- vals %>% filter(mutation_rate == "even")
-odd_mutation  <- vals %>% filter(mutation_rate == "uneven")
+res        <- load("../../simulation_results/processed_results.rda")
+vals_by_cc <- vals %>% 
+  gather(clone_correction, pval, p.rD, p.rDcc) %>%
+  mutate(clone_correction = ifelse(clone_correction == "p.rD", "wd", "cc"))
 })
-res
-even_mutation
-odd_mutation
+vals_by_cc
 ```
 
 ## Data Analysis
@@ -75,56 +74,43 @@ odd_mutation
 sex <- unique(vals$sexrate)
 sex <- sex[!sex %in% "1.0000"]
 alpha <- seq(0, 1, by = 0.01)
-roc_sd <- function(pf, n){
-  sqrt((pf * (1 - pf))/(n - 1))
-}
-
-process_roc <- . %>%
-  ungroup() %>% 
-  spread(score, positive_fraction) %>%
-  mutate(sdtp = roc_sd(`True Positive`, ntp), sdfp = roc_sd(`False Positive`, nfp)) %>%
-  mutate(ymax = `True Positive` + sdtp, ymin = `True Positive` - sdtp,
-         xmax = `False Positive` + sdfp, xmin = `False Positive` - sdfp)
 ```
 
+The main ROC calculation is handled by the function `roc()`. This function
+calculates ROC and the variance for a single level of $\alpha$ over a given
+grouping. It assumes the column for the factor dividing the true positive and
+false positive is called "sexrate". This will calculate ROC and the variance
+for each level of the grouping (which must be at least sexrate). 
+
+Since we want create a curve, here we are mapping the `roc()` function over the 
+different levels of $\alpha$. We do this for both the regular p-value and clone 
+corrected p-value. We then do this for each rate of sexual reproduction 
+independently. To do this, we have to use nested `map()` functions. The first 
+`map_df()` will map the second map function over the values of non-random
+mating, `map2_df()`, which will map the `roc()` function over both the incoming
+value of non-random mating (coming in as `.x`) and all values of $\alpha$
+(represented as `.y`).
+
+We do this for both full and clone-corrected data.
 
 ```{r, roc_overall, cache = TRUE}
-roc_overall <- sex %>% map(map2, alpha,
-            ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE,
-                group = c("mutation_rate", "sexrate", "sample")
-                )) %>%
-  flatten() %>%
-  bind_rows(.id = "sex") %>%
-  process_roc
+Sys.time()
+total_roc <- map_df(alpha, roc, 
+                    vals_by_cc %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
+                    compare = c("NR", "R"), stat = "pval", count.na = TRUE,
+                    group = c("mutation_rate", "sexrate", "sample", "clone_correction"))
+total_roc
+
+Sys.time()
+roc_overall <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, vals_by_cc, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("mutation_rate", "sexrate", "sample", "clone_correction"), 
+              stat = "pval"
+             )
+         ) 
 roc_overall
-
-roc_overall_cc <- sex %>% map(map2, alpha,
-            ~roc(.y, vals, compare = c(.x, "1.0000"), stat = "p.rDcc", 
-                 count.na = TRUE, group = c("mutation_rate", "sexrate", "sample")
-                )) %>%
-  flatten() %>%
-  bind_rows(.id = "sex") %>%
-  process_roc
-roc_overall_cc
-
-
-total_roc <- map_df(alpha, roc, vals %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
-                      compare = c("NR", "R"), stat = "p.rD", count.na = TRUE,
-                      group = c("mutation_rate", "sexrate", "sample")) %>%
-  process_roc
-total_roc
-
-
-total_roc_cc <- map_df(alpha, roc, vals %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
-                      compare = c("NR", "R"), stat = "p.rDcc", count.na = TRUE,
-                      group = c("mutation_rate", "sexrate", "sample")) %>%
-  process_roc
-total_roc_cc
-
-total_roc <- bind_rows(uncorrected = total_roc, `clone-corrected` = total_roc_cc, .id = "Clone Correction")
-OVERALL_ROC <- bind_rows(uncorrected = roc_overall, `clone-corrected` = roc_overall_cc, .id = "Clone Correction") %>% select(-ntp, -nfp, -sdtp, -sdfp, -xmax, -xmin, -sex)
-
-total_roc
+Sys.time()
 ```
 
 
@@ -132,9 +118,9 @@ total_roc
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
-oroc_plot <- ggplot(OVERALL_ROC, aes(x = `False Positive`, y = `True Positive`)) +
+oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`)) +
   geom_line(aes(color = sample)) +
-  facet_grid(sexrate~mutation_rate+`Clone Correction`) +
+  facet_grid(sexrate ~ mutation_rate + clone_correction) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
     # title = "ROC Curves",
@@ -150,7 +136,7 @@ oroc_plot <- ggplot(OVERALL_ROC, aes(x = `False Positive`, y = `True Positive`))
 oroc_plot
 total_oroc_plot <- ggplot(total_roc, aes(x = `False Positive`, y = `True Positive`)) +
   geom_line(aes(color = sample)) +
-  facet_grid(mutation_rate~`Clone Correction`) +
+  facet_grid(mutation_rate ~ clone_correction) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
     title = "ROC Curves",
@@ -165,22 +151,16 @@ total_oroc_plot
 ```
 
 ```{r, roc_by_seed, cache = TRUE}
-roc_by_seed <- sex %>% map(map2, alpha,
-            ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE,
-                group = c("mutation_rate", "sexrate", "run", "seed", "sample")
-                )) %>%
-  flatten() %>%
-  bind_rows(.id = "runseed") %>%
-  process_roc
+seedgroup <- c("mutation_rate", "sexrate", "run", "seed", "sample", "clone_correction")
+Sys.time()
+roc_by_seed <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, vals_by_cc, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = seedgroup, stat = "pval"
+             )
+         ) 
 roc_by_seed
-roc_by_seed_cc <- sex %>% map(map2, alpha,
-            ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE, stat = "p.rDcc",
-                group = c("mutation_rate", "sexrate", "run", "seed", "sample")
-                )) %>%
-  flatten() %>%
-  bind_rows(.id = "runseed") %>%
-  process_roc
-roc_by_seed_cc
+Sys.time()
 ```
 
 ### AURC
@@ -190,31 +170,22 @@ the package *flux*.
 
 ```{r, AURC_calc, cache = TRUE}
 # Calculate ROC over all seeds, produce points
-overall_roc <- . %>% 
-  group_by(sexrate, sample, mutation_rate) %>%
-  summarize(AURC = auc(`False Positive`, `True Positive`))
 
+AURC_calc <- . %>%
+  summarize(AURC = auc(`False Positive`, `True Positive`)) %>%
+  ungroup() %>% 
+  mutate(sample = factor(paste("n =", sample), paste("n =", c(10, 25, 50, 100))))
+
+Sys.time()
+AURC_overall <- roc_overall %>% 
+  group_by(sexrate, sample, mutation_rate, clone_correction) %>%
+  AURC_calc
+
+Sys.time()
 # Calculate ROC for each seed separately, produce distributions
-by_seed_roc <- . %>% 
-  group_by(run, seed, sexrate, sample, mutation_rate) %>%
-  summarize(AURC = auc(`False Positive`, `True Positive`))
-
-AURC_overall <- roc_overall %>% overall_roc
-AURC_by_seed <- roc_by_seed %>% by_seed_roc
-
-AURC_overall_cc <- roc_overall_cc %>% overall_roc
-AURC_by_seed_cc <- roc_by_seed_cc %>% by_seed_roc
-
-# Combine clone-corrected and un-corrected
-by_seed <- bind_rows(AURC_by_seed_cc, AURC_by_seed, .id = "CC") %>%
-  mutate(CC = ifelse(CC == 1, "clone-corrected", "uncorrected")) %>%
-  ungroup() %>% 
-  mutate(sample = factor(paste("n =", sample), paste("n =", c(10, 25, 50, 100))))
-
-overall <- bind_rows(AURC_overall_cc, AURC_overall, .id = "CC") %>%
-  mutate(CC = ifelse(CC == 1, "clone-corrected", "uncorrected")) %>%
-  ungroup() %>% 
-  mutate(sample = factor(paste("n =", sample), paste("n =", c(10, 25, 50, 100))))
+AURC_by_seed <- roc_by_seed %>% 
+  group_by(run, seed, sexrate, sample, mutation_rate, clone_correction) %>%
+  AURC_calc
 
 ```
 
@@ -226,14 +197,14 @@ Now we can visualize the data as facetted boxplots
 text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", 
                               sample = "n = 10", mutation_rate = "even")
 
-ggplot(by_seed, aes(x = factor(sexrate), y = AURC)) +
-  geom_boxplot(aes(fill = CC)) +
+ggplot(AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
+  geom_boxplot(aes(fill = clone_correction)) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = .2) +
-  geom_boxplot(aes(fill = CC)) +
+  geom_boxplot(aes(fill = clone_correction)) +
   facet_grid(sample~mutation_rate) +
   geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
             data = text_annotation) +
-  geom_point(aes(x = factor(sexrate), y = AURC, pch = CC), data = overall,
+  geom_point(aes(x = factor(sexrate), y = AURC, pch = clone_correction), data = AURC_overall,
              position = position_dodge(width = 0.75), color = "black", fill = "white") +
   scale_shape_manual(values = c(21, 24)) + 
   labs(list(
