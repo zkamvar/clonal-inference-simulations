@@ -304,13 +304,19 @@ correcte_rd_p
 ```
 
 ```{r, dists}
+no_y <- theme(axis.title.y = element_blank()) +
+  theme(axis.text.y = element_blank()) +
+  theme(axis.ticks.y = element_blank()) +
+  theme(panel.grid.major.y = element_blank()) +
+  theme(panel.grid.minor.y = element_blank()) 
 null_dist <- shuffs %>% 
   unnest(samples) %>% 
   select(samples, sexrate, sample) %>%
   ggplot(aes(x = samples)) +
   geom_density(aes(fill = sexrate), alpha = 0.5) +
   scale_fill_viridis(discrete = TRUE, option = "plasma") +
-  facet_wrap(~sample, ncol = 1, scale = "free_y")
+  facet_wrap(~sample, ncol = 1, scale = "free_y") +
+  no_y
 null_dist
 
 clone_dist <- shuffs %>% 
@@ -320,7 +326,8 @@ clone_dist <- shuffs %>%
   ggplot(aes(x = samples)) +
   geom_density(aes(fill = sexrate), alpha = 0.5) +
   scale_fill_viridis(discrete = TRUE, option = "plasma") +
-  facet_wrap(~sample, ncol = 1, scale = "free_y")
+  facet_wrap(~sample, ncol = 1, scale = "free_y") +
+  no_y
 clone_dist
 ```
 
