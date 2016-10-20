@@ -75,6 +75,16 @@ odd_mutation
 sex <- unique(vals$sexrate)
 sex <- sex[!sex %in% "1.0000"]
 alpha <- seq(0, 1, by = 0.01)
+roc_sd <- function(pf, n){
+  sqrt((pf * (1 - pf))/(n - 1))
+}
+
+process_roc <- . %>%
+  ungroup() %>% 
+  spread(score, positive_fraction) %>%
+  mutate(sdtp = roc_sd(`True Positive`, ntp), sdfp = roc_sd(`False Positive`, nfp)) %>%
+  mutate(ymax = `True Positive` + sdtp, ymin = `True Positive` - sdtp,
+         xmax = `False Positive` + sdfp, xmin = `False Positive` - sdfp)
 ```
 
 
@@ -85,8 +95,7 @@ roc_overall <- sex %>% map(map2, alpha,
                 )) %>%
   flatten() %>%
   bind_rows(.id = "sex") %>%
-  ungroup() %>%
-  spread(score, positive_fraction)
+  process_roc
 roc_overall
 
 roc_overall_cc <- sex %>% map(map2, alpha,
@@ -95,10 +104,26 @@ roc_overall_cc <- sex %>% map(map2, alpha,
                 )) %>%
   flatten() %>%
   bind_rows(.id = "sex") %>%
-  ungroup() %>%
-  spread(score, positive_fraction)
+  process_roc
 roc_overall_cc
 
+
+total_roc <- map_df(alpha, roc, vals %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
+                      compare = c("NR", "R"), stat = "p.rD", count.na = TRUE,
+                      group = c("mutation_rate", "sexrate", "sample")) %>%
+  process_roc
+total_roc
+
+
+total_roc_cc <- map_df(alpha, roc, vals %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
+                      compare = c("NR", "R"), stat = "p.rDcc", count.na = TRUE,
+                      group = c("mutation_rate", "sexrate", "sample")) %>%
+  process_roc
+total_roc_cc
+
+total_roc <- bind_rows(uncorrected = total_roc, `clone-corrected` = total_roc_cc, .id = "Clone Correction")
+
+total_roc
 ```
 
 
@@ -141,8 +166,7 @@ roc_by_seed <- sex %>% map(map2, alpha,
                 )) %>%
   flatten() %>%
   bind_rows(.id = "runseed") %>%
-  ungroup() %>%
-  spread(score, positive_fraction)
+  process_roc
 roc_by_seed
 roc_by_seed_cc <- sex %>% map(map2, alpha,
             ~roc(.y, vals, compare = c(.x, "1.0000"), count.na = TRUE, stat = "p.rDcc",
@@ -150,8 +174,7 @@ roc_by_seed_cc <- sex %>% map(map2, alpha,
                 )) %>%
   flatten() %>%
   bind_rows(.id = "runseed") %>%
-  ungroup() %>%
-  spread(score, positive_fraction)
+  process_roc
 roc_by_seed_cc
 ```
 

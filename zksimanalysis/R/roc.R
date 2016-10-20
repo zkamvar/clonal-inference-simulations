@@ -28,14 +28,18 @@ roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"),
 
   pf <- lazyeval::interp(~n_hits(stat, alpha, count.na)/n(),
                          stat = as.name(stat), alpha = alpha, count.na = count.na)
+
+  # pfsd <- list(positive_fraction_sd = ~sqrt((positive_fraction * (1 - positive_fraction))/ (n() - 1)))
   score_column <- list(score = ~ifelse(sexrate == compare[1], "True Positive", "False Positive"))
   df %>%
     filter_(.dots = list(~sexrate %in% compare)) %>%
-    group_by_(.dots = group) %>%
+    mutate_(.dots = list(ntp = ~sum(sexrate == compare[1]),
+                         nfp = ~sum(sexrate == compare[2]))) %>%
+    group_by_(.dots = c(group, "ntp", "nfp")) %>%
     summarize_(.dots = list(positive_fraction = pf, alpha = alpha)) %>%
     mutate_(.dots = score_column) %>%
     ungroup() %>%
-    mutate_(.dots = list(sexrate = compare[1]))
+    mutate_(.dots = list(sexrate = ~compare[1]))
 }
 
 n_hits <- function(stat, alpha, count.na = TRUE){
