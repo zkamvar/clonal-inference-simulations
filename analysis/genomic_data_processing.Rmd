@@ -1,0 +1,191 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Introduction
+
+I've created simulations of populations undergoing different levels of sexual 
+reproduction and analyzed the index of association over 10,000 loci. Random 
+samples of 10, 25, 50, and 100 individuals were sampled without replacement from
+each population and analyzed with the script `genomic_analyze_and_save_ia.R`.
+This script analyzed $\bar{r}_d$ for the data sets with different levels of
+missing data: 1%, 5%, and 10%. Significance was assessed for the whole data set
+by randomly permuting genotypes at each locus 999 times. The results were placed
+into a folder called `genomic_rda_files/`.
+
+
+I have analyzed the index of association for 10, 25, 50, and 100 samples from 
+each population and analyzed $\bar{r}_d$ for the data set with different levels
+of missing data: 1%, 5%, and 10%. These were placed into a folder called 
+`genomic_rda_files/`.
+
+### Simulation failures
+
+Due to a small bug that I suspect was related to a misplaced constraint in the
+final operations of the `../simulations/simulate_sex_rate_gbs.py` script, not
+all of the simulations were completed. For the curious, it was commit
+4ce8b682fbe4375287ef76dad25660e3aa1e9ecd that potentially fixed the issue.
+
+We had simulated 24 unique seeds over all 10 levels of sexual reproduction, with
+10 replicate populations per simulation and should have had 2400 data sets, but
+ended up with fewer due to these failures.
+
+### Analysis problem
+
+There was one small problem with the analysis as described above. Upon analysis
+of these data, it was clear that the shuffling scheme wasn't good. All
+populations showed a significant value of $\bar{r}_d$. It was discovered that
+this was caused by the linkage of the chromosomes. 
+
+To fix this, we used the script `genomic_re_analyze_ia.R` to read in the `.rda`
+files saved from `genomic_analyze_and_save_ia.R`, re-generate p-values for 
+$\bar{r}_d$, and save the results in a folder called `genomic_rda_files_redux/`,
+appending "shufflechrom" to the file name.
+
+
+### One more thing
+
+Of course, being the genius that I am, I had made the initial mistake of
+shuffling all markers on the first 16 seeds. Instead of making the same mistake
+on the final 8 seeds, I had run them with `genomic_analyze_and_save_ia.R`, which
+shuffled in the correct manner, but were saved in the manner that the original,
+failed p-value calculation was saved, so some shuffling is needed to get
+everything in order -_-.
+
+## Setup
+
+```{r, required_packages}
+library('zksimanalysis')
+```
+
+## Data retrieval
+
+The data were downloaded from the CGRB server using rsync with the following
+command.
+
+> Note: replace XXXXX with the port number. I am not writing it here for
+security reasons.
+
+```
+rsync --update -avz -e "ssh -p XXXXX" --exclude 'twenty_loci_results' \ 
+kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulation_analysis/results \ 
+../simulation_results
+```
+
+Processing the initial data and transforming it into a tidy manner because I
+foolishly did not do that in `genomic_analyze_and_save_ia.R`.
+
+```{r, load_data, results = "hide"}
+# Here we have to filter out the stored genetic data
+datfiles <- dir("../../simulation_results/genomic_rda_files/", full.names = TRUE) %>% 
+  grep("feather.rda$", ., value = TRUE)
+
+# Setting up the prefixes to split the file names into metadata
+ex_run  <- "genomic([0-9]+?)/"
+ex_seed <- "seed_([0-9]+?)_"
+ex_sex  <- "sex_([0-9.]+?)_"
+ex_gen  <- "gen_([0-9]+?)_"
+ex_rep  <- "rep_([0-9]+?).pop"
+ex_samp <- "_sam_([0-9]+?)$"
+
+# Load all of the rda files with the results.
+for (i in datfiles){
+  load(i)
+}
+
+# Get a list of all the data objects
+datnames  <- grep("^X.+?feather$", ls(), value = TRUE)
+
+datalist <- datnames %>%
+  setNames(datnames) %>%          # set the names for binding id
+  map_df(get, .id = "source") %>% # map the `get()` function and return a tibble
+  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
+          remove = FALSE) %>%     # process the metadata
+  mutate(sample = factor(sample)) %>%     # Transform the sample to a factor
+  select(missing_0.01:sample, source) %>% # resort the columns
+  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE) # filter out duplicates
+
+datalist <- datalist  %>%
+  gather(missingness, rd, starts_with("missing"), rbarD) %>% # gather the rd values into one column
+  extract(missingness, c("matching", "missing"), 
+          "missing_([a-z]*)_*([0-9.]*)$", convert = TRUE) %>% # create new columns for missing data level
+  mutate(pop = gsub("^.+?pop_(.+?)$", "\\1", pop)) %>% # make population names easier to read
+  mutate(matching = ifelse(is.na(matching), "none", matching)) %>% # differentiate between matching
+  mutate(matching = ifelse(matching == "", "match", matching)) %>% # and non-matching missing calc
+  mutate(missing = ifelse(is.na(missing), 0, missing)) %>%  # set non-missing percent to 0
+  mutate(sample = forcats::fct_relevel(sample, 10, 25, 50)) # relevel the sample sizes
+
+missing_stats <- filter(datalist, matching != "none") %>% # data set for only rd from missing data
+  select(-samples, -p.rD)
+original        <- filter(datalist, matching == "none") %>% 
+  select(-matching, -missing) # rd with no missing data
+original_real_p <- filter(original, as.integer(run) > 16) # filter out the runs with good p-vals
+original_real_p
+original <- filter(original, as.integer(run) < 17)
+```
+
+Now that we've got our data sorted out from the original runs, we need to gather
+the data from the redux. The process is less complicated since we don't have to 
+account for the calculation of missing data.
+
+
+```{r, load_redux, restulst = "hide"}
+# Here we have to filter out the stored genetic data
+datfiles <- dir("../../simulation_results/genomic_rda_files_redux/", full.names = TRUE)
+
+for (i in datfiles){
+  load(i)
+}
+
+shufffiles <- grep("^X.+?shufflechrom.rda$", ls(), value = TRUE)
+
+shuffs <- shufffiles %>% 
+  setNames(shufffiles) %>% 
+  map_df(get, .id = "source") %>%
+  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
+          remove = FALSE) %>%
+  mutate(sample = factor(sample) %>% forcats::fct_relevel(10, 25, 50)) %>%
+  mutate(pop = gsub("^.+?pop_(.+?)$", "\\1", pop)) %>%
+  rename(rd = rbarD) %>%
+  select(rd:sample, source) %>%
+  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE) %>%
+  bind_rows(original_real_p)
+shuffs
+
+shuffs %>% 
+  group_by(sexrate) %>%
+  summarize(n = n()/4)
+
+# We can filter data by finding the median number of replicates the
+# simulations have and subsampling based off of that
+min_sample <- shuffs %>% 
+  group_by(sexrate, run) %>% 
+  summarize(n = n()/4) %>%
+  spread(sexrate, n) %>%
+  arrange(as.integer(run)) %>%
+  select(-run) %>%
+  apply(1, min)
+runs      <- unique(shuffs$run) %>% as.integer() %>% sort()
+(n        <- 7)
+good_runs <- as.character(runs[min_sample >= n])
+
+# Here we subsample based on a seed.
+set.seed(20161020)
+original_redux <- shuffs %>% 
+  filter(run %in% good_runs) %>% 
+  group_by(run, sexrate, sample) %>%
+  sample_n(n) %>%
+  ungroup()
+
+original_redux %>% 
+  group_by(sexrate) %>%
+  summarize(n = n()/4)
+```
+
+```{r}
+save(original_redux, original, missing_stats, file = "../../simulation_results/genomic_data.rda")
+```
+
