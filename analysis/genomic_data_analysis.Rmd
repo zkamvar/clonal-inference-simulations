@@ -42,45 +42,8 @@ kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulatio
 
 ```{r, load_data, results = "hide"}
 # Here we have to filter out the stored genetic data
-datfiles <- dir("../../simulation_results/genomic_rda_files/", full.names = TRUE) %>% 
-  grep("feather.rda$", ., value = TRUE)
-
-ex_run  <- "genomic([0-9]+?)/"
-ex_seed <- "seed_([0-9]+?)_"
-ex_sex  <- "sex_([0-9.]+?)_"
-ex_gen  <- "gen_([0-9]+?)_"
-ex_rep  <- "rep_([0-9]+?).pop"
-ex_samp <- "_sam_([0-9]+?)$"
-
-for (i in datfiles){
-  load(i)
-}
-
-datnames  <- grep("^X.+?feather$", ls(), value = TRUE)
-
-datalist <- datnames %>%
-  lapply(get) %>%
-  setNames(datnames) %>% 
-  bind_rows(.id = "source") %>%
-  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
-          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
-          remove = FALSE) %>%
-  mutate(sample = factor(sample)) %>%
-  select(missing_0.01:sample, source) %>%
-  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE)
-
-datalist <- datalist  %>%
-  gather(missingness, rd, starts_with("missing"), rbarD) %>%
-  extract(missingness, c("matching", "missing"), 
-          "missing_([a-z]*)_*([0-9.]*)$", convert = TRUE) %>%
-  mutate(pop = gsub("^.+?pop_(.+?)$", "\\1", pop)) %>% 
-  mutate(matching = ifelse(is.na(matching), "none", matching)) %>%
-  mutate(matching = ifelse(matching == "", "match", matching)) %>%
-  mutate(missing = ifelse(is.na(missing), 0, missing)) %>%
-  mutate(sample = forcats::fct_relevel(sample, 10, 25, 50))
-
-missing_stats <- filter(datalist, matching != "none")
-original <- filter(datalist, matching == "none")
+genomic_data <- load("../../simulation_results/genomic_data.rda")
+genomic_data
 ```
 
 ## Visualizations
@@ -268,38 +231,13 @@ chromosomes. This was done on the OSU CGRB cluster and downloaded here.
 
 Since not all of the replicates from the simulations finished correctly, we are
 sampling the minimum number of working simulations from the data per seed, which
-is 6.
+is 7. The dataset is called `original_redux`
 
-
-```{r, redo_analysis, results = "hide"}
-# Here we have to filter out the stored genetic data
-datfiles <- dir("../../simulation_results/genomic_rda_files_redux/", full.names = TRUE)
-
-for (i in datfiles){
-  load(i)
-}
-
-shufffiles <- grep("^X.+?shufflechrom.rda$", ls(), value = TRUE)
-
-set.seed(20161020)
-shuffs <- shufffiles %>% 
-  lapply(get) %>%
-  setNames(shufffiles) %>% 
-  bind_rows(.id = "source") %>%
-  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
-          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
-          remove = FALSE) %>%
-  mutate(sample = factor(sample) %>% forcats::fct_relevel(10, 25, 50)) %>%
-  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE) %>%
-  group_by(run, seed, sexrate, sample) %>%
-  sample_n(6)
-shuffs
-```
 ```{r, index_table, resuts = "asis"}
-shuffs %>% 
+original_redux %>% 
   group_by(sexrate) %>%
   summarize(n = n()/4)
-shuffs %>% 
+original_redux %>% 
   group_by(sexrate, run) %>% 
   summarize(n = n()/4) %>% 
   spread(key = run, value = n)
@@ -307,8 +245,9 @@ shuffs %>%
 
 
 ```{r, corrected_rd}
-corrected_rd <- ggplot(shuffs %>% select(sexrate, rbarD, sample), 
-       aes(x = sexrate, y = rbarD, fill = sample)) +
+corrected_rd <- original_redux %>% 
+  select(sexrate, rd, sample) %>%
+  ggplot(aes(x = sexrate, y = rd, fill = sample)) +
   geom_boxplot() +
   scale_fill_grey() +
     labs(list(
@@ -319,8 +258,9 @@ corrected_rd <- ggplot(shuffs %>% select(sexrate, rbarD, sample),
     ))
 corrected_rd
 
-correcte_rd_p <- ggplot(shuffs %>% select(sexrate, p.rD, sample), 
-       aes(x = sexrate, y = p.rD, fill = sample)) +
+correcte_rd_p <- original_redux %>% 
+  select(sexrate, p.rD, sample) %>%
+  ggplot(aes(x = sexrate, y = p.rD, fill = sample)) +
   geom_boxplot() + 
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
@@ -344,18 +284,23 @@ no_y <- theme(axis.title.y = element_blank()) +
   theme(axis.ticks.y = element_blank()) +
   theme(panel.grid.major.y = element_blank()) +
   theme(panel.grid.minor.y = element_blank()) 
-null_dist <- shuffs %>% 
+null_dist <- original_redux %>% 
   unnest(samples) %>% 
   select(samples, sexrate, sample) %>%
   ggplot(aes(x = samples)) +
   geom_density(aes(fill = sexrate), alpha = 0.5) +
   scale_fill_viridis(discrete = TRUE, option = "plasma") +
   facet_wrap(~sample, ncol = 1, scale = "free_y") +
+  labs(list(
+    title = expression(paste("Null distributions of ", bar(r)[d])),
+    subtitle = "For all sex rates",
+    x = eval(rd)
+  )) +
   no_y
 null_dist
 
 # Only the most clonal of the non-random mating
-clone_dist <- shuffs %>% 
+clone_dist <- original_redux %>% 
   unnest(samples) %>% 
   select(samples, sexrate, sample) %>%
   filter(sexrate %in% c("0.0000", "0.0001", "0.0005")) %>%
@@ -363,20 +308,14 @@ clone_dist <- shuffs %>%
   geom_density(aes(fill = sexrate), alpha = 0.5) +
   scale_fill_viridis(discrete = TRUE, option = "plasma") +
   facet_wrap(~sample, ncol = 1, scale = "free_y") +
+  labs(list(
+    title = expression(paste("Null distributions of ", bar(r)[d])),
+    subtitle = "For sex rates < 0.1%",
+    x = eval(rd)
+  )) +
   no_y
 clone_dist
 ```
-
-
-Now we can save the results for ROC analysis:
-
-
-```{r, save_data}
-genomic_data <- shuffs
-save(genomic_data, file = "../../simulation_results/genomic_data.rda")
-```
-
-
 
 
 ## Session Information
