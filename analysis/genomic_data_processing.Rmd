@@ -169,7 +169,7 @@ min_sample <- shuffs %>%
   select(-run) %>%
   apply(1, min)
 runs      <- unique(shuffs$run) %>% as.integer() %>% sort()
-(n        <- 7)
+(n        <- 5) # This givest the magic number!
 good_runs <- as.character(runs[min_sample >= n])
 
 # Here we subsample based on a seed.
