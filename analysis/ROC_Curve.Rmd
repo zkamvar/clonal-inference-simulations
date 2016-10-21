@@ -2,7 +2,9 @@
 title: "ROC Analysis"
 author: "Zhian N. Kamvar"
 date: "October 16, 2016"
-output: html_document
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 ## Introduction
@@ -48,6 +50,11 @@ The Area under the ROC Curve will be calcuated via the `auc()` function via
 
 ## Setup
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.width = 10, fig.height = 10)
+```
+
+
 ```{r, required_packages}
 library('zksimanalysis')
 ```
@@ -59,11 +66,15 @@ processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
 ```{r, load_data, cache = TRUE, results = "hide", cache.lazy = FALSE}
 system.time({
 res        <- load("../../simulation_results/processed_results.rda")
-vals_by_cc <- vals %>% 
+vals_by_cc <- get(res) %>% 
   gather(clone_correction, pval, p.rD, p.rDcc) %>%
   mutate(clone_correction = ifelse(clone_correction == "p.rD", "wd", "cc"))
+genomic_res <- load("../../simulation_results/genomic_data.rda")
+genomic_dat <- get(genomic_res[genomic_res == "original_redux"])
+rm(list = c(res, genomic_res))
 })
 vals_by_cc
+genomic_dat
 ```
 
 ## Data Analysis
@@ -71,9 +82,11 @@ vals_by_cc
 ### Overall ROC Calculation
 
 ```{r, generate_sexrate}
-sex <- unique(vals$sexrate)
+sex <- unique(vals_by_cc$sexrate)
 sex <- sex[!sex %in% "1.0000"]
 alpha <- seq(0, 1, by = 0.01)
+old_theme <- theme_set(theme_bw())
+old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 ```
 
 The main ROC calculation is handled by the function `roc()`. This function
@@ -115,10 +128,9 @@ Sys.time()
 
 
 ```{r, curves, fig.width = 10, fig.height = 10}
-old_theme <- theme_set(theme_bw())
-old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
-
 oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`)) +
+  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+              alpha = 0.25) +
   geom_line(aes(color = sample)) +
   facet_grid(sexrate ~ mutation_rate + clone_correction) +
   geom_abline(slope = 1, lty = 3) +
@@ -126,7 +138,8 @@ oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`))
     # title = "ROC Curves",
     # subtitle = "over mutation rate and clone-correction by sex rate",
     pch = "Sample Size",
-    color = "Sample Size"
+    color = "Sample Size",
+    fill = "Sample Size"
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
@@ -135,13 +148,16 @@ oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`))
   scale_color_brewer(palette = "Set1")
 oroc_plot
 total_oroc_plot <- ggplot(total_roc, aes(x = `False Positive`, y = `True Positive`)) +
+  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+              alpha = 0.25) +
   geom_line(aes(color = sample)) +
   facet_grid(mutation_rate ~ clone_correction) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
     title = "ROC Curves",
     pch = "Sample Size",
-    color = "Sample Size"
+    color = "Sample Size",
+    fill = "Sample Size"
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
@@ -218,6 +234,120 @@ ggplot(AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
   theme(text = element_text(size = 14))
 
 
+```
+
+
+
+## Genomic Data
+
+
+```{r genomic_roc, cache = TRUE, dependson = "load_data"}
+Sys.time()
+g_total_roc <- map_df(alpha, roc, 
+                      genomic_dat %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
+                      compare = c("NR", "R"), stat = "p.rD", count.na = TRUE,
+                      group = c("sexrate", "sample"))
+g_total_roc
+
+Sys.time()
+g_roc_overall <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, genomic_dat, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("sexrate", "sample"), 
+              stat = "p.rD"
+             )
+         ) 
+g_roc_overall
+Sys.time()
+g_roc_by_seed <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, genomic_dat, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("sexrate", "sample", "run", "seed"), 
+              stat = "p.rD"
+             )
+         ) 
+g_roc_overall
+Sys.time()
+```
+
+
+```{r genomic_curve}
+g_oroc_plot <- ggplot(g_roc_overall, aes(x = `False Positive`, y = `True Positive`)) +
+  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+              alpha = 0.25) +
+  geom_line(aes(color = sample)) +
+  facet_wrap(~sexrate) +
+  geom_abline(slope = 1, lty = 3) +
+  labs(list(
+    # title = "ROC Curves",
+    # subtitle = "over mutation rate and clone-correction by sex rate",
+    pch = "Sample Size",
+    color = "Sample Size",
+    fill = "Sample Size"
+  )) +
+  theme(aspect.ratio = 1) +
+  theme(legend.position = "top") +
+  theme(panel.grid.minor = element_blank()) +
+  theme(text = element_text(size = 14)) +
+  scale_color_brewer(palette = "Set1")
+g_oroc_plot
+g_total_oroc_plot <- ggplot(g_total_roc, aes(x = `False Positive`, y = `True Positive`)) +
+  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+              alpha = 0.25) +
+  geom_line(aes(color = sample)) +
+  geom_abline(slope = 1, lty = 3) +
+  labs(list(
+    title = "ROC Curves",
+    pch = "Sample Size",
+    color = "Sample Size",
+    fill = "Sample Size"
+  )) +
+  theme(aspect.ratio = 1) +
+  theme(legend.position = "top") +
+  theme(text = element_text(size = 14)) +
+  scale_color_brewer(palette = "Set1")
+g_total_oroc_plot
+```
+
+
+```{r genomic_AURC, cache = TRUE, dependson = "load_data"}
+Sys.time()
+g_AURC_overall <- g_roc_overall %>% 
+  group_by(sexrate, sample) %>%
+  AURC_calc
+g_AURC_overall
+Sys.time()
+g_AURC_by_seed <- g_roc_by_seed %>% 
+  group_by(sexrate, sample, run, seed) %>%
+  AURC_calc
+g_AURC_overall
+g_AURC_by_seed
+```
+
+
+```{r, genomic_AURC_plot}
+# Add an annotation indicating that 0.5 is random assignment.
+text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", 
+                              sample = "n = 10", mutation_rate = "even")
+
+g_AURC_by_seed_plot <- ggplot(g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
+  geom_point(position = position_jitter(height = 0, width = 0.125), alpha = 0.5) +
+  annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = 0.2) +
+  facet_wrap(~sample) +
+  geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
+            data = text_annotation) +
+  geom_point(aes(x = factor(sexrate), y = AURC, fill = "white"), data = g_AURC_overall, 
+             pch = 21, position = position_dodge(width = 0.75), color = "black", 
+             size = 3, alpha = 0.75) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
+    subtitle = "calculated over sample size"
+  )) +
+  scale_fill_manual(values = "white", labels = "Overall") +
+  theme(legend.title = element_blank()) +
+  theme(text = element_text(size = 14))
+g_AURC_by_seed_plot
 ```
 
 
