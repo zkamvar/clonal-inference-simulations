@@ -244,12 +244,12 @@ original_redux %>%
 ```
 
 
-```{r, corrected_rd}
+```{r, fig.height=5, fig.width=7}
 corrected_rd <- original_redux %>% 
   select(sexrate, rd, sample) %>%
   ggplot(aes(x = sexrate, y = rd, fill = sample)) +
-  geom_boxplot() +
-  scale_fill_grey() +
+  geom_boxplot(outlier.color = "grey50", outlier.size = 0.5) + 
+  scale_fill_grey(start = 0.25, end = 0.75) + 
     labs(list(
     title = "index of association by sex rate",
     x = "Rate of Sexual Reproduction",
@@ -261,7 +261,7 @@ corrected_rd
 correcte_rd_p <- original_redux %>% 
   select(sexrate, p.rD, sample) %>%
   ggplot(aes(x = sexrate, y = p.rD, fill = sample)) +
-  geom_boxplot() + 
+  geom_boxplot(outlier.color = "grey50", outlier.size = 0.5) + 
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
   scale_fill_grey(start = 0.25, end = 0.75) + 
@@ -278,7 +278,7 @@ correcte_rd_p
 
 Now we can take a look at the null distributions by sex rate and sample size
 
-```{r, dists}
+```{r, fig.height=7, fig.width=10}
 no_y <- theme(axis.title.y = element_blank()) +
   theme(axis.text.y = element_blank()) +
   theme(axis.ticks.y = element_blank()) +
