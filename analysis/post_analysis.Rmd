@@ -58,6 +58,8 @@ and over again.
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 asp       <- function(r) theme(aspect.ratio = r)
+sample_colors <- scale_color_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
+sample_fill <- scale_fill_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
 # The p-value for rd is best visualized on a log scale. This provides that
 # the color scaling for that transformation, emphasizing smaller p-values over
 # larger ones.
@@ -83,33 +85,50 @@ uSimp <- "Unbiased simpson's index (genotypic diversity)"
 
 
 ```{r, rd_sexrate, fig.width = 10}
-rd_sexrate <- ggplot(vals %>% select(sexrate, rbarD, sample, mutation_rate), 
-                     aes(x = sexrate, y = rbarD, fill = sample)) +
-  geom_boxplot(outlier.size = 0.25) +
-  facet_wrap(~mutation_rate) +
+rd_sexrate <- vals %>% 
+  select(sexrate, rbarD, rbarDcc, sample, mutation_rate) %>%
+  gather("clone_correct", "rd", rbarD, rbarDcc) %>% 
+  mutate(clone_correct = factor(clone_correct, labels = c("uncorrected", "clone-corrected"))) %>%
+  ggplot(aes(x = sexrate, y = rd, fill = sample)) +
+  # geom_boxplot(outlier.size = 0.25) +
+  geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
+  facet_grid(mutation_rate~clone_correct) +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14)) +
   labs(list(
     x = "Rate of Sexual Reproduction",
     y = eval(rd),
     title = "Standardized Index of Association vs Sex",
     subtitle = "for even and uneven mutation rates")
-    ) 
+    ) +
+  # theme_minimal() + 
+  # theme(strip.text = element_blank()) +
+  # theme(text = element_blank()) +
+  # theme(title = element_blank()) +
+  theme(aspect.ratio = 4/10) +
+  scale_fill_grey(start = 0.5, end = 1)
+  
 rd_sexrate
 ```
 
 
 ```{r, rd_pval, fig.width = 10}
-rd_pval <- ggplot(vals %>% select(sexrate, p.rD, sample, mutation_rate), 
-       aes(x = sexrate, y = p.rD, fill = sample)) +
+rd_pval <- vals %>% 
+  select(sexrate, p.rD, p.rDcc, sample, mutation_rate) %>%
+  gather("clone_correct", "prd", p.rD, p.rDcc) %>% 
+  mutate(clone_correct = factor(clone_correct, labels = c("uncorrected", "clone-corrected"))) %>%
+  ggplot(aes(x = sexrate, y = prd, fill = sample)) +
   geom_boxplot(outlier.size = 0.25) +
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
-  facet_wrap(~mutation_rate) +
+  facet_grid(mutation_rate~clone_correct) +
   labs(list(
     x = "Rate of Sexual Reproduction",
     y = eval(prd),
     title = "Detection of clonal reproduction",
     subtitle = "for even and uneven mutation rates")
-    )
+    ) +
+  sample_fill
 rd_pval
 ```
 
