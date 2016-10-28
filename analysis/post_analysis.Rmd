@@ -77,6 +77,7 @@ prdcc <- quote(expression(paste("p-value (", bar(r)[d], " (clone-corrected))")))
 E5g   <- quote(expression(paste("Genotypic evenness (", E[5][G], ")")))
 E5a   <- quote(expression(paste("Mean allelic evenness (", E[5][A], ")")))
 Hexp  <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
+uSimp <- "Unbiased simpson's index (genotypic diversity)"
 ```
 
 
@@ -237,6 +238,42 @@ ggplot(odd_mutation, aes(x = Evenness, y = E.5, color = rbarD)) +
   facet_grid(sample~sexrate) +
   xlab(eval(E5a)) +
   ylab(eval(E5g))
+```
+
+```{r, NMLG_rbarD, fig.height = 10, fig.width = 5}
+ggplot(even_mutation, aes(x = NMLG, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  scale_x_continuous(breaks = c(5, 10, 25, 50, 100)) +
+  asp(0.75) +
+  facet_grid(sexrate~sample, scale = "free_x") +
+  xlab("Number of multilocus genotypes") +
+  ylab(eval(rd))
+ggplot(odd_mutation, aes(x = NMLG, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  scale_x_continuous(breaks = c(5, 10, 25, 50, 100)) +
+  asp(0.75) +
+  facet_grid(sexrate~sample, scale = "free_x") +
+  xlab("Number of multilocus genotypes") +
+  ylab(eval(rd))
+```
+
+```{r, uSimp_rbarD, fig.width = 10}
+ggplot(even_mutation, aes(x = uSimp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(uSimp) +
+  ylab(eval(rd))
+ggplot(odd_mutation, aes(x = uSimp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(uSimp) +
+  ylab(eval(rd))
 ```
 
 ```{r, gE5_rbarD, fig.width = 10}

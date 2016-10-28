@@ -152,6 +152,79 @@ ggplot(AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
 ```
 
 
+
+### ANOVA
+
+There is a lot of data here, and it's clear that there is a difference between
+clone-corrected data and uncorrected data, but to be sure of that, we'll do
+ANOVA tests between each pair of clone-corrected and un-corrected data, grouped
+by sex rate, sample size, and mutation rate.
+
+```{r, fig.width=5}
+AURC_by_seed %>% 
+  group_by(sexrate, mutation_rate, sample) %>% 
+  do(aov(AURC ~ clone_correction, data = .) %>% broom::tidy()) %>% 
+  filter(term != "Residuals") %>% 
+  select(p.value) %>% 
+  ggplot(aes(x = sexrate, y = sample, fill = p.value)) + 
+  geom_tile() + 
+  geom_text(aes(label = round(p.value, 2)), color = "grey50") + 
+  scale_fill_viridis(direction = -1, begin = 0, end = 1) + 
+  facet_wrap(~mutation_rate, ncol = 1) + 
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  theme(aspect.ratio = 4/9) +
+  theme(legend.position = "none") +
+  theme(strip.background = element_blank()) +
+  theme(panel.spacing = unit(0, "cm")) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.text.x = element_blank()) +
+  theme(axis.ticks.x = element_blank()) +
+  theme(plot.margin = unit(c(1, 1, 0, 1), "lines")) +
+  labs(list(
+    title = "ANOVA over Clone Correction",
+    x = "Rate of Sexual Reproduction",
+    y = "Sample Size",
+    fill = "p-value"
+  )) -> cc_anova
+AURC_by_seed %>% 
+  group_by(sexrate, mutation_rate, clone_correction) %>% 
+  do(aov(AURC ~ sample, data = .) %>% broom::tidy()) %>% 
+  filter(term != "Residuals") %>% 
+  select(p.value) %>% 
+  ggplot(aes(x = sexrate, y = clone_correction, fill = p.value)) + 
+  geom_tile() + 
+  geom_text(aes(label = round(p.value, 2)), color = "grey50") + 
+  scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
+                     breaks = c(0, 0.01, 0.05, 0.5, 1)) + 
+  facet_wrap(~mutation_rate, ncol = 1) + 
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  theme(aspect.ratio = 2/9) +
+  theme(legend.position = "bottom") +
+  theme(strip.background = element_blank()) +
+  theme(panel.spacing = unit(0, "cm")) +
+  labs(list(
+    title = "ANOVA over Sample Size",
+    x = "Rate of Sexual Reproduction",
+    y = "Clone Correction",
+    fill = "p-value"
+  )) -> size_anova
+
+library(gtable)
+library(grid)
+g1 <- ggplotGrob(cc_anova)
+# g1 <- gtable_add_cols(cc_anova, unit(0,"mm")) # add a column for missing legend
+g2 <- ggplotGrob(size_anova)
+g <- rbind(g1, g2, size="first") # stack the two plots
+g$widths <- unit.pmax(g1$widths, g2$widths) # use the largest widths
+# center the legend vertically
+# g$layout[grepl("guide", g$layout$name),c("t","b")] <- c(1,nrow(g))
+grid.newpage()
+grid.draw(g)
+```
+
+
 ## ROC Table
 
 ```{r total_roc_table, fig.height=5, fig.width=8}
