@@ -160,7 +160,7 @@ clone-corrected data and uncorrected data, but to be sure of that, we'll do
 ANOVA tests between each pair of clone-corrected and un-corrected data, grouped
 by sex rate, sample size, and mutation rate.
 
-```{r, fig.width=10, fig.height = 7}
+```{r, fig.width=10, fig.height = 7, fig.keep="last"}
 AURC_by_seed %>% 
   group_by(sexrate, mutation_rate, sample) %>% 
   do(aov(AURC ~ clone_correction, data = .) %>% broom::tidy()) %>% 
@@ -283,7 +283,8 @@ powerplot <- overall_roc_table %>%
     y = "True Positive Rate",
     alpha = "False Positive Rate",
     color = "Sample Size"
-  ))
+  )) +
+  scale_color_viridis(end = 0.85, discrete = TRUE, direction = -1)
 powerplot
 ```
 
