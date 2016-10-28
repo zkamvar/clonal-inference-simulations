@@ -73,6 +73,8 @@ res
 alpha <- seq(0, 1, by = 0.01)
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
+sample_colors <- scale_color_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
+sample_fill <- scale_fill_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
 ```
 
 ## SSR Data
@@ -97,7 +99,8 @@ oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`))
   theme(legend.position = "top") +
   theme(panel.grid.minor = element_blank()) +
   theme(text = element_text(size = 14)) +
-  scale_color_brewer(palette = "Set1")
+  sample_colors +
+  sample_fill
 oroc_plot
 total_oroc_plot <- ggplot(total_roc, aes(x = `False Positive`, y = `True Positive`)) +
   geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
@@ -114,7 +117,8 @@ total_oroc_plot <- ggplot(total_roc, aes(x = `False Positive`, y = `True Positiv
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
   theme(text = element_text(size = 14)) +
-  scale_color_brewer(palette = "Set1")
+  sample_colors +
+  sample_fill
 total_oroc_plot
 ```
 
@@ -284,7 +288,7 @@ powerplot <- overall_roc_table %>%
     alpha = "False Positive Rate",
     color = "Sample Size"
   )) +
-  scale_color_viridis(end = 0.85, discrete = TRUE, direction = -1)
+  sample_colors
 powerplot
 ```
 
@@ -310,7 +314,8 @@ g_oroc_plot <- ggplot(g_roc_overall, aes(x = `False Positive`, y = `True Positiv
   theme(legend.position = "top") +
   theme(panel.grid.minor = element_blank()) +
   theme(text = element_text(size = 14)) +
-  scale_color_brewer(palette = "Set1")
+  sample_colors +
+  sample_fill
 g_oroc_plot
 ```
 
@@ -328,7 +333,8 @@ g_total_oroc_plot <- ggplot(g_total_roc, aes(x = `False Positive`, y = `True Pos
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
   theme(text = element_text(size = 14)) +
-  scale_color_brewer(palette = "Set1")
+  sample_colors +
+  sample_fill
 g_total_oroc_plot
 ```
 
