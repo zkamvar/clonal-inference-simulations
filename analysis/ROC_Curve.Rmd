@@ -57,6 +57,9 @@ knitr::opts_chunk$set(fig.width = 10, fig.height = 10)
 
 ```{r, required_packages}
 library('zksimanalysis')
+# These are for manipulating ggplot2 graphics
+library("gtable")
+library("grid")
 ```
 
 We load the data previously processed in `ROC_calculation.Rmd`.
@@ -103,19 +106,15 @@ oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`))
   sample_fill
 
 
-library(gtable)
-library(grid)
-z <- ggplotGrob(oroc_plot)
+z         <- ggplotGrob(oroc_plot)
 locations <- grep("strip-t", z$layout$name)
-strip <- gtable_filter(z, "strip-t", trim = FALSE)
+strip     <- gtable_filter(z, "strip-t", trim = FALSE)
 top <- strip$layout$t[1]
 l <- strip$layout$l[c(1, 3)]
 r <- strip$layout$r[c(2, 4)]
 
-mat <- matrix(vector("list", length = 6), nrow = 2)
-mat[c(1, 2, 5, 6)] <- c(z$grobs[[locations[1]]]$grobs, list(zeroGrob(), zeroGrob()))
-mat[, 2] <- list(zeroGrob(), zeroGrob())
-mat[2, 1] <- list(zeroGrob())
+mat   <- matrix(vector("list", length = 6), nrow = 2)
+mat[] <- list(zeroGrob())
 
 res <- gtable_matrix("toprow", mat, unit(c(1, 0, 1), "null"), unit(c(1, 1), "null")) 
 
@@ -250,12 +249,9 @@ AURC_by_seed %>%
     fill = "p-value (Sample Size)       "
   )) -> size_anova
 
-library(gtable)
-library(grid)
 g1 <- ggplotGrob(cc_anova)
-# g1 <- gtable_add_cols(cc_anova, unit(0,"mm")) # add a column for missing legend
 g2 <- ggplotGrob(size_anova)
-g <- rbind(g1, g2, size="first") # stack the two plots
+g  <- rbind(g1, g2, size="first") # stack the two plots
 g$widths <- unit.pmax(g1$widths, g2$widths) # use the largest widths
 # center the legend vertically
 # g$layout[grepl("guide", g$layout$name),c("t","b")] <- c(1,nrow(g))
