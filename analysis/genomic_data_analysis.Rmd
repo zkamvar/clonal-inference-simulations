@@ -72,6 +72,15 @@ prdcc <- quote(expression(paste("p-value (", bar(r)[d], " (clone-corrected))")))
 E5g   <- quote(expression(paste("Genotypic evenness (", E[5][G], ")")))
 E5a   <- quote(expression(paste("Mean allelic evenness (", E[5][A], ")")))
 Hexp  <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
+
+
+fancy_clone_correct <- . %>% 
+  mutate(clone_correct = factor(clone_correct, labels = c("uncorrected", "clone-corrected")))
+fancy_sample <- . %>%  
+  mutate(sample = forcats::lvls_revalue(sample, paste("n =", sort(unique(sample)))))
+fancy_mutation_rate <- . %>% 
+  mutate(mutation_rate = factor(mutation_rate, labels = c("Even Mutation Rate", "Uneven Mutation Rate")))
+  
 ```
 
 
@@ -244,38 +253,52 @@ original_redux %>%
 ```
 
 
-```{r, fig.height=5, fig.width=7}
+```{r, fig.height=7, fig.width=6}
 corrected_rd <- original_redux %>% 
   select(sexrate, rd, sample) %>%
-  ggplot(aes(x = sexrate, y = rd, fill = sample)) +
+  fancy_sample %>%
+  ggplot(aes(x = sexrate, y = rd)) +
   geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
   geom_point(alpha = 0.25) +
   # geom_boxplot(outlier.color = "grey50", outlier.size = 0.5) + 
-  scale_fill_grey(start = 0.5, end = 1) + 
+  # scale_fill_grey(start = 0.5, end = 1) + 
     labs(list(
-    title = "index of association by sex rate",
+    # title = "index of association by sex rate",
     x = "Rate of Sexual Reproduction",
-    y = eval(rd),
-    fill = "Sample Size"
+    y = eval(rd)
     )) +
-  facet_wrap(~sample)
+  facet_wrap(~sample, ncol = 1) +
+  theme(aspect.ratio = 1/2) +
+  theme(strip.background = element_blank()) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(text = element_text(size = 14)) 
 corrected_rd
+
+# ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.png",
+#        plot = corrected_rd, dpi = 600, height = 7, width = 6)
+
 
 correcte_rd_p <- original_redux %>% 
   select(sexrate, p.rD, sample) %>%
-  ggplot(aes(x = sexrate, y = p.rD, fill = sample)) +
+  fancy_sample %>%
+  ggplot(aes(x = sexrate, y = p.rD)) +
   geom_boxplot(outlier.color = "grey50", outlier.size = 0.5) +
   # geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
-  scale_fill_grey(start = 0.5, end = 1) + 
+  # scale_fill_grey(start = 0.5, end = 1) + 
     labs(list(
-    title = "p-value for the index of association by sex rate",
-    subtitle = "out of 999 permutations",
+    # title = "p-value for the index of association by sex rate",
+    # subtitle = "out of 999 permutations",
     x = "Rate of Sexual Reproduction",
-    y = eval(prd),
-    fill = "Sample Size"
-    ))
+    y = eval(prd)
+    # fill = "Sample Size"
+    )) +
+  facet_wrap(~sample, ncol = 1) +
+  theme(aspect.ratio = 1.618^-1) +
+  theme(strip.background = element_blank()) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(text = element_text(size = 14))
 correcte_rd_p
 ```
 

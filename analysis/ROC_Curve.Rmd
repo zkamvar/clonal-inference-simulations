@@ -78,6 +78,13 @@ old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 sample_colors <- scale_color_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
 sample_fill <- scale_fill_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
+
+fancy_clone_correction <- . %>% 
+  mutate(clone_correction = factor(clone_correction, labels = c("clone-corrected", "uncorrected")))
+fancy_sample <- . %>%  
+  mutate(sample = forcats::lvls_revalue(sample, paste("n =", sort(unique(sample)))))
+fancy_mutation_rate <- . %>% 
+  mutate(mutation_rate = factor(mutation_rate, labels = c("Even Mutation Rate", "Uneven Mutation Rate")))
 ```
 
 ## SSR Data
@@ -153,33 +160,46 @@ total_oroc_plot
 
 Now we can visualize the data as facetted boxplots
 
-```{r, AURC_plot, fig.width = 10, fig.height = 10}
+```{r, AURC_plot, fig.width = 6, fig.height = 7}
 
 # Add an annotation indicating that 0.5 is random assignment.
-text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", 
-                              sample = "n = 10", mutation_rate = "even")
-
-ggplot(AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
+text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", #\n   Whole Data Set", 
+                              sample = "n = 10", mutation_rate = "Even Mutation Rate")
+# point_annotation <- data.frame(x = 0.5, y = 0.125, sample = "n = 10", 
+#                                mutation_rate = "Even Mutation Rate")
+# AURCO <- AURC_overall %>% fancy_clone_correction %>% fancy_mutation_rate
+AURC_box_plot <- AURC_by_seed %>%
+  fancy_clone_correction %>%
+  mutate(clone_correction = forcats::fct_rev(clone_correction)) %>%
+  fancy_mutation_rate %>%
+ggplot(aes(x = factor(sexrate), y = AURC)) +
   geom_boxplot(aes(fill = clone_correction)) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = .2) +
-  geom_boxplot(aes(fill = clone_correction)) +
+  geom_boxplot(aes(fill = clone_correction), outlier.size = 0.5) +
   facet_grid(sample~mutation_rate) +
   geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
             data = text_annotation) +
-  geom_point(aes(x = factor(sexrate), y = AURC, pch = clone_correction), data = AURC_overall,
-             position = position_dodge(width = 0.75), color = "black", fill = "white") +
-  scale_shape_manual(values = c(21, 24)) + 
+  # geom_point(aes(x = x, y = y), color = "black", fill = "white",
+  #            pch = 21, data = point_annotation) +
+  # geom_point(aes(x = factor(sexrate), y = AURC, pch = clone_correction), data = AURCO,
+  #            position = position_dodge(width = 0.75), color = "black", fill = "white") +
+  # scale_shape_manual(values = c(21, 24)) + 
   labs(list(
     fill = "Clone Correction",
-    pch = "Overall",
-    x = "Rate of Sexual Reproduction",
-    title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
-    subtitle = "calculated over sample size and mutation rate"
+    x = "Rate of Sexual Reproduction"
+    # title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
+    # subtitle = "calculated over sample size and mutation rate"
   )) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_grey(start = 1, end = 0.5) +
+  theme(legend.position = "bottom") +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
   theme(text = element_text(size = 14))
 
+ggsave(plot = AURC_box_plot, width = 6, height = 7, dpi = 600,
+       file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_box_plot.png")
 
+AURC_box_plot
 ```
 
 
@@ -191,7 +211,7 @@ clone-corrected data and uncorrected data, but to be sure of that, we'll do
 ANOVA tests between each pair of clone-corrected and un-corrected data, grouped
 by sex rate, sample size, and mutation rate.
 
-```{r, fig.width=10, fig.height = 7, fig.keep="last"}
+```{r, fig.width = 8, fig.height = 5, fig.keep="last"}
 AURC_by_seed %>% 
   group_by(sexrate, mutation_rate, sample) %>% 
   do(aov(AURC ~ clone_correction, data = .) %>% broom::tidy()) %>% 
@@ -223,7 +243,7 @@ AURC_by_seed %>%
     y = "Sample Size",
     fill = "p-value (Clone Correction)"
   )) -> cc_anova
-AURC_by_seed %>% 
+AURC_by_seed %>%
   group_by(sexrate, mutation_rate, clone_correction) %>% 
   do(aov(AURC ~ sample, data = .) %>% broom::tidy()) %>% 
   filter(term != "Residuals") %>% 
@@ -257,6 +277,8 @@ g$widths <- unit.pmax(g1$widths, g2$widths) # use the largest widths
 # g$layout[grepl("guide", g$layout$name),c("t","b")] <- c(1,nrow(g))
 grid.newpage()
 grid.draw(g)
+# ggsave(plot = g, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA.png",
+#        width = 8, height = 5, dpi = 600)
 ```
 
 
@@ -287,17 +309,42 @@ total_roc_table %>%
     
 ```
 
-```{r, fig.height=6, fig.width=9}
+```{r, fig.height=5, fig.width=6, keep = "last"}
 overall_roc_table <- roc_overall %>% 
-  filter(alpha %in% c(0.01)) %>%
-  mutate(clone_correction = factor(clone_correction, labels = c("clone-corrected", "whole data"))) %>%
-  mutate(mutation_rate = factor(mutation_rate, labels = c("Even Mutation Rate", "Uneven Mutation Rate")))
-powerplot <- overall_roc_table %>% 
+  filter(alpha %in% c(0.01, 0.05)) %>%
+  fancy_clone_correction %>%
+  mutate(clone_correction = forcats::fct_rev(clone_correction)) %>%
+  fancy_mutation_rate
+powerplot0.01 <- overall_roc_table %>% 
+  filter(alpha == 0.01) %>%
   ggplot(aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
   geom_point(size = 2) + 
   # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
   geom_line(aes(group = sample)) +
-  facet_grid(mutation_rate ~ clone_correction) +
+  facet_grid(clone_correction ~ mutation_rate) +
+  scale_alpha(range = c(1, 0.5)) +
+  theme(aspect.ratio = 0.5) +
+  theme(strip.text = element_text(size = 12, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "bottom") +
+  theme(legend.box = "vertical") +
+  theme(legend.box = "vertical") +
+  labs(list(
+    # title = "Power to detect non-random mating (p = 0.01)",
+    x = "Rate of Sexual Reproduction",
+    y = "True Positive Rate",
+    alpha = "False Positive Rate",
+    color = "Sample Size"
+  )) +
+  sample_colors
+powerplot0.05 <- overall_roc_table %>% 
+  filter(alpha == 0.05) %>%
+  ggplot(aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
+  geom_point(size = 2) + 
+  # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
+  geom_line(aes(group = sample)) +
+  facet_grid(clone_correction ~ mutation_rate) +
   scale_alpha(range = c(1, 0.5)) +
   theme(aspect.ratio = 0.5) +
   theme(strip.text = element_text(size = 12, face = "bold")) +
@@ -306,14 +353,20 @@ powerplot <- overall_roc_table %>%
   theme(legend.position = "bottom") +
   theme(legend.box = "vertical") +
   labs(list(
-    title = "Power to detect non-random mating (p = 0.01)",
+    # title = "Power to detect non-random mating (p = 0.01)",
     x = "Rate of Sexual Reproduction",
     y = "True Positive Rate",
     alpha = "False Positive Rate",
     color = "Sample Size"
   )) +
   sample_colors
-powerplot
+
+
+powerplot0.01
+powerplot0.05
+# ggsave(plot = powerplot0.01, file = "~/Documents/Grunwald/dissertation/figure/simulations/ssr_power.png",
+#        width = 8, height = 5, dpi = 600)
+
 ```
 
 
@@ -364,7 +417,7 @@ g_total_oroc_plot
 
 
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=7, fig.width=6}
 # Add an annotation indicating that 0.5 is random assignment.
 text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", 
                               sample = "n = 10", mutation_rate = "even")
@@ -372,24 +425,60 @@ text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random",
 g_AURC_by_seed_plot <- ggplot(g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
   geom_point(position = position_jitter(height = 0, width = 0.125), alpha = 0.5) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = 0.2) +
-  facet_wrap(~sample) +
+  facet_wrap(~sample, ncol = 1) +
   geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
             data = text_annotation) +
-  geom_point(aes(x = factor(sexrate), y = AURC, fill = "white"), data = g_AURC_overall, 
-             pch = 21, position = position_dodge(width = 0.75), color = "black", 
-             size = 3, alpha = 0.75) +
+  # geom_point(aes(x = factor(sexrate), y = AURC, fill = "white"), data = g_AURC_overall, 
+  #            pch = 21, position = position_dodge(width = 0.75), color = "black", 
+  #            size = 3, alpha = 0.75) +
   labs(list(
-    x = "Rate of Sexual Reproduction",
-    title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
-    subtitle = "calculated over sample size"
+    x = "Rate of Sexual Reproduction"
+    # title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
+    # subtitle = "calculated over sample size"
   )) +
-  scale_fill_manual(values = "white", labels = "Overall") +
+  # scale_fill_manual(values = "white", labels = "Overall") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom") +
   theme(text = element_text(size = 14)) +
+  theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
-  theme(aspect.ratio = 0.75)
+  theme(aspect.ratio = 0.5)
+
+ggsave(plot = g_AURC_by_seed_plot, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_genomic.png",
+       width = 6, height = 7, dpi = 600)
 g_AURC_by_seed_plot
+```
+
+
+```{r genomic_power, fig.width = 6, fig.height = 5}
+g_overall_roc_table <- g_roc_overall %>% 
+  filter(alpha %in% c(0.01, 0.05)) %>%
+  mutate(alpha = paste("p =", alpha))
+powerplot <- g_overall_roc_table %>% 
+  ggplot(aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
+  geom_point(size = 2) + 
+  # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
+  geom_line(aes(group = sample)) +
+  facet_wrap(~alpha, ncol = 1) +
+  scale_alpha(range = c(1, 0.5)) +
+  theme(aspect.ratio = 0.5) +
+  theme(strip.text = element_text(size = 12, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "bottom") +
+  theme(legend.box = "vertical") +
+  theme(aspect.ratio = 0.5) +
+  labs(list(
+    # title = "Power to detect non-random mating (p = 0.01)",
+    x = "Rate of Sexual Reproduction",
+    y = "True Positive Rate",
+    alpha = "False Positive Rate",
+    color = "Sample Size"
+  )) +
+  sample_colors
+ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_power.png",
+       plot = powerplot, width = 6, height = 5, dpi = 600)
+powerplot
 ```
 
 
