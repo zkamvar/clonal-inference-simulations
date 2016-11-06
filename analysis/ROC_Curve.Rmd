@@ -214,7 +214,7 @@ by sex rate, sample size, and mutation rate.
 ```{r, fig.width = 8, fig.height = 5, fig.keep="last"}
 AURC_by_seed %>% 
   group_by(sexrate, mutation_rate, sample) %>% 
-  do(aov(AURC ~ clone_correction, data = .) %>% broom::tidy()) %>% 
+  do(aov(AURC ~ clone_correction, data = ., contrasts = c("contr.helmert")) %>% broom::tidy()) %>% 
   filter(term != "Residuals") %>% 
   select(p.value) %>% 
   ungroup() %>%
@@ -245,7 +245,7 @@ AURC_by_seed %>%
   )) -> cc_anova
 AURC_by_seed %>%
   group_by(sexrate, mutation_rate, clone_correction) %>% 
-  do(aov(AURC ~ sample, data = .) %>% broom::tidy()) %>% 
+  do(aov(AURC ~ sample, data = ., contrasts = c("contr.helmert")) %>% broom::tidy()) %>% 
   filter(term != "Residuals") %>% 
   select(p.value) %>% 
   ggplot(aes(x = sexrate, y = clone_correction, fill = p.value)) + 
@@ -313,10 +313,7 @@ Here I'm attempting to run a full AMOVA on the AURC calculations by considering
 full interactions 
 
 ```{r full_anova, fig.width = 8, fig.height = 5}
-AURC_ANOVA <- AURC_by_seed %>% 
-  group_by(sexrate) %>% 
-  do(aov(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% broom::tidy()) %>% 
-  # select(term, p.value) %>%
+clean_anova <- . %>%
   filter(term != "Residuals") %>%
   mutate(term = gsub(":", " X ", term)) %>%
   mutate(term = gsub("sample", "Sample Size", term)) %>%
@@ -325,7 +322,36 @@ AURC_ANOVA <- AURC_by_seed %>%
   mutate(term = forcats::fct_inorder(factor(term))) %>%
   mutate(p.value = p.adjust(p.value, "BH"))
 
-ggAURC_ANOVA <- ggplot(AURC_ANOVA, aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
+
+# Type I ANOVA
+AURC_ANOVA_I <- AURC_by_seed %>% 
+  group_by(sexrate) %>% 
+  do(aov(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% broom::tidy()) %>% 
+  clean_anova
+
+
+# Type II ANOVA
+AURC_ANOVA_II <- map_df(.x = c(
+                  "AURC ~ clone_correction * sample * mutation_rate",
+                  "AURC ~ clone_correction * mutation_rate * sample",
+                  "AURC ~ sample * mutation_rate * clone_correction"), 
+  .f = ~AURC_by_seed %>% 
+  group_by(sexrate) %>% 
+  do(lm(as.formula(.x), data = ., contrasts = "contr.helmert") %>% anova() %>% broom::tidy()) %>% 
+  slice(3L)
+) %>%
+  clean_anova
+
+# Type III ANOVA
+library("car")
+AURC_ANOVA_III <- AURC_by_seed %>%
+  group_by(sexrate) %>% 
+  do(lm(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% 
+       car::Anova(type = 3) %>% 
+       broom::tidy()) %>% 
+  clean_anova
+
+ggAURC_ANOVA <- ggplot(AURC_ANOVA_I, aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
   geom_tile() + 
   geom_text(aes(label = round(p.value, 2))) +
   scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
