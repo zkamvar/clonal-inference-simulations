@@ -314,21 +314,24 @@ full interactions
 
 ```{r full_anova, fig.width = 8, fig.height = 5}
 clean_anova <- . %>%
-  filter(term != "Residuals") %>%
+  # mutate(p.value = p.adjust(p.value, "BH")) %>%
   mutate(term = gsub(":", " X ", term)) %>%
   mutate(term = gsub("sample", "Sample Size", term)) %>%
   mutate(term = gsub("mutation_rate", "Mutation Rate", term)) %>%
   mutate(term = gsub("clone_correction", "Clone Correction", term)) %>%
   mutate(term = forcats::fct_inorder(factor(term))) %>%
-  mutate(p.value = p.adjust(p.value, "BH"))
+  ungroup() %>%
+  I()
 
-
+filter_anova <- . %>%
+  filter(term != "Residuals") %>%
+  filter(term != "(Intercept)") %>%
+  I()
 # Type I ANOVA
 AURC_ANOVA_I <- AURC_by_seed %>% 
   group_by(sexrate) %>% 
   do(aov(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% broom::tidy()) %>% 
   clean_anova
-
 
 # Type II ANOVA
 AURC_ANOVA_II <- map_df(.x = c(
@@ -343,7 +346,7 @@ AURC_ANOVA_II <- map_df(.x = c(
   clean_anova
 
 # Type III ANOVA
-library("car")
+
 AURC_ANOVA_III <- AURC_by_seed %>%
   group_by(sexrate) %>% 
   do(lm(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% 
@@ -351,27 +354,44 @@ AURC_ANOVA_III <- AURC_by_seed %>%
        broom::tidy()) %>% 
   clean_anova
 
-ggAURC_ANOVA <- ggplot(AURC_ANOVA_I, aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
+ggAURC_ANOVA <- ggplot(AURC_ANOVA_III %>% filter_anova, aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
   geom_tile() + 
-  geom_text(aes(label = round(p.value, 2))) +
+  geom_text(aes(label = round(p.value, 2), color = 1 - p.value)) +
   scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
                    breaks = c(0, 0.01, 0.05, 0.1, 1)) + 
   theme(aspect.ratio = 7/9) +
+  geom_vline(xintercept = c(1:8) + 0.5) +
   scale_y_discrete(expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
+  scale_color_gradient(low = "white", high = "black", guide = "none") +
   theme(text = element_text(size = 14)) +
   theme(legend.position = "top") +
   labs(list(
-    fill = "adjusted p-value",
+    fill = "p-value",
     x = "Rate of Sexual Reproduction",
     y = "ANOVA term"
   ))
 ggsave(plot = ggAURC_ANOVA, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA.png",
        width = 8, height = 5, dpi = 600)
 ggAURC_ANOVA
+
+
+AURC_ANOVA_III %>% 
+  mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
+  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
+  unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
+  as.data.frame() %>% # when passing to as.data.frame
+  knitr::kable(format = "pandoc", digits = 3) %>%
+  cat(sep = "\n")
 ```
 
 
+The result that we see from this AMOVA supports what we see in the boxplots.
+Basically, clone correction, sample size, and mutation rate all have a real
+effect on the inference of recombination. At low levels of recombination (< 1%),
+There is a significant effect of the intraction between mutation rate and clone
+correction, but not of sample size and clone correction (with the exception of
+0.05% and 0.1% sexual reproduction). 
 
 ## ROC Table
 
