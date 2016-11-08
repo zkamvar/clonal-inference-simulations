@@ -1,8 +1,8 @@
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination17 
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination18
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination19 
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination20
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination21 
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination22 
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination23 
-python /home/local/USDA-ARS/javier.tabima/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination24
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination17 
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination18
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination19 
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination20
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination21 
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination22 
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination23 
+python /home/local/USDA-ARS/javier.tabima/Documents/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination24
