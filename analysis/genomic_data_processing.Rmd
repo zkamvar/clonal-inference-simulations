@@ -68,9 +68,9 @@ command.
 security reasons.
 
 ```
-rsync --update -avz -e "ssh -p XXXXX" --exclude 'twenty_loci_results' \ 
-kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulation_analysis/results \ 
-../simulation_results
+rsync --update -tavz -e "ssh -p XXXXX" --exclude 'twenty_loci_results' \
+kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulation_analysis/results/ \
+../simulation_results/
 ```
 
 Processing the initial data and transforming it into a tidy manner because I
