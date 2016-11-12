@@ -19,10 +19,12 @@ vals_by_cc <- get(res) %>%
   mutate(clone_correction = ifelse(clone_correction == "p.rD", "wd", "cc"))
 genomic_res <- load("../../simulation_results/genomic_data.rda")
 genomic_dat <- get(genomic_res[genomic_res == "original_redux"])
+hr_genomic_dat <- get(genomic_res[genomic_res == "hr_original_redux"])
 rm(list = c(res, genomic_res))
 })
 vals_by_cc
 genomic_dat
+hr_genomic_dat
 ```
 
 ## Data Analysis
@@ -145,6 +147,33 @@ g_roc_by_seed <- sex %>%
          ) 
 g_roc_overall
 Sys.time()
+
+hr_g_total_roc <- map_df(alpha, roc, 
+                      hr_genomic_dat %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
+                      compare = c("NR", "R"), stat = "p.rD", count.na = TRUE,
+                      group = c("sexrate", "sample"))
+hr_g_total_roc
+
+Sys.time()
+hr_g_roc_overall <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, hr_genomic_dat, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("sexrate", "sample"), 
+              stat = "p.rD"
+             )
+         ) 
+hr_g_roc_overall
+Sys.time()
+hr_g_roc_by_seed <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, hr_genomic_dat, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("sexrate", "sample", "run", "seed"), 
+              stat = "p.rD"
+             )
+         ) 
+hr_g_roc_by_seed
+Sys.time()
+
 ```
 
 ```{r genomic_AURC, cache = TRUE, dependson = "load_data"}
@@ -157,8 +186,19 @@ Sys.time()
 g_AURC_by_seed <- g_roc_by_seed %>% 
   group_by(sexrate, sample, run, seed) %>%
   AURC_calc
+Sys.time()
+hr_g_AURC_overall <- hr_g_roc_overall %>% 
+  group_by(sexrate, sample) %>%
+  AURC_calc
+hr_g_AURC_overall
+Sys.time()
+hr_g_AURC_by_seed <- hr_g_roc_by_seed %>% 
+  group_by(sexrate, sample, run, seed) %>%
+  AURC_calc
 g_AURC_overall
 g_AURC_by_seed
+hr_g_AURC_overall
+hr_g_AURC_by_seed
 ```
 
 ## Saving Data
@@ -166,6 +206,7 @@ g_AURC_by_seed
 ```{r save_ROC_data}
 save(total_roc, roc_overall, roc_by_seed, AURC_overall, AURC_by_seed,
      g_total_roc, g_roc_overall, g_roc_by_seed, g_AURC_overall, g_AURC_by_seed,
+     hr_g_total_roc, hr_g_roc_overall, hr_g_roc_by_seed, hr_g_AURC_overall, hr_g_AURC_by_seed,
      file = "../../simulation_results/ROC_data.rda")
 ```
 

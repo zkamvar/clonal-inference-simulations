@@ -505,6 +505,26 @@ g_oroc_plot <- ggplot(g_roc_overall, aes(x = `False Positive`, y = `True Positiv
   sample_colors +
   sample_fill
 g_oroc_plot
+hr_g_oroc_plot <- ggplot(hr_g_roc_overall, aes(x = `False Positive`, y = `True Positive`)) +
+  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+              alpha = 0.25) +
+  geom_line(aes(color = sample)) +
+  facet_wrap(~sexrate) +
+  geom_abline(slope = 1, lty = 3) +
+  labs(list(
+    # title = "ROC Curves",
+    # subtitle = "over mutation rate and clone-correction by sex rate",
+    pch = "Sample Size",
+    color = "Sample Size",
+    fill = "Sample Size"
+  )) +
+  theme(aspect.ratio = 1) +
+  theme(legend.position = "top") +
+  theme(panel.grid.minor = element_blank()) +
+  theme(text = element_text(size = 14)) +
+  sample_colors +
+  sample_fill
+hr_g_oroc_plot
 ```
 
 ```{r genomic_curve_total, fig.height=5, fig.width=5}
@@ -524,6 +544,22 @@ g_total_oroc_plot <- ggplot(g_total_roc, aes(x = `False Positive`, y = `True Pos
   sample_colors +
   sample_fill
 g_total_oroc_plot
+hr_g_total_oroc_plot <- ggplot(hr_g_total_roc, aes(x = `False Positive`, y = `True Positive`)) +
+  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+              alpha = 0.25) +
+  geom_line(aes(color = sample)) +
+  geom_abline(slope = 1, lty = 3) +
+  labs(list(
+    pch = "Sample Size",
+    color = "Sample Size",
+    fill = "Sample Size"
+  )) +
+  theme(aspect.ratio = 1) +
+  theme(legend.position = "top") +
+  theme(text = element_text(size = 14)) +
+  sample_colors +
+  sample_fill
+hr_g_total_oroc_plot
 ```
 
 
@@ -554,10 +590,32 @@ g_AURC_by_seed_plot <- ggplot(g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)
   theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   theme(aspect.ratio = 0.5)
+hr_g_AURC_by_seed_plot <- ggplot(hr_g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
+  geom_point(position = position_jitter(height = 0, width = 0.125), alpha = 0.5) +
+  annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = 0.2) +
+  facet_wrap(~sample, ncol = 1) +
+  geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
+            data = text_annotation) +
+  # geom_point(aes(x = factor(sexrate), y = AURC, fill = "white"), data = g_AURC_overall, 
+  #            pch = 21, position = position_dodge(width = 0.75), color = "black", 
+  #            size = 3, alpha = 0.75) +
+  labs(list(
+    x = "Rate of Sexual Reproduction"
+    # title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
+    # subtitle = "calculated over sample size"
+  )) +
+  # scale_fill_manual(values = "white", labels = "Overall") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom") +
+  theme(text = element_text(size = 14)) +
+  theme(strip.background = element_blank()) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(aspect.ratio = 0.5)
 
 ggsave(plot = g_AURC_by_seed_plot, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_genomic.png",
        width = 6, height = 7, dpi = 600)
 g_AURC_by_seed_plot
+hr_g_AURC_by_seed_plot
 ```
 
 
@@ -587,9 +645,35 @@ powerplot <- g_overall_roc_table %>%
     color = "Sample Size"
   )) +
   sample_colors
+hr_g_overall_roc_table <- hr_g_roc_overall %>% 
+  filter(alpha %in% c(0.01, 0.05)) %>%
+  mutate(alpha = paste("p =", alpha))
+hr_powerplot <- hr_g_overall_roc_table %>% 
+  ggplot(aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
+  geom_point(size = 2) + 
+  # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
+  geom_line(aes(group = sample)) +
+  facet_wrap(~alpha, ncol = 1) +
+  scale_alpha(range = c(0.5, 0.05)) +
+  theme(aspect.ratio = 0.5) +
+  theme(strip.text = element_text(size = 12, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "bottom") +
+  theme(legend.box = "vertical") +
+  theme(aspect.ratio = 0.5) +
+  labs(list(
+    # title = "Power to detect non-random mating (p = 0.01)",
+    x = "Rate of Sexual Reproduction",
+    y = "True Positive Rate",
+    alpha = "False Positive Rate",
+    color = "Sample Size"
+  )) +
+  sample_colors
 ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_power.png",
        plot = powerplot, width = 6, height = 5, dpi = 600)
 powerplot
+hr_powerplot
 ```
 
 
