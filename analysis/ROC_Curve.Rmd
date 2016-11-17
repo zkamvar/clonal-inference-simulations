@@ -92,10 +92,12 @@ fancy_mutation_rate <- . %>%
 ### Overall ROC 
 
 ```{r, curves, fig.width = 10, fig.height = 10}
-oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`)) +
-  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
-              alpha = 0.25) +
-  geom_line(aes(color = sample)) +
+oroc_plot <- bind_rows(roc_overall, roc_overall_ea, .id = "extra_info") %>% 
+  mutate(extra_info = ifelse(extra_info == 1, "none", "E5")) %>%
+  ggplot(aes(x = `False Positive`, y = `True Positive`)) +
+  # geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+  #             alpha = 0.25) +
+  geom_line(aes(color = sample, linetype = extra_info)) +
   facet_grid(sexrate ~ mutation_rate + clone_correction) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
@@ -103,7 +105,8 @@ oroc_plot <- ggplot(roc_overall, aes(x = `False Positive`, y = `True Positive`))
     # subtitle = "over mutation rate and clone-correction by sex rate",
     pch = "Sample Size",
     color = "Sample Size",
-    fill = "Sample Size"
+    fill = "Sample Size",
+    linetype = "Extra Information"
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
@@ -136,17 +139,20 @@ gtable_add_grob(res, z$grobs[[locations[3]]]$grobs[[1]], 1, 1, 1, 3) %>%
   grid.draw %>% 
   print
 
-total_oroc_plot <- ggplot(total_roc, aes(x = `False Positive`, y = `True Positive`)) +
-  geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
-              alpha = 0.25) +
-  geom_line(aes(color = sample)) +
+total_oroc_plot <-  bind_rows(total_roc, total_roc_ea, .id = "extra_info") %>% 
+  mutate(extra_info = ifelse(extra_info == 1, "none", "E5")) %>%
+  ggplot(aes(x = `False Positive`, y = `True Positive`)) +
+  # geom_ribbon(aes(ymin = `True Positive` - TPsd, ymax = `True Positive` + TPsd, fill = sample), 
+  #             alpha = 0.25) +
+  geom_line(aes(color = sample, linetype = extra_info)) +
   facet_grid(mutation_rate ~ clone_correction) +
   geom_abline(slope = 1, lty = 3) +
   labs(list(
     title = "ROC Curves",
     pch = "Sample Size",
     color = "Sample Size",
-    fill = "Sample Size"
+    fill = "Sample Size",
+    linetype = "Extra Inforamtion"
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
@@ -172,7 +178,35 @@ AURC_box_plot <- AURC_by_seed %>%
   fancy_clone_correction %>%
   mutate(clone_correction = forcats::fct_rev(clone_correction)) %>%
   fancy_mutation_rate %>%
-ggplot(aes(x = factor(sexrate), y = AURC)) +
+  ggplot(aes(x = factor(sexrate), y = AURC)) +
+  geom_boxplot(aes(fill = clone_correction)) +
+  annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = .2) +
+  geom_boxplot(aes(fill = clone_correction), outlier.size = 0.5) +
+  facet_grid(sample~mutation_rate) +
+  geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
+            data = text_annotation) +
+  # geom_point(aes(x = x, y = y), color = "black", fill = "white",
+  #            pch = 21, data = point_annotation) +
+  # geom_point(aes(x = factor(sexrate), y = AURC, pch = clone_correction), data = AURCO,
+  #            position = position_dodge(width = 0.75), color = "black", fill = "white") +
+  # scale_shape_manual(values = c(21, 24)) + 
+  labs(list(
+    fill = "Clone Correction",
+    x = "Rate of Sexual Reproduction"
+    # title = expression(paste("Area Under the ROC Curve for ", bar(r)[d])),
+    # subtitle = "calculated over sample size and mutation rate"
+  )) +
+  scale_fill_grey(start = 1, end = 0.5) +
+  theme(legend.position = "bottom") +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  theme(text = element_text(size = 14))
+
+AURC_box_plot_ea <- AURC_by_seed_ea %>%
+  fancy_clone_correction %>%
+  mutate(clone_correction = forcats::fct_rev(clone_correction)) %>%
+  fancy_mutation_rate %>%
+  ggplot(aes(x = factor(sexrate), y = AURC)) +
   geom_boxplot(aes(fill = clone_correction)) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = .2) +
   geom_boxplot(aes(fill = clone_correction), outlier.size = 0.5) +
@@ -200,6 +234,7 @@ ggsave(plot = AURC_box_plot, width = 6, height = 7, dpi = 600,
        file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_box_plot.png")
 
 AURC_box_plot
+AURC_box_plot_ea
 ```
 
 
@@ -353,8 +388,54 @@ AURC_ANOVA_III <- AURC_by_seed %>%
        car::Anova(type = 3) %>% 
        broom::tidy()) %>% 
   clean_anova
+AURC_ANOVA_ea_I <- AURC_by_seed_ea %>% 
+  group_by(sexrate) %>% 
+  do(aov(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% broom::tidy()) %>% 
+  clean_anova
 
-ggAURC_ANOVA <- ggplot(AURC_ANOVA_III %>% filter_anova, aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
+# Type II ANOVA
+AURC_ANOVA_ea_II <- map_df(.x = c(
+                  "AURC ~ clone_correction * sample * mutation_rate",
+                  "AURC ~ clone_correction * mutation_rate * sample",
+                  "AURC ~ sample * mutation_rate * clone_correction"), 
+  .f = ~AURC_by_seed_ea %>% 
+  group_by(sexrate) %>% 
+  do(lm(as.formula(.x), data = ., contrasts = "contr.helmert") %>% anova() %>% broom::tidy()) %>% 
+  slice(3L)
+) %>%
+  clean_anova
+
+# Type III ANOVA
+
+AURC_ANOVA_ea_III <- AURC_by_seed_ea %>%
+  group_by(sexrate) %>% 
+  do(lm(AURC ~ clone_correction * sample * mutation_rate, data = ., contrasts = "contr.helmert") %>% 
+       car::Anova(type = 3) %>% 
+       broom::tidy()) %>% 
+  clean_anova
+
+ggAURC_ANOVA <- AURC_ANOVA_III %>% 
+  filter_anova %>%
+  ggplot(aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
+  geom_tile() + 
+  geom_text(aes(label = round(p.value, 2), color = 1 - p.value)) +
+  scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
+                   breaks = c(0, 0.01, 0.05, 0.1, 1)) + 
+  theme(aspect.ratio = 7/9) +
+  geom_vline(xintercept = c(1:8) + 0.5) +
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_color_gradient(low = "white", high = "black", guide = "none") +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "top") +
+  labs(list(
+    fill = "p-value",
+    x = "Rate of Sexual Reproduction",
+    y = "ANOVA term"
+  ))
+ggAURC_ANOVA_ea <- AURC_ANOVA_ea_III %>% 
+  filter_anova %>%
+  ggplot(aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
   geom_tile() + 
   geom_text(aes(label = round(p.value, 2), color = 1 - p.value)) +
   scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
@@ -373,10 +454,21 @@ ggAURC_ANOVA <- ggplot(AURC_ANOVA_III %>% filter_anova, aes(x = sexrate, y = for
   ))
 ggsave(plot = ggAURC_ANOVA, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA.png",
        width = 8, height = 5, dpi = 600)
+ggsave(plot = ggAURC_ANOVA_ea, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA_ea.png",
+       width = 8, height = 5, dpi = 600)
 ggAURC_ANOVA
+ggAURC_ANOVA_ea
 
 
 AURC_ANOVA_III %>% 
+  mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
+  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
+  unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
+  as.data.frame() %>% # when passing to as.data.frame
+  knitr::kable(format = "pandoc", digits = 3) %>% 
+  cat(sep = "\n")
+
+AURC_ANOVA_ea_III %>% 
   mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
   mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
   unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
@@ -392,6 +484,11 @@ effect on the inference of recombination. At low levels of recombination (< 1%),
 There is a significant effect of the intraction between mutation rate and clone
 correction, but not of sample size and clone correction (with the exception of
 0.05% and 0.1% sexual reproduction). 
+
+When taking into consideration $E_{5A}$, things change. We can see a clear 
+change in the clonal populations. The only significant effect in these
+popuations is that of sample size, which, when looking at the power analysis,
+makes sense because with low sample sizes, the false positive rate increases. 
 
 ## ROC Table
 
@@ -426,57 +523,50 @@ overall_roc_table <- roc_overall %>%
   fancy_clone_correction %>%
   mutate(clone_correction = forcats::fct_rev(clone_correction)) %>%
   fancy_mutation_rate
-powerplot0.01 <- overall_roc_table %>% 
-  filter(alpha == 0.01) %>%
-  ggplot(aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
-  geom_point(size = 2) + 
-  # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
-  geom_line(aes(group = sample)) +
-  facet_grid(clone_correction ~ mutation_rate) +
-  scale_alpha(range = c(1, 0.5)) +
-  theme(aspect.ratio = 0.5) +
-  theme(strip.text = element_text(size = 12, face = "bold")) +
-  theme(strip.background = element_blank()) +
-  theme(text = element_text(size = 14)) +
-  theme(legend.position = "bottom") +
-  theme(legend.box = "vertical") +
-  theme(legend.box = "vertical") +
-  labs(list(
-    # title = "Power to detect non-random mating (p = 0.01)",
-    x = "Rate of Sexual Reproduction",
-    y = "True Positive Rate",
-    alpha = "False Positive Rate",
-    color = "Sample Size"
-  )) +
-  sample_colors
-powerplot0.05 <- overall_roc_table %>% 
-  filter(alpha == 0.05) %>%
-  ggplot(aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
-  geom_point(size = 2) + 
-  # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
-  geom_line(aes(group = sample)) +
-  facet_grid(clone_correction ~ mutation_rate) +
-  scale_alpha(range = c(1, 0.5)) +
-  theme(aspect.ratio = 0.5) +
-  theme(strip.text = element_text(size = 12, face = "bold")) +
-  theme(strip.background = element_blank()) +
-  theme(text = element_text(size = 14)) +
-  theme(legend.position = "bottom") +
-  theme(legend.box = "vertical") +
-  labs(list(
-    # title = "Power to detect non-random mating (p = 0.01)",
-    x = "Rate of Sexual Reproduction",
-    y = "True Positive Rate",
-    alpha = "False Positive Rate",
-    color = "Sample Size"
-  )) +
-  sample_colors
 
+powerplot <- . %>% {
+  ggplot(., aes(y = `True Positive`, x = sexrate, color = sample, alpha = `False Positive`)) +
+  geom_point(size = 2) + 
+  geom_line(aes(group = sample)) +
+  facet_grid(clone_correction ~ mutation_rate, switch = "y") +
+  scale_alpha(range = c(1, 0.5), limits = c(0, 0.03), oob = I) +
+  scale_y_continuous(position = "right") +
+  theme(aspect.ratio = 0.5) +
+  theme(strip.text = element_text(size = 12, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "bottom") +
+  theme(legend.box = "vertical") +
+  theme(legend.spacing = unit(0, "line")) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    y = "True Positive Rate",
+    alpha = "False Positive Rate",
+    color = "Sample Size"
+  )) +
+  sample_colors
+}
+
+powerplot0.01 <- overall_roc_table %>% filter(alpha == 0.01) %>% powerplot
+powerplot0.05 <- overall_roc_table %>% filter(alpha == 0.05) %>% 
+  powerplot + scale_alpha(range = c(1, 0.25), limits = c(0, 0.06))
+
+
+overall_roc_table_ea <- roc_overall_ea %>% 
+  filter(alpha %in% c(0.01, 0.05)) %>%
+  fancy_clone_correction %>%
+  mutate(clone_correction = forcats::fct_rev(clone_correction)) %>%
+  fancy_mutation_rate
+powerplot0.01_ea <- overall_roc_table_ea %>% filter(alpha == 0.01) %>% powerplot
 
 powerplot0.01
+powerplot0.01_ea
 powerplot0.05
-# ggsave(plot = powerplot0.01, file = "~/Documents/Grunwald/dissertation/figure/simulations/ssr_power.png",
-#        width = 8, height = 5, dpi = 600)
+
+ggsave(plot = powerplot0.01, file = "~/Documents/Grunwald/dissertation/figure/simulations/ssr_power.png",
+       width = 8, height = 5, dpi = 600)
+ggsave(plot = powerplot0.01_ea, file = "~/Documents/Grunwald/dissertation/figure/simulations/ssr_power_ea.png",
+       width = 8, height = 5, dpi = 600)
 
 ```
 
