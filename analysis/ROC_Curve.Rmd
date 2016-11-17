@@ -362,6 +362,37 @@ filter_anova <- . %>%
   filter(term != "Residuals") %>%
   filter(term != "(Intercept)") %>%
   I()
+
+anova_heat <- . %>%
+  filter_anova %>%
+  {
+    ggplot(., aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
+    geom_tile() + 
+    geom_text(aes(label = round(p.value, 2), color = 1 - p.value)) +
+    scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
+                     breaks = c(0, 0.01, 0.05, 0.1, 1)) + 
+    theme(aspect.ratio = 7/9) +
+    geom_vline(xintercept = c(1:8) + 0.5) +
+    scale_y_discrete(expand = c(0, 0)) +
+    scale_x_discrete(expand = c(0, 0)) +
+    scale_color_gradient(low = "white", high = "black", guide = "none") +
+    theme(text = element_text(size = 14)) +
+    theme(legend.position = "top") +
+    labs(list(
+      fill = "p-value",
+      x = "Rate of Sexual Reproduction",
+      y = "ANOVA term"
+    ))
+  }
+
+anova_table <- . %>%
+  mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
+  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
+  unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
+  as.data.frame() %>% # when passing to as.data.frame
+  knitr::kable(format = "pandoc", digits = 3) %>% 
+  cat(sep = "\n")
+
 # Type I ANOVA
 AURC_ANOVA_I <- AURC_by_seed %>% 
   group_by(sexrate) %>% 
@@ -414,44 +445,9 @@ AURC_ANOVA_ea_III <- AURC_by_seed_ea %>%
        broom::tidy()) %>% 
   clean_anova
 
-ggAURC_ANOVA <- AURC_ANOVA_III %>% 
-  filter_anova %>%
-  ggplot(aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
-  geom_tile() + 
-  geom_text(aes(label = round(p.value, 2), color = 1 - p.value)) +
-  scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
-                   breaks = c(0, 0.01, 0.05, 0.1, 1)) + 
-  theme(aspect.ratio = 7/9) +
-  geom_vline(xintercept = c(1:8) + 0.5) +
-  scale_y_discrete(expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0)) +
-  scale_color_gradient(low = "white", high = "black", guide = "none") +
-  theme(text = element_text(size = 14)) +
-  theme(legend.position = "top") +
-  labs(list(
-    fill = "p-value",
-    x = "Rate of Sexual Reproduction",
-    y = "ANOVA term"
-  ))
-ggAURC_ANOVA_ea <- AURC_ANOVA_ea_III %>% 
-  filter_anova %>%
-  ggplot(aes(x = sexrate, y = forcats::fct_rev(term), fill = p.value)) + 
-  geom_tile() + 
-  geom_text(aes(label = round(p.value, 2), color = 1 - p.value)) +
-  scale_fill_viridis(direction = -1, begin = 0, end = 1, guide = "legend",
-                   breaks = c(0, 0.01, 0.05, 0.1, 1)) + 
-  theme(aspect.ratio = 7/9) +
-  geom_vline(xintercept = c(1:8) + 0.5) +
-  scale_y_discrete(expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0)) +
-  scale_color_gradient(low = "white", high = "black", guide = "none") +
-  theme(text = element_text(size = 14)) +
-  theme(legend.position = "top") +
-  labs(list(
-    fill = "p-value",
-    x = "Rate of Sexual Reproduction",
-    y = "ANOVA term"
-  ))
+ggAURC_ANOVA    <- AURC_ANOVA_III %>% anova_heat
+ggAURC_ANOVA_ea <- AURC_ANOVA_ea_III %>% anova_heat
+
 ggsave(plot = ggAURC_ANOVA, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA.png",
        width = 8, height = 5, dpi = 600)
 ggsave(plot = ggAURC_ANOVA_ea, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA_ea.png",
@@ -460,21 +456,8 @@ ggAURC_ANOVA
 ggAURC_ANOVA_ea
 
 
-AURC_ANOVA_III %>% 
-  mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
-  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
-  unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
-  as.data.frame() %>% # when passing to as.data.frame
-  knitr::kable(format = "pandoc", digits = 3) %>% 
-  cat(sep = "\n")
-
-AURC_ANOVA_ea_III %>% 
-  mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
-  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
-  unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
-  as.data.frame() %>% # when passing to as.data.frame
-  knitr::kable(format = "pandoc", digits = 3) %>%
-  cat(sep = "\n")
+AURC_ANOVA_III %>% anova_table
+AURC_ANOVA_ea_III %>% anova_table
 ```
 
 
@@ -764,6 +747,17 @@ ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_powe
        plot = powerplot, width = 6, height = 5, dpi = 600)
 powerplot
 hr_powerplot
+```
+
+
+```{r genomic_anova}
+g_AURC_ANOVA_III <- g_AURC_by_seed %>%
+  group_by(sexrate) %>% 
+  do(lm(AURC ~ sample, data = ., contrasts = "contr.helmert") %>% 
+       car::Anova(type = 3) %>% 
+       broom::tidy()) 
+g_AURC_ANOVA_III %>% anova_heat + theme(aspect.ratio = 1/9)
+g_AURC_ANOVA_III %>% ungroup() %>% anova_table
 ```
 
 
