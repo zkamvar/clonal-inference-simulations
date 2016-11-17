@@ -6,6 +6,10 @@
 #' @param count.na When \code{TRUE}, missing values of \code{stat} are counted as positive
 #' @param group the columns of data to group by
 #' @param alpha the level at which to compare
+#' @param flip a column of logicals used to flip a negative to a positive. This
+#'   is used for extra criteria where the stat may not be considered significant
+#'   based on alpha, but can be considered significant based on the presence of
+#'   another factor
 #'
 #' @return a data frame
 #' @export
@@ -31,15 +35,21 @@
 #' }
 roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"),
                 stat = "p.rD", augment = NULL, count.na = TRUE,
-                group = c("sexrate", "run", "seed", "sample")){
-
-  pf <- lazyeval::interp(~n_hits(stat, alpha, count.na)/n(),
-                         stat = as.name(stat), alpha = alpha, count.na = count.na)
+                group = c("sexrate", "run", "seed", "sample"),
+                flip = NULL){
+  flip <- if (is.null(flip)) "flip" else flip
+  pf <- lazyeval::interp(~n_hits(stat, alpha, flip, count.na)/n(),
+                         stat = as.name(stat),
+                         flip = as.name(flip),
+                         alpha = alpha,
+                         count.na = count.na)
   score_column <- list(score = ~ifelse(sexrate == compare[1], "True Positive", "False Positive"))
   psd <- list(TPsd = ~roc_sd(`True Positive`, ntp),
               FPsd = ~roc_sd(`False Positive`, nfp))
-  np  <- list(ntp = ~sum(sexrate == compare[1]),
-              nfp = ~sum(sexrate == compare[2]))
+  np  <- list(ntp  = ~sum(sexrate == compare[1]),
+              nfp  = ~sum(sexrate == compare[2]),
+              flip = FALSE)
+
   df %>%
     filter_(.dots = list(~sexrate %in% compare)) %>%
     mutate_(.dots = np) %>%
@@ -53,9 +63,11 @@ roc <- function(alpha = 0.05, df, compare = c("0.0000", "1.0000"),
     select_(quote(-ntp), quote(-nfp))
 }
 
-n_hits <- function(stat, alpha, count.na = TRUE){
-  res <- sum(stat <= alpha, na.rm = TRUE)
-  res <- if (count.na) res + sum(is.na(stat)) else res
+n_hits <- function(stat, alpha, flip, count.na = TRUE){
+  nas <- sum(is.na(stat)) # the flip will convert NaN to logical
+  res <- (stat <= alpha)
+  res <- sum(ifelse(!is.na(res) & alpha > 0, res | flip, res), na.rm = TRUE)
+  res <- if (count.na) res + nas else res
   return(res)
 }
 

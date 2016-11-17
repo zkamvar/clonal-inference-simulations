@@ -6,7 +6,7 @@
 \usage{
 roc(alpha = 0.05, df, compare = c("0.0000", "1.0000"), stat = "p.rD",
   augment = NULL, count.na = TRUE, group = c("sexrate", "run", "seed",
-  "sample"))
+  "sample"), flip = NULL)
 }
 \arguments{
 \item{alpha}{the level at which to compare}
@@ -20,6 +20,11 @@ roc(alpha = 0.05, df, compare = c("0.0000", "1.0000"), stat = "p.rD",
 \item{count.na}{When \code{TRUE}, missing values of \code{stat} are counted as positive}
 
 \item{group}{the columns of data to group by}
+
+\item{flip}{a column of logicals used to flip a negative to a positive. This
+is used for extra criteria where the stat may not be considered significant
+based on alpha, but can be considered significant based on the presence of
+another factor}
 }
 \value{
 a data frame
@@ -29,15 +34,22 @@ Receiver Operator Characteristic
 }
 \examples{
 \dontrun{
-lapply(seq(0, 1, 0.01), roc, vals, group = c("sexrate", "sample"), count.na = TRUE) \%>\%
-  bind_rows \%>\%
-  ungroup() \%>\%
-  select(-sexrate) \%>\%
-  spread(score, positive_fraction) -> y
-ggplot(y, aes(x = Miss, y = Hit, color = sample)) +
+# single value
+x <- roc(df = vals, group = c('sexrate'))
+
+# more granular
+y <- roc(df = vals, group = c('sexrate', 'sample', 'mutation_rate'))
+
+# very granular
+z <- roc(df = vals, group = c('sexrate', 'sample', 'mutation_rate', 'run', 'seed'))
+
+# Comparing clonal to sexual
+res <- map_df(seq(0, 1, by = 0.01), roc, df = vals,
+              group = c('sexrate', 'sample', 'mutation_rate'))
+ggplot(res, aes(x = `False Positive`, y = `True Positive`, color = sample)) +
   geom_line() +
-  geom_point() +
-  geom_abline(slope = 1, lty = 2)
+  geom_abline(slope = 1, lty = 2) +
+  facet_wrap(~mutation_rate)
 }
 }
 

@@ -1,4 +1,11 @@
-# zksimanalysis 0.7.0.9000
+# zksimanalysis 0.8.1.9000
+
+## NEW FEATURES
+
+* `roc()` gains the argument `flip` which specifies a column of logicals to use
+  that would flip a negative decision positive. 
+
+# zksimanalysis 0.8.0.9000
 
 ## NEW FUNCTION
 
@@ -7,6 +14,7 @@
 ## NEW FEATURES
 
 * `shuffle_genlight()` can now shuffle blocks of SNPs.
+
 # zksimanalysis 0.7.0.9000
 
 ## NEW FUNCTION
