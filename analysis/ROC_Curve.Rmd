@@ -624,7 +624,7 @@ hr_g_total_oroc_plot
 
 
 
-```{r, fig.height=7, fig.width=6}
+```{r, fig.height=4, fig.width=6}
 # Add an annotation indicating that 0.5 is random assignment.
 text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random", 
                               sample = "n = 10", mutation_rate = "even")
@@ -632,7 +632,7 @@ text_annotation <- data.frame(x = 0, y = 0.5, text = "0.5 = random",
 g_AURC_by_seed_plot <- ggplot(g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
   geom_point(position = position_jitter(height = 0, width = 0.125), alpha = 0.5) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = 0.2) +
-  facet_wrap(~sample, ncol = 1) +
+  facet_wrap(~sample) +
   geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
             data = text_annotation) +
   # geom_point(aes(x = factor(sexrate), y = AURC, fill = "white"), data = g_AURC_overall, 
@@ -653,7 +653,7 @@ g_AURC_by_seed_plot <- ggplot(g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)
 hr_g_AURC_by_seed_plot <- ggplot(hr_g_AURC_by_seed, aes(x = factor(sexrate), y = AURC)) +
   geom_point(position = position_jitter(height = 0, width = 0.125), alpha = 0.5) +
   annotate("rect", xmin = 0, xmax = 9.75, ymin = 0, ymax = 0.5, alpha = 0.2) +
-  facet_wrap(~sample, ncol = 1) +
+  facet_wrap(~sample) +
   geom_text(aes(x = x, y = y, label = text), hjust = -0.1, vjust = 1.5, color = "gray25",
             data = text_annotation) +
   # geom_point(aes(x = factor(sexrate), y = AURC, fill = "white"), data = g_AURC_overall, 
