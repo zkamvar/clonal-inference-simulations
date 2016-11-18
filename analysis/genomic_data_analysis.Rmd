@@ -87,17 +87,31 @@ fancy_mutation_rate <- . %>%
 Visualizations are one of the most important steps in an analysis. Here's why.
 Below are the results when the mutation rate is 1e-5
 
-```{r}
-missing_plot <- ggplot(missing_stats %>% select(sexrate, rd, sample, matching, missing), 
-       aes(x = sexrate, y = rd, fill = factor(missing))) +
-  geom_boxplot() +
-  facet_grid(matching ~ sample) +
+```{r, fig.width = 6, fig.height = 5}
+missing_plot <- missing_stats %>% 
+  select(sexrate, rd, sample, matching, missing) %>%
+  fancy_sample %>%
+  mutate(missing = paste0(sprintf("%02d", missing*100), "%")) %>%
+  mutate(matching = ifelse(matching == "match", "ignored", "new allele")) %>%
+  ggplot(aes(x = sexrate, y = rd, fill = matching)) +
+  geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
+  scale_fill_grey(start = 1, end = 0.5) +
+  facet_grid(sample ~ missing, switch = "y") +
+  scale_y_continuous(position = "right") +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  theme(aspect.ratio = 1/2) +
+  theme(legend.position = "bottom") +
   labs(list(
-    title = "index of association across missing data",
+    # title = "index of association across missing data",
     x = "Rate of Sexual Reproduction",
     y = eval(rd),
-    fill = "Percent Missing"
+    fill = "Missing Data"
     ))
+
+ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_missing.png",
+       plot = missing_plot, dpi = 600, height = 5, width = 6)
 
 main_rd_plot <- ggplot(original %>% select(sexrate, rd, sample), 
        aes(x = sexrate, y = rd, fill = sample)) +
@@ -120,9 +134,10 @@ pval_rd_plot <- ggplot(original %>% select(sexrate, p.rD, sample),
     fill = "Sample Size"
     ))
 
-missing_plot
 main_rd_plot
 pval_rd_plot
+missing_plot
+
 ```
 
 
@@ -342,7 +357,7 @@ original_redux %>%
 ```
 
 
-```{r, fig.height=7, fig.width=6}
+```{r, fig.height=4, fig.width=6}
 corrected_rd <- original_redux %>% 
   select(sexrate, rd, sample) %>%
   fancy_sample %>%
@@ -356,7 +371,7 @@ corrected_rd <- original_redux %>%
     x = "Rate of Sexual Reproduction",
     y = eval(rd)
     )) +
-  facet_wrap(~sample, ncol = 1) +
+  facet_wrap(~sample) +
   theme(aspect.ratio = 1/2) +
   theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
@@ -376,15 +391,15 @@ hr_corrected_rd <- hr_original_redux %>%
     x = "Rate of Sexual Reproduction",
     y = eval(rd)
     )) +
-  facet_wrap(~sample, ncol = 1) +
+  facet_wrap(~sample) +
   theme(aspect.ratio = 1/2) +
   theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   theme(text = element_text(size = 14)) 
 hr_corrected_rd
 
-# ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.png",
-#        plot = corrected_rd, dpi = 600, height = 7, width = 6)
+ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.png",
+       plot = corrected_rd, dpi = 600, height = 4, width = 6)
 
 
 correcte_rd_p <- original_redux %>% 
@@ -403,7 +418,7 @@ correcte_rd_p <- original_redux %>%
     y = eval(prd)
     # fill = "Sample Size"
     )) +
-  facet_wrap(~sample, ncol = 1) +
+  facet_wrap(~sample) +
   theme(aspect.ratio = 1.618^-1) +
   theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
@@ -425,7 +440,7 @@ hr_correcte_rd_p <- hr_original_redux %>%
     y = eval(prd)
     # fill = "Sample Size"
     )) +
-  facet_wrap(~sample, ncol = 1) +
+  facet_wrap(~sample) +
   theme(aspect.ratio = 1.618^-1) +
   theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
