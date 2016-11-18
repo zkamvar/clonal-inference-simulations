@@ -402,13 +402,15 @@ ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color 
 
 ```{r, grabbag, fig.width = 6, fig.height = 7}
 diversity_plot <- vals %>%
+  fancy_mutation_rate %>%
+  mutate(mutation_rate = paste0("plain(\"", mutation_rate, "\")")) %>%
   rename(`E[5]` = E.5,
        `E[5][A]` = Evennesscc,
        `H[exp]` = Hexpcc) %>%
   tidyr::gather("index", "value",  `E[5]`, H, G, `E[5][A]`, `H[exp]`) %>%
   mutate(index = forcats::fct_relevel(index, c("H", "E[5]", "G", "E[5][A]", "H[exp]"))) %>%
   ggplot(aes(x = sexrate, y = value, color = sample)) +
-  stat_summary(fun.data = mean_sdl, geom = "pointrange", size = 0.3,
+  stat_summary(fun.data = mean_sdl, geom = "pointrange",
                position = position_dodge(width = 0.75), alpha = 0.75) +
   facet_grid(index ~ mutation_rate, scales = "free_y", 
              labeller = label_parsed, switch = "y") +
