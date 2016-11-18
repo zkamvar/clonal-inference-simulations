@@ -400,22 +400,33 @@ ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color 
 
 
 
-```{r, grabbag}
-ggplot(vals, aes(x = sexrate, y = E.5, fill = sample)) +
-  geom_boxplot() +
-  facet_wrap(~mutation_rate)
-ggplot(vals, aes(x = sexrate, y = H, fill = sample)) +
-  geom_boxplot() +
-  facet_wrap(~mutation_rate)
-ggplot(vals, aes(x = sexrate, y = B, fill = sample)) +
-  geom_boxplot() +
-  facet_wrap(~mutation_rate)
-ggplot(vals, aes(x = sexrate, y = Evennesscc, fill = sample)) +
-  geom_boxplot() +
-  facet_wrap(~mutation_rate)
-ggplot(vals, aes(x = sexrate, y = Hexp, fill = sample)) +
-  geom_boxplot() +
-  facet_wrap(~mutation_rate)
+```{r, grabbag, fig.width = 6, fig.height = 7}
+diversity_plot <- vals %>%
+  rename(`E[5]` = E.5,
+       `E[5][A]` = Evennesscc,
+       `H[exp]` = Hexpcc) %>%
+  tidyr::gather("index", "value",  `E[5]`, H, G, `E[5][A]`, `H[exp]`) %>%
+  mutate(index = forcats::fct_relevel(index, c("H", "E[5]", "G", "E[5][A]", "H[exp]"))) %>%
+  ggplot(aes(x = sexrate, y = value, color = sample)) +
+  stat_summary(fun.data = mean_sdl, geom = "pointrange", size = 0.3,
+               position = position_dodge(width = 0.75), alpha = 0.75) +
+  facet_grid(index ~ mutation_rate, scales = "free_y", 
+             labeller = label_parsed, switch = "y") +
+  scale_y_continuous(position = "right") +
+  theme(aspect.ratio = 0.5) +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "bottom") +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    color = "Sample Size"
+  )) +
+  sample_colors
+ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/diversity_stats.png",
+       plot = diversity_plot,
+       dpi = 600, width = 6, height = 7)
+diversity_plot
 ```
 
 
