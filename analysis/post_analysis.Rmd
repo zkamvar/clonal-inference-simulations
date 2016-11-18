@@ -103,7 +103,8 @@ rd_sexrate <- vals %>%
   ggplot(aes(x = sexrate, y = rd, fill = clone_correct)) +
   # geom_boxplot(outlier.size = 0.25) +
   geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
-  facet_grid(sample~mutation_rate) +
+  facet_grid(sample~mutation_rate, switch = "y") +
+  scale_y_continuous(position = "right") +
   theme(text = element_text(size = 14)) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   labs(list(
@@ -124,8 +125,8 @@ rd_sexrate <- vals %>%
   scale_fill_grey(start = 1, end = 0.5)
   
 
-# ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/rd_sexrate.png",
-#        dpi = 600, width = 6, height = 7)
+ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/rd_sexrate.png",
+       dpi = 600, width = 6, height = 7)
 rd_sexrate
 ```
 
@@ -407,6 +408,12 @@ ggplot(vals, aes(x = sexrate, y = H, fill = sample)) +
   geom_boxplot() +
   facet_wrap(~mutation_rate)
 ggplot(vals, aes(x = sexrate, y = B, fill = sample)) +
+  geom_boxplot() +
+  facet_wrap(~mutation_rate)
+ggplot(vals, aes(x = sexrate, y = Evennesscc, fill = sample)) +
+  geom_boxplot() +
+  facet_wrap(~mutation_rate)
+ggplot(vals, aes(x = sexrate, y = Hexp, fill = sample)) +
   geom_boxplot() +
   facet_wrap(~mutation_rate)
 ```
