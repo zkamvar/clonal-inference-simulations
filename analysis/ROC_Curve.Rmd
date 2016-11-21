@@ -673,13 +673,13 @@ hr_g_AURC_by_seed_plot <- ggplot(hr_g_AURC_by_seed, aes(x = factor(sexrate), y =
   theme(aspect.ratio = 0.5)
 
 ggsave(plot = g_AURC_by_seed_plot, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_genomic.png",
-       width = 6, height = 7, dpi = 600)
+       width = 6, height = 4, dpi = 600)
 g_AURC_by_seed_plot
 hr_g_AURC_by_seed_plot
 ```
 
 
-```{r genomic_power, fig.width = 6, fig.height = 5}
+```{r genomic_power, fig.width = 4.25, fig.height = 5}
 g_overall_roc_table <- g_roc_overall %>% 
   filter(alpha %in% c(0.01, 0.05)) %>%
   mutate(alpha = paste("p =", alpha))
@@ -689,7 +689,7 @@ powerplot <- g_overall_roc_table %>%
   # geom_errorbar(aes(ymax = `True Positive` + TPsd, ymin = `True Positive` - TPsd), width = 0.25) +
   geom_line(aes(group = sample)) +
   facet_wrap(~alpha, ncol = 1) +
-  scale_alpha(range = c(1, 0.5)) +
+  scale_alpha(range = c(1, 0.5), breaks = c(0.01, 0.03, 0.05)) +
   theme(aspect.ratio = 0.5) +
   theme(strip.text = element_text(size = 12, face = "bold")) +
   theme(strip.background = element_blank()) +
@@ -731,7 +731,7 @@ hr_powerplot <- hr_g_overall_roc_table %>%
   )) +
   sample_colors
 ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_power.png",
-       plot = powerplot, width = 6, height = 5, dpi = 600)
+       plot = powerplot, width = 4, height = 5, dpi = 600)
 powerplot
 hr_powerplot
 ```
