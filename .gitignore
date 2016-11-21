@@ -11,3 +11,6 @@ analysis/post_analysis_*
 analysis/*html
 analysis/*_cache/
 analysis/*_files/
+foo/*
+bar/*
+baz/*
