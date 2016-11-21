@@ -731,7 +731,7 @@ hr_powerplot <- hr_g_overall_roc_table %>%
   )) +
   sample_colors
 ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_power.png",
-       plot = powerplot, width = 4, height = 5, dpi = 600)
+       plot = powerplot, width = 4.5, height = 5, dpi = 600)
 powerplot
 hr_powerplot
 ```
