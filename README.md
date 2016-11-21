@@ -6,11 +6,42 @@ The purpose of these scripts is to simulate populations with varying levels of
 sexual reproduction and eventually varying levels of different population
 genetic strategies such as admixture. 
 
-## Current software environment:
+
+## Broad workflow
+
+### Generation of statistics
+
+1. Simulate and save populations
+    - Simulate Populations with simuPOP and save as \*.pop files with scripts in
+      `simulations/`
+    - Convert \*.pop files to feather format and zip with
+      `organizing/dir2feather.py`
+    - Synch zipped feather files to CGRB infrastructure
+2. Sample populations and calculate statistics for microsatellite data
+    - Read zipped feather file, subsample, and apply
+      `analysis/analyze_and_save_ia.R` with `analysis/unzip_and_analyze.sh`.
+      Subsampled data are saved as rda_files/\*.DATA.rda files and are then used
+      for further analyses.
+    - Gather genotypic diversity statistics on \*.DATA.rda files with
+      `analysis/analyze_diversity_table.R` and allelic diversity statistics with
+      `analysis/analyze_locus_table.R`
+3. Sample populations and calculate statistics for SNP (genomic) data
+    - Read zipped feather file, subsample, and apply
+      `analysis/genomic_analyze_and_save_ia.R` with 
+      `analysis/unzip_and_analyze.sh`, shuffling each locus independently and 
+      additionally inserting missing data at 1%, 5% and 10% and assessing ia
+      (no significance analysis).
+    - Re-analyze significance testing of ia with
+      `analysis/genomic_re_analyze_ia.R`, shuffling linkage blocks with
+      blocksize equal to 1000.
+
+
+## Current software environment for simulations:
 
  - Python 3.4
  - simuPOP 1.1.7
  - numpy 1.11.0
+ - feather-format 0.3.0
 
 I used conda to install all of these. [Here's the intro to conda][conda]. It's
 worth noting that I did have some trouble getting everything to work correctly
@@ -37,7 +68,10 @@ pip install feather-format # for transfer between python and R
 ## R package
 
 To facilitate analysis of the simulations, I've written an R package called
-"zksimanalysis". It can be installed from the root directory in R with:
+"zksimanalysis". It requires a version of R >= 3.2.0, due to its dependency on
+dplyr.
+
+It can be installed from the root directory in R with:
 
 ```r
 devtools::install("zksimanalysis")
