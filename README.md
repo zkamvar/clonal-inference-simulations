@@ -9,31 +9,63 @@ genetic strategies such as admixture.
 
 ## Broad workflow
 
-### Generation of statistics
+Due to the raw size of the data associated, this repository does not track the
+data generated. The broad workflow was initially supposed to be straightforward,
+but due to unforseen bugs/circumstances/opportunities, many analyses had to be
+re-run, so caveats like two genomic data output directories due to consequences
+of linkage exist. 
+
+### Generation of populations and statistics
+
+The data are simulated with simuPOP, transferred to feather files, and then
+statistics are generated in parallel on the CGRB infrastructure, generating 
+several binary \*.rda files for downstream analysis.
 
 1. Simulate and save populations
     - Simulate Populations with simuPOP and save as \*.pop files with scripts in
-      `simulations/`
+      `simulations/`, usually facilitated with run_\*.sh scripts or run_\*.txt
+      files and `recovery_helper.sh`.
+    - Run unfinished simulations to completion with `simulations/recover_ssr.py`
+      and `recovery_helper.sh`
     - Convert \*.pop files to feather format and zip with
       `organizing/dir2feather.py`
     - Synch zipped feather files to CGRB infrastructure
 2. Sample populations and calculate statistics for microsatellite data
     - Read zipped feather file, subsample, and apply
       `analysis/analyze_and_save_ia.R` with `analysis/unzip_and_analyze.sh`.
-      Subsampled data are saved as rda_files/\*.DATA.rda files and are then used
-      for further analyses.
+      Subsampled data are saved as \*.DATA.rda files and are then used
+      for further analyses. **Output dir: rda\_files**
     - Gather genotypic diversity statistics on \*.DATA.rda files with
-      `analysis/analyze_diversity_table.R` and allelic diversity statistics with
-      `analysis/analyze_locus_table.R`
+      `analysis/analyze\_diversity\_table.R` **Output dir: diversity\_rda\_files**
+    - Gather allelic diversity statistics on \*.DATA.rda files with
+      `analysis/analyze\_locus\_table.R` **Output dir: locus\_rda\_files**
+    - Gather locus contribution statistics on \*.DATA.rda files with
+      `analysis/analyze\_locus\_contribution.R` **Output dir: locus\_contribution\_rda_files**
 3. Sample populations and calculate statistics for SNP (genomic) data
     - Read zipped feather file, subsample, and apply
       `analysis/genomic_analyze_and_save_ia.R` with 
       `analysis/unzip_and_analyze.sh`, shuffling each locus independently and 
       additionally inserting missing data at 1%, 5% and 10% and assessing ia
-      (no significance analysis).
+      (no significance analysis). **Output dir: genomic\_rda\_files**
     - Re-analyze significance testing of ia with
       `analysis/genomic_re_analyze_ia.R`, shuffling linkage blocks with
-      blocksize equal to 1000.
+      blocksize equal to 1000. **Output dir: genomic\_rda\_files\_redux**
+4. Sync results folder to local workstation in the directory `../simulation_results`
+
+### Exploratory data analysis
+
+These analyses are facilitated via the *Rmd files in the `analysis/` folder. 
+There are data processing steps and analysis steps. All derivative data is saved
+in `../simulation_results`. The data processing/cleaning steps will only work
+with the specific data associated with this analysis. This is due to caveats 
+noted in the scripts themselves.
+
+1. Process SSR data with <`analysis/ssr_data_cleaning.Rmd`>. [*Note: this uses a LOT of RAM*][ramtweet]
+2. Process SNP data with <`analysis/genomic_data_processing.Rmd`>.
+3. Calculate ROC analysis with <`analysis/ROC_calculation.Rmd`>.
+4. Analyze SNP (genomic) data with <`analysis/genomic_data_analysis.Rmd`>
+5. Analyze SSR data with <`analysis/post_analysis.Rmd`>
+6. Analyze results of ROC analysis with <`analysis/ROC_Curve.Rmd`>
 
 
 ## Current software environment for simulations:
@@ -184,3 +216,4 @@ read/write than traditional csv.
 [dir2feather]: ./organizing/dir2feather.py
 [organizing]: ./organizing
 [feather]: https://blog.rstudio.org/2016/03/29/feather/
+[ramtweet]: https://twitter.com/ZKamvar/status/787777914288812033
