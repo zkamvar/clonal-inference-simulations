@@ -125,7 +125,7 @@ rd_sexrate <- vals %>%
   scale_fill_grey(start = 1, end = 0.5)
   
 
-ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/rd_sexrate.png",
+ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/rd_sexrate.pdf",
        dpi = 600, width = 6, height = 7)
 rd_sexrate
 ```
@@ -425,7 +425,7 @@ diversity_plot <- vals %>%
     color = "Sample Size"
   )) +
   sample_colors
-ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/diversity_stats.png",
+ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/diversity_stats.pdf",
        plot = diversity_plot,
        dpi = 600, width = 6, height = 7)
 diversity_plot

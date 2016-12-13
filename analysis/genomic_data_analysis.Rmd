@@ -110,7 +110,7 @@ missing_plot <- missing_stats %>%
     fill = "Missing Data"
     ))
 
-ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_missing.png",
+ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_missing.pdf",
        plot = missing_plot, dpi = 600, height = 5, width = 6)
 
 main_rd_plot <- ggplot(original %>% select(sexrate, rd, sample), 
@@ -398,7 +398,7 @@ hr_corrected_rd <- hr_original_redux %>%
   theme(text = element_text(size = 14)) 
 hr_corrected_rd
 
-ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.png",
+ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.pdf",
        plot = corrected_rd, dpi = 600, height = 4, width = 6)
 
 
