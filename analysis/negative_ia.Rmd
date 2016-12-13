@@ -1,0 +1,324 @@
+Deconstruction of negative index of association
+==============================================
+
+This document will show and deconstruct why negative values of the index of
+association can be observed in some clonal data sets.
+
+We will use the data collected at the front of the Curry County epidemic in
+2001. It is stored in the package *poppr*.
+
+Data Setup
+----------
+
+```{r message = FALSE, warning = FALSE}
+library("poppr")
+library("igraph")
+library("purrr")
+library("dplyr")
+library("tidyr")
+library("ggplot2")
+data("Pram")
+epid <- Pram %>%
+  setPop(~SOURCE) %>%
+  popsub(blacklist = "Nursery") %>%
+  setPop(~YEAR) %>%
+  popsub(sublist = "2001")
+```
+
+
+Index of association results
+----------------------------
+
+The results are negative for the full and clone-corrected data.
+
+```{r }
+ia(epid, sample = 999)
+epid %>% clonecorrect() %>% ia(sample = 999)
+```
+
+Note that it doesn't change when we remove monomorphic loci:
+
+```{r }
+epid <- epid %>% informloci(cutoff = 1/nInd(.))
+ia(epid)
+```
+
+To get a sense of how this can be, it's important to look at the data itself
+
+```{r }
+epid %>% clonecorrect() %>% genind2df(sep = "/", usepop = FALSE)
+```
+
+It's clear that there is not much variation except for at a single locus.
+When we take a look at the locus statistics, we can see that they are quite
+skewed.
+
+```{r }
+locus_table(epid)
+```
+
+
+How does this lack of diversity affect the index of association? Since it is
+measured from variation between genetic distances, where the expected
+variation is calculated as the sum of the variation across all loci, we will
+investigate what the distance distributions look like.
+
+Distances
+---------
+
+We can calculate the distance at each locus by separating them with
+`seploc()` and then mapping `diss.dist()` to each locus. This will give us a
+data frame in the end, which will be immensely useful later.
+
+```{r }
+distmatcc <- epid %>%
+  clonecorrect(strata = NA) %>%
+  seploc() %>%
+  map_df(.f = . %>% diss.dist() %>% as.vector())
+distmat <- epid %>%
+  seploc() %>%
+  map_df(.f = . %>% diss.dist() %>% as.vector())
+distmat
+```
+
+
+Now I'm going to show you what the distances look like
+
+```{r }
+distmat %>%
+  mutate(combined = rowSums(.)) %>%
+  gather("locus", "distance") %>%
+  ggplot(aes(x = distance, fill = locus)) +
+  geom_histogram(binwidth = 1) +
+  facet_wrap(~locus) +
+  ggtitle("Curry County, 2001", subtitle = "n = 39, whole data set")
+
+distmatcc %>%
+  mutate(combined = rowSums(.)) %>%
+  gather("locus", "distance") %>%
+  ggplot(aes(x = distance, fill = locus)) +
+  geom_histogram(binwidth = 1) +
+  facet_wrap(~locus) +
+  ggtitle("Curry County, 2001", subtitle = "n = 10, clone-corrected data")
+```
+
+We can see that two loci are heavily skewed toward zero. If you observed the
+data above, it's clear that this is due to the presence of a single allele at
+two loci. Since we have these distances, we can construct our observed and
+expected variances. In order to do this, we will need a couple of helper
+functions.
+
+### Index of Association functions
+
+First, the variance of the observed genetic distances:
+
+
+```{r }
+Vo <- function(d){
+  n <- length(d)
+  (sum(d^2) - ((sum(d))^2)/n)/n
+}
+```
+
+Next, the variance of the distance at each locus:
+
+```{r }
+Vj <- function(dmat){
+  n  <- nrow(dmat)
+  d2 <- colSums(dmat^2)
+  d  <- colSums(dmat)
+  (d2 - ((d^2)/n))/n
+}
+```
+
+We can put these together to get the index of association (no
+standardization):
+
+```{r }
+IA <- function(dmat){
+  vo <- Vo(rowSums(dmat))
+  ve <- sum(Vj(dmat))
+  (vo/ve) - 1
+}
+```
+
+The standardized index of association adds a correction for the number of
+loci observed:
+
+```{r }
+loci_correction <- function(vj){
+  cvj <- combn(vj, 2)
+  2*sum(sqrt(apply(cvj, 2, prod)))
+}
+```
+
+Now for the standardized version
+
+```{r }
+rd <- function(dmat){
+  vo <- Vo(rowSums(dmat))
+  ve <- Vj(dmat)
+  cr <- loci_correction(ve)
+  (vo - sum(ve))/cr
+}
+```
+
+
+### Verification that the functions work
+
+```{r }
+# whole data
+identical(ia(epid), c(Ia = IA(distmat), rbarD = rd(distmat)))
+# clone corrected
+identical(ia(clonecorrect(epid)), c(Ia = IA(distmatcc), rbarD = rd(distmatcc)))
+```
+
+
+Observed less than expected
+---------------------------
+
+When we look at the components of the index of association, we can see that
+the observed is less than expected.
+
+```{r }
+Vo(rowSums(distmat)) # variance of overall distance
+Vj(distmat) # variance at each locus
+```
+
+The variance at locus PrMS43A1 is almost the same as the observed. This is
+due to the fact that it is contributing most of the genetic distance to these
+samples. The sum of this ends up being:
+
+```{r }
+sum(Vj(distmat))
+```
+
+When you subtract this from the observed, or subtract 1 from the ratio, the
+value is negative.
+
+```{r}
+# denominator for standardized version
+Vo(rowSums(distmat)) - sum(Vj(distmat))
+
+# non-standardized index
+(Vo(rowSums(distmat))/sum(Vj(distmat))) - 1
+```
+
+
+Another Way of Looking at This
+==============================
+
+One of the things we notice in the data above is that the two loci with low 
+variability only have a single observation different from the rest and that
+these differences do not occur in the same individual.
+
+First, let's construct our genotype matrix: 10 individuals genotyped at ten
+dominant loci:
+
+```{r}
+mat <- matrix(0, nrow = 10, ncol = 10)
+diag(mat) <- 1
+mat
+```
+
+What happens when you calculate the index of association?
+
+```{r}
+IA(apply(mat, 2, dist))
+rd(apply(mat, 2, dist))
+```
+
+Now we have a negative result, but this makes sense because every sample has 
+exactly two loci different between every other sample, making the observed
+variance zero, so that it doesn't matter what the denominator is, the result
+will always be -1.
+
+If you include a genotype that's dissimilar to all other individuals except for
+one locus, then the index increases dramatically:
+
+```{r}
+mat2 <- rbind(rep(1, 10), mat)
+mat2
+dmat2 <- apply(mat2, 2, dist)
+IA(dmat2)
+rd(dmat2)
+```
+
+If you set the first genotype to be similar to all other individuals except for
+one locus (think of it as the progenitor), the result is still negative:
+
+```{r}
+mat2[1, ] <- 0
+mat2
+dmat2 <- apply(mat2, 2, dist)
+IA(dmat2)
+rd(dmat2)
+```
+
+To illustrate how different these scenarios are, we can construct a minimum
+spanning network:
+
+```{r, fig.width = 8, fig.height = 4}
+mutation_color <- viridis::plasma(10, begin = 1, end = 0)
+mat2[1, ] <- 0
+x <- df2genind(mat2, type = "PA", sep = "")
+mat2[1, ] <- 1
+y <- df2genind(mat2, type = "PA", sep = "")
+g1 <- poppr.msn(x, diss.dist(x), showplot = FALSE)$graph
+g2 <- poppr.msn(y, diss.dist(y), showplot = FALSE)$graph
+op <- par(no.readonly = TRUE)
+par(mfrow = c(1, 2), mar = c(1, 1, 1, 1))
+set.seed(90)
+lay <- layout_nicely(g1)
+switch_positions <- function(m, x, y){
+  tmp    <- m[x, ]
+  m[x, ] <- m[y, ]
+  m[y, ] <- tmp
+  m
+}
+lay <- lay %>%
+  switch_positions(8, 9) %>%
+  switch_positions(8, 3) %>%
+  switch_positions(7, 3) %>%
+  switch_positions(2, 3) %>%
+  switch_positions(5, 3) %>%
+  switch_positions(6, 4) %>%
+  I()
+lay[2:11, ] <- lay[11:2, ]
+plot(g1, 
+     vertex.size = 40, 
+     layout = lay,
+     edge.width = 7,
+     edge.color = "#404040",
+     vertex.label = V(g1)$name,
+     vertex.label.font = 2,
+     vertex.label.degree = pi/2, 
+     vertex.color = ifelse(V(g1)$name == "01", mutation_color[1], mutation_color[2]), 
+     vertex.label.color = "black",
+     main = "Negative Index of Assocation")
+set.seed(90)
+plot(g2, 
+     vertex.size = 40, 
+     layout = lay, 
+     vertex.label = V(g2)$name,
+     vertex.label.font = 2,
+     vertex.color = ifelse(V(g2)$name == "01", mutation_color[10], mutation_color[2]), 
+     vertex.label.color = ifelse(V(g2)$name == "01", "white", "black"),
+     main = "Positive Index of Assocation")
+par(op)
+```
+
+
+In the first minimum spanning network, we can see that, even though we have
+a population with individuals derived from a single progenitor, the index of
+association is negative, but when we have a population where there is a single,
+wildly unrelated genotype, the index of association is positive. 
+
+Session Information
+-------------------
+
+```{r}
+options(width = 100)
+devtools::session_info()
+```
+
