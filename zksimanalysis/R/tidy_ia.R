@@ -56,6 +56,64 @@ tidy_ia <- function(gid, ..., verbose = TRUE, keepdata = TRUE, cc = TRUE,
   return(data_frame_(out))
 }
 
+#' Generate tidy data frame of jackknife statistics of the index of association
+#'
+#' @inheritParams tidy_ia
+#' @param ... parameters to be passed on to \code{\link[poppr]{jack.ia}}
+#'
+#' @return a tibble
+#' @export
+#'
+#' @examples
+#' library('poppr')
+#' data(partial_clone)
+#' strata(partial_clone) <- data.frame(pop = pop(partial_clone))
+#' partial_clone %>%
+#'   seppop() %>%
+#'   lapply(tidy_jackia, reps = 999, strata = 1) %>%
+#'   bind_rows()
+tidy_jackia <- function(gid, ..., verbose = TRUE, strata = NA){
+  if (verbose){
+    msg <- "Calculating jackknife stats for"
+    if (nPop(gid) == 1){
+      msg <- paste(msg, popNames(gid), "...")
+    } else {
+      msg <- paste(msg, nInd(gid), "samples ...")
+    }
+    message(msg)
+  }
+  res <- vector(mode = "list", length = 2) %>% setNames(c("observed", "samples"))
+  obs <- gid %>%
+    poppr::clonecorrect(strata = strata)%>%
+    poppr::ia()
+  res[["samples"]] <- try(poppr::jack.ia(gid, ...))
+  if (inherits(res[["samples"]], "try-error")){
+    out <- list(
+      jack.p.Ia = ~NA_real_,
+      jack.p.rD = ~NA_real_,
+      jack.ia   = ~list(NA_real_),
+      jack.rd   = ~list(NA_real_),
+      pop       = ~NA_character_
+    )
+    return(data_frame_(out))
+  }
+  res[["observed"]] <- c(obs["Ia"],
+                         p.Ia = makep(obs["Ia"], res[["samples"]][["Ia"]]),
+                         obs["rbarD"],
+                         p.rD = makep(obs["rbarD"], res[["samples"]][["rbarD"]])
+  )
+  class(res) <- "ialist"
+  pops <- popNames(gid)
+  pops <- if (length(pops) > 1) list(pops) else pops
+  out <- process_ialist(res)[-c(1, 3)]
+  out <- c(out, list(pop = ~pops))
+  data_frame_(out) %>%
+    setNames(c("jack.p.Ia", "jack.p.rD", "jack.ia", "jack.rd", "pop"))
+}
+
+# helper function to perform a one-sided test
+makep <- function(x, y) (sum(x >= y, na.rm = TRUE) + 1)/(length(y) + 1)
+
 process_ialist <- function(res){
   if (inherits(res, "ialist")){
     vals <- res[[1]]

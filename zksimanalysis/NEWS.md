@@ -1,3 +1,11 @@
+# zksimanalysis 0.9.0.9000
+
+## NEW FUNCTIONS
+
+* `tidy_jackia()` will perform analysis of `ia()` on data reduced to the number
+  of observed MLGs. This will give an estimate of the spread of the data at that
+  sample size.
+
 # zksimanalysis 0.8.1.9000
 
 ## NEW FEATURES
