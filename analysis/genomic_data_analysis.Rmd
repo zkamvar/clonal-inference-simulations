@@ -91,7 +91,8 @@ Below are the results when the mutation rate is 1e-5
 missing_plot <- missing_stats %>% 
   select(sexrate, rd, sample, matching, missing) %>%
   fancy_sample %>%
-  mutate(missing = paste0(sprintf("%02d", missing*100), "%")) %>%
+  mutate(missing = paste0(sprintf("%d", missing*100), "%")) %>%
+  mutate(missing = factor(missing, levels = unique(missing))) %>%
   mutate(matching = ifelse(matching == "match", "ignored", "new allele")) %>%
   ggplot(aes(x = sexrate, y = rd, fill = matching)) +
   geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
