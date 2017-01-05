@@ -45,8 +45,8 @@ kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulatio
 ## Preparing Data
 
 ```{r data_preparation, results = "hide"}
-datfiles  <- dir("../../simulation_results/ia_over_generations/", full.names = TRUE)
-locfiles  <- dir("../../simulation_results/locus_diversity_over_generations/", full.names = TRUE)
+datfiles  <- dir("../../simulation_results/ia_over_generations_n1000/", full.names = TRUE)
+locfiles  <- dir("../../simulation_results/locus_diversity_over_generations_n1000/", full.names = TRUE)
 datnames  <- setNames(datfiles, datfiles)
 locnames  <- setNames(locfiles, locfiles)
 for (i in datfiles){
@@ -94,7 +94,7 @@ Now that we have the data, we can visualize the stability of the simulations
 over generations. 
 
 
-```{r, fig.height = 7.5, fig.width = 12}
+```{r, fig.height = 4.5, fig.width = 12}
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 sample_colors <- scale_color_viridis(discrete = TRUE, direction = -1, option = "D")
@@ -106,7 +106,7 @@ iaplot <- datalist %>%
   ungroup() %>%
   ggplot(aes(x = gen, y = rbarD, group = runseed, color = runseed)) +
   geom_line(alpha = 0.25) +
-  facet_grid(mutation_rate + sample ~ sexrate) +
+  facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
   theme(text = element_text(size = 14)) +
@@ -128,7 +128,7 @@ iaplot
 If we looked at allelic diversity statistics:
 
 
-```{r, fig.height = 7.5, fig.width = 12}
+```{r, fig.height = 4.5, fig.width = 12}
 Hexpplot <- datalist %>%
   mutate(gen = round(as.numeric(gen), -3)/1000) %>%
   mutate(runseed = paste(run, seed)) %>%
@@ -137,7 +137,7 @@ Hexpplot <- datalist %>%
   ungroup() %>%
   ggplot(aes(x = gen, y = Hexp, group = runseed, color = runseed)) +
   geom_line(alpha = 0.25) +
-  facet_grid(mutation_rate + sample ~ sexrate) +
+  facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
   theme(text = element_text(size = 14)) +
@@ -161,7 +161,7 @@ Evenplot <- datalist %>%
   ungroup() %>%
   ggplot(aes(x = gen, y = Evenness, group = runseed, color = runseed)) +
   geom_line(alpha = 0.25) +
-  facet_grid(mutation_rate + sample ~ sexrate) +
+  facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
   theme(text = element_text(size = 14)) +
@@ -185,7 +185,7 @@ Alleleplot <- datalist %>%
   ungroup() %>%
   ggplot(aes(x = gen, y = allele, group = runseed, color = runseed)) +
   geom_line(alpha = 0.25) +
-  facet_grid(mutation_rate + sample ~ sexrate) +
+  facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
   theme(text = element_text(size = 14)) +
