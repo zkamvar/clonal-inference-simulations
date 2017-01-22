@@ -44,6 +44,8 @@ kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulatio
 
 ## Preparing Data
 
+First the data from the first round of simulations with 6-10 alleles per locus.
+
 ```{r data_preparation, results = "hide"}
 datfiles  <- dir("../../simulation_results/ia_over_generations_n1000/", full.names = TRUE)
 locfiles  <- dir("../../simulation_results/locus_diversity_over_generations_n1000/", full.names = TRUE)
@@ -88,6 +90,50 @@ gc()
 datalist
 ```
 
+```{r data_preparation_more_alleles, results = "hide"}
+datfiles  <- dir("../../simulation_results/ia_over_generations_n1000_more_alleles/", full.names = TRUE)
+locfiles  <- dir("../../simulation_results/locus_diversity_over_generations_n1000_more_alleles/", full.names = TRUE)
+datnames  <- setNames(datfiles, datfiles)
+locnames  <- setNames(locfiles, locfiles)
+for (i in datfiles){
+  datnames[i] <- load(i)
+}
+for (i in locfiles){
+  locnames[i] <- load(i)
+}
+
+account_for_source <- . %>%
+  map_df(get, .id = "source") %>% # map the `get()` function and return a tibble
+  mutate(mutation_rate = ifelse(grepl("mutant", source), "even", "uneven")) %>%
+  mutate(source = gsub("(^.+?feather).*$", "\\1.DATA.rda", source))
+
+ex_run  <- "more_alleles_high_mutation([0-9]+?)/"
+ex_seed <- "seed_([0-9]+?)_"
+ex_sex  <- "sex_([0-9.]+?)_"
+ex_gen  <- "gen_([0-9]+?)_"
+ex_rep  <- "rep_([0-9]+?).pop"
+ex_samp <- "_sam_([0-9]+?)$"
+
+datalist_ma <- datnames %>%
+  setNames(datnames) %>%          # set the names for binding id
+  account_for_source %>%
+  tidyr::extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
+          paste0(ex_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
+          remove = FALSE) %>%
+  mutate(sample = factor(sample, unique(sample))) # Transform the sample to a factor
+
+datalist_ma <- locnames %>%
+  setNames(locnames) %>%          # set the names for binding id
+  account_for_source %>%
+  inner_join(datalist_ma, by = c("pop", "source", "mutation_rate"))
+
+
+rm(list = datnames)
+rm(list = locnames)
+gc()
+datalist_ma
+```
+
 ## Plotting
 
 Now that we have the data, we can visualize the stability of the simulations
@@ -119,9 +165,35 @@ iaplot <- datalist %>%
     y = expression(bar(r)[d]),
     x = "generation (x1000)",
     title = "Index of association over 10,000 generations",
+    subtitle = "6 to 10 alleles per locus",
+    caption = "\nValues for 100 unique seed summarized over 10 replicates"
+  ))
+iaplot_ma <- datalist_ma %>%
+  mutate(gen = round(as.numeric(gen), -3)/1000) %>%
+  mutate(runseed = paste(run, seed)) %>%
+  group_by(sexrate, gen, sample, mutation_rate, runseed) %>%
+  summarize(rbarD = mean(rbarD, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(x = gen, y = rbarD, group = runseed, color = runseed)) +
+  geom_line(alpha = 0.25) +
+  facet_grid(mutation_rate ~ sexrate) +
+  scale_x_continuous(breaks = c(2, 4, 6, 8)) +
+  sample_colors +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.75) +
+  theme(panel.spacing = unit(0, "line")) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
+  theme(legend.position = "none") +
+  labs(list(
+    y = expression(bar(r)[d]),
+    x = "generation (x1000)",
+    title = "Index of association over 10,000 generations",
+    subtitle = "10 to 20 alleles per locus",
     caption = "\nValues for 100 unique seed summarized over 10 replicates"
   ))
 iaplot
+iaplot_ma
 ```
 
 
@@ -150,9 +222,35 @@ Hexpplot <- datalist %>%
     y = expression(H[exp]),
     x = "generation (x1000)",
     title = "Nei's Gene Diversity over 10,000 generations",
+    subtitle = "6 to 10 alleles per locus",
     caption = "\nValues for 100 unique seed summarized over 10 replicates"
   ))
 Hexpplot
+Hexpplot_ma <- datalist_ma %>%
+  mutate(gen = round(as.numeric(gen), -3)/1000) %>%
+  mutate(runseed = paste(run, seed)) %>%
+  group_by(sexrate, gen, sample, mutation_rate, runseed) %>%
+  summarize(Hexp = mean(Hexp, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(x = gen, y = Hexp, group = runseed, color = runseed)) +
+  geom_line(alpha = 0.25) +
+  facet_grid(mutation_rate ~ sexrate) +
+  scale_x_continuous(breaks = c(2, 4, 6, 8)) +
+  sample_colors +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.75) +
+  theme(panel.spacing = unit(0, "line")) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
+  theme(legend.position = "none") +
+  labs(list(
+    y = expression(H[exp]),
+    x = "generation (x1000)",
+    title = "Nei's Gene Diversity over 10,000 generations",
+    subtitle = "10 to 20 alleles per locus",
+    caption = "\nValues for 100 unique seed summarized over 10 replicates"
+  ))
+Hexpplot_ma
 Evenplot <- datalist %>%
   mutate(gen = round(as.numeric(gen), -3)/1000) %>%
   mutate(runseed = paste(run, seed)) %>%
@@ -174,9 +272,35 @@ Evenplot <- datalist %>%
     y = expression(E[5][A]),
     x = "generation (x1000)",
     title = "Evenness over 10,000 generations",
+    subtitle = "6 to 10 alleles per locus",
     caption = "\nValues for 100 unique seed summarized over 10 replicates"
   ))
 Evenplot
+Evenplot_ma <- datalist_ma %>%
+  mutate(gen = round(as.numeric(gen), -3)/1000) %>%
+  mutate(runseed = paste(run, seed)) %>%
+  group_by(sexrate, gen, sample, mutation_rate, runseed) %>%
+  summarize(Evenness = mean(Evenness, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(x = gen, y = Evenness, group = runseed, color = runseed)) +
+  geom_line(alpha = 0.25) +
+  facet_grid(mutation_rate ~ sexrate) +
+  scale_x_continuous(breaks = c(2, 4, 6, 8)) +
+  sample_colors +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.75) +
+  theme(panel.spacing = unit(0, "line")) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
+  theme(legend.position = "none") +
+  labs(list(
+    y = expression(E[5][A]),
+    x = "generation (x1000)",
+    title = "Evenness over 10,000 generations",
+    subtitle = "10 to 20 alleles per locus",
+    caption = "\nValues for 100 unique seed summarized over 10 replicates"
+  ))
+Evenplot_ma
 Alleleplot <- datalist %>%
   mutate(gen = round(as.numeric(gen), -3)/1000) %>%
   mutate(runseed = paste(run, seed)) %>%
@@ -198,8 +322,34 @@ Alleleplot <- datalist %>%
     y = "Mean number of alleles",
     x = "generation (x1000)",
     title = "Mean number of alleles over 10,000 generations",
+    subtitle = "6 to 10 alleles per locus",
     caption = "\nValues for 100 unique seed summarized over 10 replicates"
   ))
 Alleleplot
+Alleleplot_ma <- datalist_ma %>%
+  mutate(gen = round(as.numeric(gen), -3)/1000) %>%
+  mutate(runseed = paste(run, seed)) %>%
+  group_by(sexrate, gen, sample, mutation_rate, runseed) %>%
+  summarize(allele = mean(allele, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(x = gen, y = allele, group = runseed, color = runseed)) +
+  geom_line(alpha = 0.25) +
+  facet_grid(mutation_rate ~ sexrate) +
+  scale_x_continuous(breaks = c(2, 4, 6, 8)) +
+  sample_colors +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.75) +
+  theme(panel.spacing = unit(0, "line")) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
+  theme(legend.position = "none") +
+  labs(list(
+    y = "Mean number of alleles",
+    x = "generation (x1000)",
+    title = "Mean number of alleles over 10,000 generations",
+    subtitle = "10 to 20 alleles per locus",
+    caption = "\nValues for 100 unique seed summarized over 10 replicates"
+  ))
+Alleleplot_ma
 ```
 
