@@ -142,45 +142,6 @@ missing_plot
 ```
 
 
-and for when the mutation rate is 1e-3
-
-```{r}
-hr_missing_plot <- ggplot(hr_missing_stats %>% select(sexrate, rd, sample, matching, missing), 
-       aes(x = sexrate, y = rd, fill = factor(missing))) +
-  geom_boxplot() +
-  facet_grid(matching~sample) +
-  labs(list(
-    title = "index of association across missing data",
-    x = "Rate of Sexual Reproduction",
-    y = eval(rd),
-    fill = "Percent Missing"
-    ))
-
-hr_main_rd_plot <- ggplot(hr_original %>% select(sexrate, rd, sample), 
-       aes(x = sexrate, y = rd, fill = sample)) +
-  geom_boxplot() +
-    labs(list(
-    title = "index of association by sex rate",
-    x = "Rate of Sexual Reproduction",
-    y = eval(rd),
-    fill = "Sample Size"
-    ))
-
-hr_pval_rd_plot <- ggplot(hr_original %>% select(sexrate, p.rD, sample), 
-       aes(x = sexrate, y = p.rD, fill = sample)) +
-  geom_boxplot() + 
-    labs(list(
-    title = "p-value for the index of association by sex rate",
-    subtitle = "out of 999 permutations",
-    x = "Rate of Sexual Reproduction",
-    y = eval(prd),
-    fill = "Sample Size"
-    ))
-
-hr_missing_plot
-hr_main_rd_plot
-hr_pval_rd_plot
-```
 
 This is quite weird. If you look at the value for the index of association, we
 can see that the minimum value is about 0.02. To get a better sense of what's
@@ -195,16 +156,6 @@ null_dist <- ggplot(original %>% unnest(samples) %>% select(samples, sample, sex
   facet_wrap(~sample, ncol = 1, scale = "free_y") +
   scale_x_continuous(limits = c(-5e-4, 1e-3)) +
   ggtitle("Null distributions for the index of assocation by sample size and sex rate")
-
-hr_null_dist <- ggplot(hr_original %>% unnest(samples) %>% select(samples, sample, sexrate), 
-       aes(x = samples)) +
-  geom_density(aes(fill = sexrate), alpha = 0.5) +
-  scale_fill_viridis(discrete = TRUE) +
-  facet_wrap(~sample, ncol = 1, scale = "free_y") +
-  scale_x_continuous(limits = c(-5e-4, 1e-3)) +
-  ggtitle("Null distributions for the index of assocation by sample size and sex rate")
-null_dist
-hr_null_dist
 ```
 
 An interesting thing to note is that it seems as if, with greater linkage, the
@@ -229,17 +180,6 @@ load("../../simulation_results/genomic_rda_files/X.data.3639601.1.grungall1.dir_
 
 ydat <- y$dataset[[2]]
 ydat
-load("../../simulation_results/genomic_hr_rda_files/X.data.3725727.100.bpp.dir_genomic_high_recombination1_gen_10seed_0_sex_1.0000_gen_10000_rep_09.pop.feather.DATA.rda") %>%
-  get() %>%
-  tidyr::gather(key = percent_missing, value = dataset, starts_with("dataset")) -> x
-load("../../simulation_results/genomic_hr_rda_files/X.data.3725727.2.grungall1.dir_genomic_high_recombination1_gen_10seed_0_sex_0.0000_gen_10001_rep_01.pop.feather.DATA.rda") %>% 
-  get() %>% 
-  tidyr::gather(key = percent_missing, value = dataset, starts_with("dataset")) -> y
-
-hr_ydat <- y$dataset[[2]]
-hr_ydat
-hr_xdat <- x$dataset[[2]]
-hr_xdat
 ```
 
 Now, I'll simulate a sexual population using the `glSim()` functin from *adegenet*:
@@ -253,11 +193,8 @@ xsim
 Now, let's look at the values of $\bar{r}_d$:
 
 ```{r, datrd}
-barplot(c(
-          sexual = bitwise.ia(xdat), 
+barplot(c(sexual = bitwise.ia(xdat), 
           clonal = bitwise.ia(ydat),
-          hr_sexual = bitwise.ia(hr_xdat), 
-          hr_clonal = bitwise.ia(hr_ydat),
           simulated = bitwise.ia(xsim)), log = "y", ylab = "log index of association")
 ```
 
@@ -269,17 +206,11 @@ dendrograms produced will give us a good idea:
 library('ape')
 xdat %>% bitwise.dist() %>% nj() -> sexdist
 ydat %>% bitwise.dist() %>% nj() -> clonedist
-hr_xdat %>% bitwise.dist() %>% nj() -> hr_sexdist
-hr_ydat %>% bitwise.dist() %>% nj() -> hr_clonedist
 xsim %>% bitwise.dist() %>% nj() -> simdist
-par(mfrow = c(1, 5))
+par(mfrow = c(1, 3))
 plot(sexdist, main = "Sexual")
 add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
 plot(clonedist, main = "Clonal")
-add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
-plot(hr_sexdist, main = "Sexual")
-add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
-plot(hr_clonedist, main = "Clonal")
 add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
 plot(simdist,   main = "Random (adegenet::glSim)")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
@@ -293,17 +224,11 @@ variance. When happens to our populations if we shuffle them?
 ```{r, dendrogrammin_2_electric_boogaloo}
 xdat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> sexdist
 ydat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> clonedist
-hr_xdat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> hr_sexdist
-hr_ydat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> hr_clonedist
 xsim %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> simdist
-par(mfrow = c(1, 5))
+par(mfrow = c(1, 3))
 plot(sexdist, main = "Sexual")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
 plot(clonedist, main = "Clonal")
-add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
-plot(hr_sexdist, main = "Sexual")
-add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
-plot(hr_clonedist, main = "Clonal")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
 plot(simdist,   main = "Random (adegenet::glSim)")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
@@ -317,23 +242,17 @@ the separation of the data.
 ```{r, prcomponents, cache = TRUE}
 xdat %>% glPca(nf = 100) -> xdat.pc
 ydat %>% glPca(nf = 100) -> ydat.pc
-hr_xdat %>% glPca(nf = 100) -> hr_xdat.pc
-hr_ydat %>% glPca(nf = 100) -> hr_ydat.pc
 xsim %>% glPca(nf = 100) -> xsim.pc
 
 xdat.s <- xdat.pc$scores[, 1:2]
 ydat.s <- ydat.pc$scores[, 1:2]
-hr_xdat.s <- hr_xdat.pc$scores[, 1:2]
-hr_ydat.s <- hr_ydat.pc$scores[, 1:2]
 xsim.s <- xsim.pc$scores[, 1:2]
 lims <- range(c(xdat.s, ydat.s, xsim.s))
 plot(xdat.s, xlim = lims, ylim = lims, col = "red")
 points(ydat.s, xlim = lims, ylim = lims, col = "blue")
-points(hr_xdat.s, xlim = lims, ylim = lims, col = "orchid", pch = 2)
-points(hr_ydat.s, xlim = lims, ylim = lims, col = "powderblue", pch = 2)
 points(xsim.s, xlim = lims, ylim = lims)
-legend("topright", legend = c("Sexual", "Clonal", "Sexual (hr)", "Clonal (hr)", "Random (adegenet::glSim)"), 
-       col = c("red", "blue", "orchid", "powderblue", "black"), pch = c(1, 1, 2, 2, 1))
+legend("topright", legend = c("Sexual", "Clonal", "Random (adegenet::glSim)"), 
+       col = c("red", "blue", "black"), pch = c(1, 1, 1))
 ```
 
 ### Re-analyze index of association
@@ -379,26 +298,6 @@ corrected_rd <- original_redux %>%
   theme(text = element_text(size = 14)) 
 corrected_rd
 
-hr_corrected_rd <- hr_original_redux %>% 
-  select(sexrate, rd, sample) %>%
-  fancy_sample %>%
-  ggplot(aes(x = sexrate, y = rd)) +
-  geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
-  geom_point(alpha = 0.25) +
-  # geom_boxplot(outlier.color = "grey50", outlier.size = 0.5) + 
-  # scale_fill_grey(start = 0.5, end = 1) + 
-    labs(list(
-    # title = "index of association by sex rate",
-    x = "Rate of Sexual Reproduction",
-    y = eval(rd)
-    )) +
-  facet_wrap(~sample) +
-  theme(aspect.ratio = 1/2) +
-  theme(strip.background = element_blank()) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
-  theme(text = element_text(size = 14)) 
-hr_corrected_rd
-
 ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.pdf",
        plot = corrected_rd, dpi = 600, height = 4, width = 6)
 
@@ -425,28 +324,7 @@ correcte_rd_p <- original_redux %>%
   theme(strip.text = element_text(size = 14, face = "bold")) +
   theme(text = element_text(size = 14))
 correcte_rd_p
-hr_correcte_rd_p <- hr_original_redux %>% 
-  select(sexrate, p.rD, sample) %>%
-  fancy_sample %>%
-  ggplot(aes(x = sexrate, y = p.rD)) +
-  geom_boxplot(outlier.color = "grey50", outlier.size = 0.5) +
-  # geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
-  scale_y_log10(breaks = c(0.01, 0.1, 1),
-                minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
-  # scale_fill_grey(start = 0.5, end = 1) + 
-    labs(list(
-    # title = "p-value for the index of association by sex rate",
-    # subtitle = "out of 999 permutations",
-    x = "Rate of Sexual Reproduction",
-    y = eval(prd)
-    # fill = "Sample Size"
-    )) +
-  facet_wrap(~sample) +
-  theme(aspect.ratio = 1.618^-1) +
-  theme(strip.background = element_blank()) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
-  theme(text = element_text(size = 14))
-hr_correcte_rd_p
+
 ```
 
 
@@ -489,37 +367,6 @@ clone_dist <- original_redux %>%
   )) +
   no_y
 clone_dist
-hr_null_dist <- hr_original_redux %>% 
-  unnest(samples) %>% 
-  select(samples, sexrate, sample) %>%
-  ggplot(aes(x = samples)) +
-  geom_density(aes(fill = sexrate), alpha = 0.5) +
-  scale_fill_viridis(discrete = TRUE, option = "magma") +
-  facet_wrap(~sample, ncol = 1, scale = "free_y") +
-  labs(list(
-    title = expression(paste("Null distributions of ", bar(r)[d])),
-    subtitle = "For all sex rates",
-    x = eval(rd)
-  )) +
-  no_y
-hr_null_dist
-
-# Only the most clonal of the non-random mating
-hr_clone_dist <- hr_original_redux %>% 
-  unnest(samples) %>% 
-  select(samples, sexrate, sample) %>%
-  filter(sexrate %in% c("0.0000", "0.0001", "0.0005")) %>%
-  ggplot(aes(x = samples)) +
-  geom_density(aes(fill = sexrate), alpha = 0.5) +
-  scale_fill_viridis(discrete = TRUE, option = "magma") +
-  facet_wrap(~sample, ncol = 1, scale = "free_y") +
-  labs(list(
-    title = expression(paste("Null distributions of ", bar(r)[d])),
-    subtitle = "For sex rates < 0.1%",
-    x = eval(rd)
-  )) +
-  no_y
-hr_clone_dist
 ```
 
 

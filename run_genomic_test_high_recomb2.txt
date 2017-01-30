@@ -1,8 +1,0 @@
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination9 
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination10
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination11 
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination12
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination13 
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination14 
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination15 
-python /home/bpp/kamvarz/zhian_simulations/simulations/simulate_sex_rate_gbs.py --murate 1e-03 --POPSIZE 10000 --nseed 1 --nloc 10000 --outfile genomic_high_recombination16

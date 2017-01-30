@@ -195,107 +195,11 @@ original_redux %>%
 ```
 
 
-## High recombination data
-
-After analysis, the original data showed so much linkage that we decided to
-virtually expand the the chromosomes by setting the recombination rate between
-adjacent sites to 1e-3. This means that there is a probability of 1
-recombination event on a chromosome with 1000 sites. I will refer to these data
-as **hr** data for "high recombination" data. 
-
-
-```{r, load_hr_data, results = "hide"}
-# Here we have to filter out the stored genetic data
-datfiles <- dir("../../simulation_results/genomic_hr_rda_files/", full.names = TRUE) %>% 
-  grep("feather.rda$", ., value = TRUE)
-
-# The HR data has a different prefix for the directory.
-hr_run  <- "genomic_high_recombination([0-9]+?)/"
-
-# Load all of the rda files with the results.
-datnames <- vector(mode = "list", length = length(datfiles)) %>% setNames(datfiles)
-for (i in datfiles){
-  datnames[[i]] <- load(i)
-}
-
-datnames <- unlist(datnames, use.names = FALSE)
-
-
-datalist <- datnames %>%
-  setNames(datnames) %>%          # set the names for binding id
-  map_df(get, .id = "source") %>% # map the `get()` function and return a tibble
-  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
-          paste0(hr_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
-          remove = FALSE) %>%     # process the metadata
-  mutate(sample = factor(sample)) %>%     # Transform the sample to a factor
-  select(missing_0.01:sample, source) %>% # resort the columns
-  distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE) # filter out duplicates
-
-datalist <- datalist  %>%
-  gather(missingness, rd, starts_with("missing"), rbarD) %>% # gather the rd values into one column
-  extract(missingness, c("matching", "missing"), 
-          "missing_([a-z]*)_*([0-9.]*)$", convert = TRUE) %>% # create new columns for missing data level
-  mutate(pop = gsub("^.+?pop_(.+?)$", "\\1", pop)) %>% # make population names easier to read
-  mutate(matching = ifelse(is.na(matching), "none", matching)) %>% # differentiate between matching
-  mutate(matching = ifelse(matching == "", "match", matching)) %>% # and non-matching missing calc
-  mutate(missing = ifelse(is.na(missing), 0, missing)) %>%  # set non-missing percent to 0
-  mutate(sample = forcats::fct_relevel(sample, 10, 25, 50)) # relevel the sample sizes
-
-hr_missing_stats <- filter(datalist, matching != "none") %>% # data set for only rd from missing data
-  select(-samples, -p.rD)
-hr_original        <- filter(datalist, matching == "none") %>% 
-  select(-matching, -missing) # rd with no missing data
-rm(list = datnames)
-gc(verbose = TRUE)
-hr_original
-hr_missing_stats
-```
-
-Since analyzing the index with any linkage will cloud the result, we present 
-here the shuffle-by-chromosome method. At this moment, since I don't have all
-the data available, I am not filtering for different data between 10000 and
-10001 generations. 
-
-```{r, load_hr_redux, restulst = "hide"}
-# Here we have to filter out the stored genetic data
-datfiles <- dir("../../simulation_results/genomic_hr_rda_files_redux/", full.names = TRUE)
-
-shufffiles <- vector(mode = "list", length = length(datfiles)) %>% setNames(datfiles)
-for (i in datfiles){
-  shufffiles[[i]] <- load(i)
-}
-
-shufffiles <- unlist(shufffiles, use.names = FALSE)
-# shufffiles <- grep("^X.+?shufflechrom.rda$", ls(), value = TRUE)
-
-hr_original_redux <- shufffiles %>% 
-  setNames(shufffiles) %>% 
-  map_df(get, .id = "source") %>%
-  extract(pop, c("run", "seed", "sexrate", "gen", "rep", "sample"),
-          paste0(hr_run, ex_seed, ex_sex, ex_gen, ex_rep, ex_samp),
-          remove = FALSE) %>%
-  mutate(sample = factor(sample) %>% forcats::fct_relevel(10, 25, 50)) %>%
-  mutate(pop = gsub("^.+?pop_(.+?)$", "\\1", pop)) %>%
-  rename(rd = rbarD) %>%
-  select(rd:sample, source) %>%
-  # distinct(run, seed, sexrate, rep, sample, .keep_all = TRUE) %>%
-  I()
-hr_original_redux
-
-rm(list = shufffiles)
-gc(verbose = TRUE)
-
-shuffs %>% 
-  group_by(sexrate) %>%
-  summarize(n = n()/4)
-
-```
 
 
 
 ```{r}
 save(original_redux, original, missing_stats, 
-     hr_original_redux, hr_original, hr_missing_stats, 
      file = "../../simulation_results/genomic_data.rda")
 ```
 
