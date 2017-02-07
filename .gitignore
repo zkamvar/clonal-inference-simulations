@@ -17,3 +17,6 @@ baz/*
 data/*_*
 data/*rda
 data/*zip
+
+reports/*files
+reports/*html
