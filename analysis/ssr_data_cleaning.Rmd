@@ -42,11 +42,11 @@ This here will load in all of the results of the analyses
 
 ```{r, load_data, results = "hide"}
 # Here we have to filter out the stored genetic data
-datfiles  <- dir("../../simulation_results/rda_files/", full.names = TRUE) %>% 
+datfiles  <- dir("../data/rda_files/", full.names = TRUE) %>% 
   grep("feather[.a-z]*.rda$", ., value = TRUE)
-divfiles  <- dir("../../simulation_results/diversity_rda_files/", full.names = TRUE)
-locfiles  <- dir("../../simulation_results/locus_rda_files/", full.names = TRUE)
-contfiles <- dir("../../simulation_results/locus_contribution_rda_files/", full.names = TRUE)
+divfiles  <- dir("../data/diversity_rda_files/", full.names = TRUE)
+locfiles  <- dir("../data/locus_rda_files/", full.names = TRUE)
+contfiles <- dir("../data/locus_contribution_rda_files/", full.names = TRUE)
 
 for (i in datfiles){
   load(i)
@@ -213,8 +213,8 @@ mutation rate at 1e-5) and 40,000 for analysis with 21 loci (where the first
 locus has a mutation rate of 1e-3).
 
 ```{r, save_data, eval = FALSE}
-save(vals, file = "../../simulation_results/processed_results.rda")
-save(datalist, file = "../../simulation_results/full_results.rda")
+save(vals, file = "../data/processed_results.rda")
+save(datalist, file = "../data/full_results.rda")
 ```
 
 

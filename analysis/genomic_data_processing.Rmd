@@ -78,7 +78,7 @@ foolishly did not do that in `genomic_analyze_and_save_ia.R`.
 
 ```{r, load_data, results = "hide"}
 # Here we have to filter out the stored genetic data
-datfiles <- dir("../../simulation_results/genomic_rda_files/", full.names = TRUE) %>% 
+datfiles <- dir("../data/genomic_rda_files/", full.names = TRUE) %>% 
   grep("feather.rda$", ., value = TRUE)
 
 # Setting up the prefixes to split the file names into metadata
@@ -136,7 +136,7 @@ account for the calculation of missing data.
 
 ```{r, load_redux, restulst = "hide"}
 # Here we have to filter out the stored genetic data
-datfiles <- dir("../../simulation_results/genomic_rda_files_redux/", full.names = TRUE)
+datfiles <- dir("../data/genomic_rda_files_redux/", full.names = TRUE)
 
 shufffiles <- vector(mode = "list", length = length(datfiles)) %>% setNames(datfiles)
 for (i in datfiles){
@@ -200,6 +200,6 @@ original_redux %>%
 
 ```{r}
 save(original_redux, original, missing_stats, 
-     file = "../../simulation_results/genomic_data.rda")
+     file = "../data/genomic_data.rda")
 ```
 

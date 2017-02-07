@@ -13,11 +13,11 @@ processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
 
 ```{r, load_data, cache = TRUE, results = "hide"}
 system.time({
-res        <- load("../../simulation_results/processed_results.rda")
+res        <- load("../data/processed_results.rda")
 vals_by_cc <- get(res) %>% 
   gather(clone_correction, pval, p.rD, p.rDcc) %>%
   mutate(clone_correction = ifelse(clone_correction == "p.rD", "wd", "cc"))
-genomic_res <- load("../../simulation_results/genomic_data.rda")
+genomic_res <- load("../data/genomic_data.rda")
 genomic_dat <- get(genomic_res[genomic_res == "original_redux"])
 rm(list = c(res, genomic_res))
 })
@@ -229,7 +229,7 @@ g_AURC_by_seed
 save(total_roc, roc_overall, roc_by_seed, AURC_overall, AURC_by_seed,
      total_roc_ea, roc_overall_ea, roc_by_seed_ea, AURC_overall_ea, AURC_by_seed_ea,
      g_total_roc, g_roc_overall, g_roc_by_seed, g_AURC_overall, g_AURC_by_seed,
-     file = "../../simulation_results/ROC_data.rda")
+     file = "../data/ROC_data.rda")
 ```
 
 
