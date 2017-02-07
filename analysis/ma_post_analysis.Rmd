@@ -1,0 +1,440 @@
+---
+title: "Post analysis of SSR simulation results"
+output: html_document
+---
+
+
+## Introduction
+
+I've created 10,000 simulations of populations undergoing different levels of
+sexual reproduction and analyzed the index of association along with genotypic
+and allelic diversity metrics, including an analysis of the contribution of each
+locus to the genotypic diversity. This will serve as a report for the 
+simulations.
+
+## Setup
+
+```{r, required_packages}
+library('zksimanalysis')
+```
+
+This here will load in all of the results of the analyses. These were previously
+processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
+"vals".
+
+```{r, load_data, cache = TRUE, results = "hide", cache.lazy = FALSE}
+system.time({
+res           <- load("../../simulation_results/ma_processed_results.rda")
+even_mutation <- vals %>% filter(mutation_rate == "even")
+odd_mutation  <- vals %>% filter(mutation_rate == "uneven")
+})
+res
+even_mutation
+odd_mutation
+```
+
+
+All data coming in must be verified that we indeed have all data. Since we had a
+factorial design, we can create what we expect the populations (records of the
+simulations) to look like.
+
+```{r, quality_control}
+nrow(even_mutation) == 40000
+nrow(odd_mutation) == 40000
+```
+
+
+## Visualizations
+
+### Setup
+
+The visualizations are summaries of the data and can help to understand the how
+the data is distributed to see any patterns.
+
+This part is setting up some helpful variables and names that we will use over
+and over again.
+
+```{r, plotting_params}
+old_theme <- theme_set(theme_bw())
+old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
+asp       <- function(r) theme(aspect.ratio = r)
+sample_colors <- scale_color_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
+sample_fill <- scale_fill_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
+# The p-value for rd is best visualized on a log scale. This provides that
+# the color scaling for that transformation, emphasizing smaller p-values over
+# larger ones.
+log_rd_color <- function(breaks = c(0.005, 0.01, 0.025, 0.05, 0.1)){
+  scale_color_viridis(option = "viridis", 
+                      breaks = log(breaks), 
+                      labels = breaks)
+}
+  
+# Various labels with mathematical expressions are used for the plots. 
+# Pre-defining them here allows us to use eval(exp) instead of re-typing the
+# entire expression every time.
+rd    <- quote(expression(bar(r)[d]))
+rdcc  <- quote(expression(paste(bar(r)[d], " (clone-corrected)")))
+prd   <- quote(expression(paste("p-value (", bar(r)[d], ")")))
+prdcc <- quote(expression(paste("p-value (", bar(r)[d], " (clone-corrected))")))
+E5g   <- quote(expression(paste("Genotypic evenness (", E[5][G], ")")))
+E5a   <- quote(expression(paste("Mean allelic evenness (", E[5][A], ")")))
+Hexp  <- quote(expression(paste("Nei's gene diversity (", H[exp], ")")))
+uSimp <- "Unbiased simpson's index (genotypic diversity)"
+
+
+fancy_clone_correct <- . %>% 
+  mutate(clone_correct = factor(clone_correct, labels = c("uncorrected", "clone-corrected")))
+fancy_sample <- . %>%  
+  mutate(sample = forcats::lvls_revalue(sample, paste("n =", sort(unique(sample)))))
+fancy_mutation_rate <- . %>% 
+  mutate(mutation_rate = factor(mutation_rate, labels = c("Even Mutation Rate", "Uneven Mutation Rate")))
+  
+```
+
+
+
+```{r, rd_sexrate, fig.height = 7, fig.width = 6}
+rd_sexrate <- vals %>% 
+  select(sexrate, rbarD, rbarDcc, sample, mutation_rate) %>%
+  gather("clone_correct", "rd", rbarD, rbarDcc) %>% 
+  fancy_clone_correct %>%
+  fancy_sample %>%
+  fancy_mutation_rate %>%
+  ggplot(aes(x = sexrate, y = rd, fill = clone_correct)) +
+  # geom_boxplot(outlier.size = 0.25) +
+  geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
+  facet_grid(sample~mutation_rate, switch = "y") +
+  scale_y_continuous(position = "right") +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    y = eval(rd),
+    fill = "Clone Correction"
+    # title = "Standardized Index of Association vs Sex",
+    # subtitle = "for even and uneven mutation rates"
+    )
+    ) +
+  # theme_minimal() + 
+  # theme(strip.text = element_blank()) +
+  # theme(text = element_blank()) +
+  # theme(title = element_blank()) +
+  # theme(aspect.ratio = 1/2) +
+  theme(strip.background = element_blank()) +
+  theme(legend.position = "bottom") +
+  scale_fill_grey(start = 1, end = 0.5)
+  
+
+# ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/rd_sexrate.pdf",
+#        dpi = 600, width = 6, height = 7)
+rd_sexrate
+```
+
+
+```{r, rd_pval, fig.width = 10}
+rd_pval <- vals %>% 
+  select(sexrate, p.rD, p.rDcc, sample, mutation_rate) %>%
+  gather("clone_correct", "prd", p.rD, p.rDcc) %>% 
+  fancy_clone_correct %>%
+  fancy_sample %>%
+  fancy_mutation_rate %>%
+  ggplot(aes(x = sexrate, y = prd, fill = sample)) +
+  geom_boxplot(outlier.size = 0.25) +
+  scale_y_log10(breaks = c(0.01, 0.1, 1),
+                minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
+  facet_grid(mutation_rate~clone_correct) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    y = eval(prd),
+    title = "Detection of clonal reproduction",
+    subtitle = "for even and uneven mutation rates")
+    ) +
+  sample_fill
+rd_pval
+```
+
+```{r, rd_pval_cc, fig.height = 10, fig.width = 5}
+rd_pval_cc <- vals %>% 
+  select(p.rDcc, p.rD, mutation_rate, sample, sexrate, NMLG) %>%
+  fancy_sample %>%
+  ggplot(aes(x = p.rDcc, y = p.rD, pch = mutation_rate)) +
+  geom_point(aes(color = log(as.numeric(substr(sample, 5, 10)) - NMLG + 1)), alpha = 0.25) +
+  geom_abline(slope = 1) +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_viridis(breaks = log(c(6, 11, 26, 76, 101)),
+                      labels = c(5, 10, 25, 75, 100),
+                      option = "A",
+                      direction = -1) +
+  facet_grid(sexrate ~ sample) +
+  ylab(eval(prd)) +
+  xlab(eval(prdcc)) +
+  labs(list(
+    pch = "Mutation Rate",
+    color = "N - MLG"
+    )) +
+  guides(pch = guide_legend(override.aes = list(alpha = 1))) +
+  theme(legend.position = "bottom") +
+  theme(legend.box = "vertical") +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  asp(1)
+rd_cc <- vals %>% 
+  select(rbarD, rbarDcc, mutation_rate, sample, sexrate, NMLG) %>%
+  fancy_sample %>%
+  ggplot(aes(x = rbarDcc, y = rbarD, pch = mutation_rate)) +
+  geom_point(aes(color = log(as.numeric(substr(sample, 5, 10)) - NMLG + 1)), alpha = 0.25) +
+  geom_abline(slope = 1) +
+  # scale_x_log10() +
+  # scale_y_log10() +
+  scale_color_viridis(breaks = log(c(6, 11, 26, 76, 101)),
+                      labels = c(5, 10, 25, 75, 100)) +
+  facet_grid(sexrate ~ sample) +
+  ylab(eval(rd)) +
+  xlab(eval(rdcc)) +
+  labs(list(
+    pch = "Mutation Rate",
+    color = "N - MLG"
+    )) +
+  guides(pch = guide_legend(override.aes = list(alpha = 1))) +
+  theme(legend.position = "bottom") +
+  theme(legend.box = "vertical") +
+  theme(text = element_text(size = 14)) +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  asp(1)
+rd_pval_cc
+rd_cc
+```
+
+```{r, rd_sexrate_pval, fig.width = 10, fig.height = 10}
+vals %>%
+  fancy_sample %>%
+  fancy_mutation_rate %>%
+  ggplot(aes(x = sexrate, y = rbarD, color = log(p.rD))) +
+  geom_jitter(alpha = 0.25, height = 0) +
+  geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
+  log_rd_color() + 
+  facet_grid(sample~mutation_rate) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    y = eval(rd),
+    color = eval(prd),
+    title = "Detection of clonal reproduction",
+    subtitle = "for even and uneven mutation rates")
+    )
+```
+
+
+```{r, clone-correction-significance, fig.width = 10}
+ggplot(even_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
+  geom_point(alpha = 0.25) +
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  asp(1) +
+  labs(list(
+    x = eval(rd),
+    y = eval(rdcc),
+    title = "Differences in probability due to clone correction", 
+    subtitle = "20 loci; even mutation rate")
+  ) 
+ggplot(odd_mutation, aes(x = rbarD, y = rbarDcc, color = significance)) +
+  geom_point(alpha = 0.25) +
+  geom_abline(slope = 1) +
+  facet_grid(sample~sexrate) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  asp(1) +
+  labs(list(
+    x = eval(rd),
+    y = eval(rdcc),
+    title = "Differences in probability due to clone correction", 
+    subtitle = "21 loci; uneven mutation rate")
+  ) 
+```
+
+
+```{r, Hexp_rbarD, fig.width = 10}
+ggplot(vals, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  facet_wrap(~mutation_rate) +
+  labs(list(
+    title = "Index of association vs. Gene Diversity",
+    subtitle = "for even and uneven mutation rates",
+    y = eval(rd),
+    x = eval(Hexp),
+    color = eval(prd))
+    )
+```
+
+```{r, Hexp_rbarD_facet, fig.width = 10}
+ggplot(even_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() + 
+  asp(1) +
+  facet_grid(sample~sexrate) +
+  labs(list(
+    title = "Index of association vs. Gene Diversity",
+    subtitle = "by sex rate and sample size for 20 loci; even mutation rate",
+    y = eval(rd),
+    x = eval(Hexp),
+    color = eval(prd))
+    )
+ggplot(odd_mutation, aes(x = Hexp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() + 
+  asp(1) +
+  facet_grid(sample~sexrate) +
+  labs(list(
+    title = "Index of association vs. Gene Diversity",
+    subtitle = "by sex rate and sample size for 21 loci; uneven mutation rate",
+    y = eval(rd),
+    x = eval(Hexp),
+    color = eval(prd))
+    )
+```
+
+```{r, gE5_lE5, fig.width = 10}
+ggplot(even_mutation, aes(x = Evenness, y = E.5, color = rbarD)) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis() +
+  geom_abline(slope = 1) +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(eval(E5a)) +
+  ylab(eval(E5g))
+ggplot(odd_mutation, aes(x = Evenness, y = E.5, color = rbarD)) +
+  geom_point(alpha = 0.25) +
+  scale_color_viridis() +
+  geom_abline(slope = 1) +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(eval(E5a)) +
+  ylab(eval(E5g))
+```
+
+```{r, NMLG_rbarD, fig.height = 10, fig.width = 5}
+ggplot(even_mutation, aes(x = NMLG, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  scale_x_continuous(breaks = c(5, 10, 25, 50, 100)) +
+  asp(0.75) +
+  facet_grid(sexrate~sample, scale = "free_x") +
+  xlab("Number of multilocus genotypes") +
+  ylab(eval(rd))
+ggplot(odd_mutation, aes(x = NMLG, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  scale_x_continuous(breaks = c(5, 10, 25, 50, 100)) +
+  asp(0.75) +
+  facet_grid(sexrate~sample, scale = "free_x") +
+  xlab("Number of multilocus genotypes") +
+  ylab(eval(rd))
+```
+
+```{r, uSimp_rbarD, fig.width = 10}
+ggplot(even_mutation, aes(x = uSimp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(uSimp) +
+  ylab(eval(rd))
+ggplot(odd_mutation, aes(x = uSimp, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(uSimp) +
+  ylab(eval(rd))
+```
+
+```{r, gE5_rbarD, fig.width = 10}
+ggplot(even_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(eval(E5g)) +
+  ylab(eval(rd))
+ggplot(odd_mutation, aes(x = E.5, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color() +
+  asp(0.75) +
+  facet_grid(sample~sexrate) +
+  xlab(eval(E5g)) +
+  ylab(eval(rd))
+```
+
+
+```{r, eveness_rd, fig.height = 10, fig.width = 10}
+ggplot(filter(even_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color(c(0.05, 0.1, 0.25, 0.5, 1)) + 
+  facet_grid(sexrate~sample) +
+  theme_dark() +
+  geom_vline(xintercept = max((even_mutation %>% filter(sexrate == "1.0000"))$Evennesscc), lty = 2) +
+  asp(0.5) + 
+  ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
+          subtitle = "For p >= 0.05 with even mutation rates") +
+  ylab(expression(bar(r)[d])) +
+  xlab(expression(paste(E[5], " (averaged over 20 loci)")))
+ggplot(filter(odd_mutation, p.rD >= 0.05), aes(x = Evennesscc, y = rbarD, color = log(p.rD))) +
+  geom_point(alpha = 0.25) +
+  log_rd_color(c(0.05, 0.1, 0.25, 0.5, 1)) + 
+  facet_grid(sexrate~sample) +
+  theme_dark() +
+  geom_vline(xintercept = max((odd_mutation %>% filter(sexrate == "1.0000"))$Evennesscc), lty = 2) +
+  asp(0.5) + 
+  ggtitle(expression(paste(bar(r)[d], " vs. mean allele evenness")), 
+          subtitle = "For p >= 0.05 with uneven mutation rates") +
+  ylab(expression(bar(r)[d])) +
+  xlab(expression(paste(E[5], " (averaged over 21 loci)")))
+```
+
+
+
+```{r, grabbag, fig.width = 6, fig.height = 7}
+diversity_plot <- vals %>%
+  fancy_mutation_rate %>%
+  mutate(mutation_rate = paste0("plain(\"", mutation_rate, "\")")) %>%
+  rename(`E[5]` = E.5,
+       `E[5][A]` = Evennesscc,
+       `H[exp]` = Hexpcc) %>%
+  tidyr::gather("index", "value",  `E[5]`, H, G, `E[5][A]`, `H[exp]`) %>%
+  mutate(index = forcats::fct_relevel(index, c("H", "E[5]", "G", "E[5][A]", "H[exp]"))) %>%
+  ggplot(aes(x = sexrate, y = value, color = sample)) +
+  stat_summary(fun.data = mean_sdl, geom = "pointrange",
+               position = position_dodge(width = 0.75), alpha = 0.75) +
+  facet_grid(index ~ mutation_rate, scales = "free_y", 
+             labeller = label_parsed, switch = "y") +
+  scale_y_continuous(position = "right") +
+  theme(aspect.ratio = 0.5) +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "bottom") +
+  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.background = element_blank()) +
+  labs(list(
+    x = "Rate of Sexual Reproduction",
+    color = "Sample Size"
+  )) +
+  sample_colors
+# ggsave(file = "~/Documents/Grunwald/dissertation/figure/simulations/diversity_stats.pdf",
+#        plot = diversity_plot,
+#        dpi = 600, width = 6, height = 7)
+diversity_plot
+```
+
+
+```{r, CF_B}
+ggplot(vals, aes(x = CF, y = B, color = sample)) +
+  geom_point() +
+  facet_grid(sample~mutation_rate)
+```
+

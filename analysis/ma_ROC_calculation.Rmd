@@ -1,0 +1,189 @@
+---
+title: "ROC Calculations"
+output: html_notebook
+---
+
+```{r, required_packages}
+library('zksimanalysis')
+```
+
+This here will load in all of the results of the analyses. These were previously
+processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
+"vals".
+
+```{r, load_data, cache = TRUE, results = "hide"}
+system.time({
+res        <- load("../../simulation_results/ma_processed_results.rda")
+vals_by_cc <- get(res) %>% 
+  gather(clone_correction, pval, p.rD, p.rDcc) %>%
+  mutate(clone_correction = ifelse(clone_correction == "p.rD", "wd", "cc"))
+rm(list = c(res))
+})
+vals_by_cc
+```
+
+## Data Analysis
+
+### Overall ROC Calculation
+
+```{r, generate_sexrate}
+sex <- unique(vals_by_cc$sexrate)
+sex <- sex[!sex %in% "1.0000"]
+alpha <- seq(0, 1, by = 0.01)
+```
+
+The main ROC calculation is handled by the function `roc()`. This function
+calculates ROC and the variance for a single level of $\alpha$ over a given
+grouping. It assumes the column for the factor dividing the true positive and
+false positive is called "sexrate". This will calculate ROC and the variance
+for each level of the grouping (which must be at least sexrate). 
+
+Since we want create a curve, here we are mapping the `roc()` function over the 
+different levels of $\alpha$. We do this for both the regular p-value and clone 
+corrected p-value. We then do this for each rate of sexual reproduction 
+independently. To do this, we have to use nested `map()` functions. The first 
+`map_df()` will map the second map function over the values of non-random
+mating, `map2_df()`, which will map the `roc()` function over both the incoming
+value of non-random mating (coming in as `.x`) and all values of $\alpha$
+(represented as `.y`).
+
+We do this for both full and clone-corrected data.
+
+```{r, roc_overall, cache = TRUE}
+Sys.time()
+total_roc <- map_df(alpha, roc, 
+                    vals_by_cc %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")),
+                    compare = c("NR", "R"), stat = "pval", count.na = TRUE,
+                    group = c("mutation_rate", "sexrate", "sample", "clone_correction"))
+total_roc
+
+Sys.time()
+roc_overall <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, vals_by_cc, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("mutation_rate", "sexrate", "sample", "clone_correction"), 
+              stat = "pval"
+             )
+         ) 
+roc_overall
+
+Sys.time()
+```
+
+
+```{r, roc_by_seed, cache = TRUE}
+seedgroup <- c("mutation_rate", "sexrate", "run", "seed", "sample", "clone_correction")
+Sys.time()
+roc_by_seed <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, vals_by_cc, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = seedgroup, stat = "pval"
+             )
+         ) 
+roc_by_seed
+Sys.time()
+```
+
+### ROC considering Allelic evenness
+
+It has been observed that the values for $\bar{r}_d$ can be non-significant and
+even sharply negative for purely clonal populations. We also noticed that the
+allelic evenness for these populations is quite high, which is a sign of fixed
+heterozygosity in several loci. We will use this to "flip" a decision in the
+ROC analysis to see if this affects clonal inference. To do this, we will add a
+condidtional statement to the ROC analysis and ask if p <= alpha OR Ea > 0.85.
+This way, we will be able to correct the p-values that are non-siginficant.
+
+```{r roc_overall_ea, cache = TRUE}
+vals_by_cc_ea <- vals_by_cc %>% mutate(ea = Evennesscc > 0.85)
+Sys.time()
+total_roc_ea <- map_df(alpha, roc, 
+                    vals_by_cc_ea %>% mutate(sexrate = ifelse(sexrate == "1.0000", "R", "NR")) , 
+                    flip = "ea",
+                    compare = c("NR", "R"), stat = "pval", count.na = TRUE,
+                    group = c("mutation_rate", "sexrate", "sample", "clone_correction"))
+total_roc_ea
+
+
+Sys.time()
+roc_overall_ea <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, vals_by_cc_ea, flip = "ea", compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = c("mutation_rate", "sexrate", "sample", "clone_correction"), 
+              stat = "pval"
+             )
+         ) 
+roc_overall_ea
+Sys.time()
+```
+
+```{r roc_by_seed_ea, cache = TRUE}
+seedgroup <- c("mutation_rate", "sexrate", "run", "seed", "sample", "clone_correction")
+Sys.time()
+roc_by_seed_ea <- sex %>% 
+  map_df(.f = map2_df, alpha, 
+         ~roc(.y, vals_by_cc_ea, compare = c(.x, "1.0000"), count.na = TRUE, 
+              group = seedgroup, stat = "pval", flip = "ea"
+             )
+         ) 
+roc_by_seed_ea
+Sys.time()
+```
+
+
+### AURC
+
+Here we calculate the Area Under the ROC Curve using the function `auc()` from
+the package *flux*.
+
+```{r, AURC_calc, cache = TRUE}
+# Calculate ROC over all seeds, produce points
+
+AURC_calc <- . %>%
+  summarize(AURC = auc(`False Positive`, `True Positive`)) %>%
+  ungroup() %>% 
+  mutate(sample = factor(paste("n =", sample), paste("n =", c(10, 25, 50, 100))))
+
+Sys.time()
+AURC_overall <- roc_overall %>% 
+  group_by(sexrate, sample, mutation_rate, clone_correction) %>%
+  AURC_calc
+
+Sys.time()
+# Calculate ROC for each seed separately, produce distributions
+AURC_by_seed <- roc_by_seed %>% 
+  group_by(run, seed, sexrate, sample, mutation_rate, clone_correction) %>%
+  AURC_calc
+
+Sys.time()
+AURC_overall_ea <- roc_overall_ea %>% 
+  group_by(sexrate, sample, mutation_rate, clone_correction) %>%
+  AURC_calc
+
+Sys.time()
+# Calculate ROC for each seed separately, produce distributions
+AURC_by_seed_ea <- roc_by_seed_ea %>% 
+  group_by(run, seed, sexrate, sample, mutation_rate, clone_correction) %>%
+  AURC_calc
+
+Sys.time()
+```
+
+
+## Saving Data
+
+```{r save_ROC_data}
+save(total_roc, roc_overall, roc_by_seed, AURC_overall, AURC_by_seed,
+     total_roc_ea, roc_overall_ea, roc_by_seed_ea, AURC_overall_ea, AURC_by_seed_ea,
+     # g_total_roc, g_roc_overall, g_roc_by_seed, g_AURC_overall, g_AURC_by_seed,
+     file = "../../simulation_results/ma_ROC_data.rda")
+```
+
+
+
+## Session Information
+
+```{r session_info}
+options(width = 100)
+devtools::session_info()
+```

@@ -215,7 +215,7 @@ We should have 80,000 rows in vals. 40,000 for analysis with 20 loci (with a
 mutation rate at 1e-5) and 40,000 for analysis with 21 loci (where the first
 locus has a mutation rate of 1e-3).
 
-```{r, save_data, eval = FALSE}
+```{r, save_data, eval = TRUE}
 save(vals, file = "../../simulation_results/ma_processed_results.rda")
 save(datalist, file = "../../simulation_results/ma_full_results.rda")
 ```
