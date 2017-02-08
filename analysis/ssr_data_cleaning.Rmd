@@ -16,8 +16,8 @@ pre-processing steps
 ## Setup
 
 ```{r, required_packages, message = FALSE}
-library('zksimanalysis') # Main package for analysis
 library('magrittr')      # For the %T>%
+library('zksimanalysis') # Main package for analysis
 library('dplyr')         # Magic data manipulation
 library('tidyr')         # more magic
 library('purrr')         # magic dealing with lists
