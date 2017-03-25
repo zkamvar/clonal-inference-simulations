@@ -1,0 +1,23 @@
+---
+title: "Assessing bias due to reduced sample size"
+output: 
+  html_notebook: default
+  html_document: default
+---
+
+## Introduction
+
+We've shown that clone-correction can reduce the power of $\bar{r}_d$ to detect
+clonal reproduction, but it's also clear that a reduced sample size contributes
+to this as well. To disentangle this, we assess the $\bar{r}_d$ from 1000 
+replicates of *n* samples where *n* is the size of the data set after 
+clone-correction. The data were processed via the `analyze_jackknife_ia.R`
+script. These were saved in the `ma_jack_rda_files/` directory.
+
+
+## Setup
+
+```{r, required_packages}
+library('zksimanalysis')
+```
+
