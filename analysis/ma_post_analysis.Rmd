@@ -22,7 +22,7 @@ This here will load in all of the results of the analyses. These were previously
 processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
 "vals".
 
-```{r, load_data, cache = TRUE, results = "hide", cache.lazy = FALSE}
+```{r, load_data, cache = TRUE, cache.lazy = FALSE}
 system.time({
 res           <- load("../data/ma_processed_results.rda")
 even_mutation <- vals %>% filter(mutation_rate == "even")
@@ -30,7 +30,7 @@ odd_mutation  <- vals %>% filter(mutation_rate == "uneven")
 })
 res
 even_mutation
-odd_mutation
+odd_mutation 
 ```
 
 
@@ -40,9 +40,12 @@ simulations) to look like.
 
 ```{r, quality_control}
 nrow(even_mutation) == 40000
+nrow(even_mutation)
 nrow(odd_mutation) == 40000
+nrow(odd_mutation)
 ```
 
+The numbers are off by a whopping 4 simulations. Overall, I'm okay with this.
 
 ## Visualizations
 
