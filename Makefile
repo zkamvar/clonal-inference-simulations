@@ -16,7 +16,18 @@ all: reports/genomic_data_processing.html \
 # because knitr will automatically assume that the directory in the output file
 # is supposed to be nested inside of the input directory. Using the $(@F) and
 # $(@D) variables prevents this unfortunate behavior!
-reports/%.html: analysis/%.Rmd
-	R --slave -e "rmarkdown::render(input = '$^', \
+reports/%.html: analysis/%.Rmd \
+	data/genomic_rda_files/ \
+	data/rda_files/ \
+	data/diversity_rda_files \
+	data/locus_rda_files \
+	data/locus_contribution_rda_files \
+	data/jack_rda_files/ \
+	data/ma_rda_files/ \
+	data/ma_diversity_rda_files \
+	data/ma_locus_rda_files \
+	data/ma_locus_contribution_rda_files \
+	data/ma_jack_rda_files/
+	R --slave -e "rmarkdown::render(input = '$<', \
 	              output_file = '$(@F)', \
 	              output_dir = '$(@D)')"
