@@ -84,9 +84,16 @@ vals %>%
 #'
 ## ------------------------------------------------------------------------
 vals %>%
-  filter(p.rD > 0.01, sexrate < 0.001) %>%
+  filter(sexrate < 0.001) %>%
   ggplot(aes(x = jack.p.rD, fill = mutation_rate)) +
-  geom_histogram(alpha = 0.5) +
+  geom_histogram(alpha = 0.5, position = "identity") +
+  facet_grid(sexrate~sample, scale = "free_y")
+
+vals %>%
+  filter(sexrate < 0.001, p.rDcc > 0.01) %>%
+  mutate(jack.rd.var = map_dbl(jack.rd, var)) %>%
+  ggplot(aes(x = jack.rd.var, y = jack.p.rD, color = mutation_rate, alpha = p.rDcc)) +
+  geom_point() +
   facet_grid(sexrate~sample, scale = "free_y")
 
 #'
