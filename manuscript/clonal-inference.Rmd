@@ -1032,6 +1032,12 @@ randomly mating [@smith1993how; @tibayrenc1996towards;
 @milgroom1996recombination]. Clone-correction thus should be interpreted
 carefully in light of the fact that clone-correction reduces sample size and
 power is significantly reduced with small sample sizes.
+<!-- TODO: Perform the analyses and make this better -->
+In light of this, we recommend to create an expected distribution of $\bar{r}_d$
+by sub-sampling the data to the number of unique MLGs. If the clone-corrected
+value of $\bar{r}_d$ falls within the distribution, then a rejection of the null
+hypothesis of random mating may be feasible.
+<!-- TODO -->
 
 ### Mutation Rates and $\bar{r}_d$ 
 
