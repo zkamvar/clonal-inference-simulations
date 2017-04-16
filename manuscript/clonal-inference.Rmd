@@ -171,7 +171,12 @@ analysis [@davey2010rad; @davey2011genome; @elshire2011robust]. These methods
 have the capability to generate thousands of unlinked markers at a fraction of
 the cost and time necessary to develop high quality microsatellite markers.
 These marker systems are also prone to missing data and high error rates
-[@mastretta2015restriction]. The index of association was developed for multiple
+[@mastretta2015restriction]. 
+<!-- TODO -->
+Sentence or two about the utility of these markers compared to SSRs for highly
+clonal organisms, citing [@rafiei2017comparison].
+<!-- TODO -->
+The index of association was developed for multiple
 loci at a time when obtaining even 100 unlinked markers posed a significant
 challenge. With the advent of these technologies, it is unclear how marker
 choice and genotyping error affect the index of association.
