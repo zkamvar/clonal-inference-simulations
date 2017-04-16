@@ -1041,9 +1041,9 @@ hypothesis of random mating may be feasible.
 
 ### Mutation Rates and $\bar{r}_d$ 
 
-We assessed the effect of uneven mutation rates across loci, because we had
+We assessed the effect of uneven mutation rates across loci because we had previously
 observed that a single, hyper-variable locus with 18 alleles was the driver for
-most of the diversity observed in a previous study on the population dynamics of
+most of the diversity observed in a study on the population dynamics of
 *Phytophthora ramorum* in Curry County, OR (@kamvar2015spatial, Supplementary
 Table S4). We hypothesized that the high variability would reduce linkage and
 thus, reduce the power of $\bar{r}_d$ to detect clonal reproduction. In
@@ -1124,9 +1124,12 @@ The index of association is a valuable measure for lending support to the
 hypothesis of clonal reproduction in natural populations. We confirm that
 $\bar{r}_d$ can provide evidence for clonal reproduction when there is < 1%
 sexual reproduction within the population [@de2004clonal], but conclude that
-this inference is dependent on sample size and allelic diversity. Thus
-scientists should exercise caution when interpreting results from a 
-clone-corrected data set. We found that this index is robust enough to detect
+this inference is dependent on sample size and allelic diversity. 
+To minimize the effect of sample size on clone-corrected data, we recommend
+analyzing the clone-corrected value of $\bar{r}_d$ against a distribution of 
+$\bar{r}_d$ from data sub-sampled to the same size as the clone-corrected data.
+We found that this index is robust enough to detect
 the same level of clonal reproduction for SNP data, but results from permutation
-analyses may be misleading if linkage is present among markers.
+analyses may be misleading if linkage is present among markers and recommend
+shuffling within linkage groups to assess significance.
 
