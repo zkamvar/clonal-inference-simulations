@@ -81,10 +81,54 @@ Now, let's visualize the "p-value" for each jack knife analysis. This p-value
 represents the fraction of jack-knife simulations less than or equal to the 
 clone-corrected value. 
 
-```{r}
+```{r pval, fig.width = 7, fig.height = 10}
 vals %>%
-  ggplot(aes(x = jack.p.rD, group = mutation_rate)) +
-  geom_histogram(alpha = 0.5) +
-  facet_grid(sexrate~sample)
+  ggplot(aes(x = jack.p.rD, group = mutation_rate, fill = mutation_rate)) +
+  geom_histogram(alpha = 0.5, binwidth = 0.05) +
+  facet_grid(sexrate~sample, scales = "free")
+```
+
+Let's take a look at the values when the pvalue for $\bar{r}_d$ is < 0.05:
+
+```{r pval-sig, fig.width = 7, fig.height = 7}
+vals %>%
+  filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
+  group_by(sexrate, sample) %>%
+  summarize(reject = sprintf("%.2f (%d)", sum(jack.p.rD < 0.05)/n(), n())) %>%
+  spread(sample, reject)
+vals %>%
+  filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
+  ggplot(aes(x = jack.p.rD, group = mutation_rate, fill = mutation_rate)) +
+  geom_histogram(alpha = 0.5, binwidth = 0.05) +
+  facet_grid(sexrate~sample, scales = "free_y")
+```
+
+Yeah, those don't look too good. The graph above is basically saying that we
+would consider most of the clonal populations to be sexually derived because the
+clone-corrected value is lower than the distribution. Of course, this is 
+expecting that the mean value for the distribution is near the observed value of
+the whole data set. This may not be true.
+
+Here, I'm testing to see what happens when we "correct" for this bias by
+shifting the distribution.
+
+```{r pvals-bias, fig.height = 7, fig.width = 7}
+makep <- function(x, y) (sum(x >= y, na.rm = TRUE) + 1)/(length(y) + 1)
+bvals <- vals %>%
+  filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
+  mutate(jack.mean = map_dbl(jack.rd, mean, na.rm = TRUE)) %>%
+  mutate(bias = rbarD - jack.mean) %>%
+  select(bias, jack.mean, everything()) %>%
+  mutate(jack.rdb = map2(jack.rd, bias, `+`)) %>%
+  mutate(jack.p.rDb = map2_dbl(rbarDcc, jack.rdb, makep)) %>%
+  select(bias, jack.p.rD, jack.p.rDb, everything())
+bvals %>%
+  group_by(sexrate, sample) %>%
+  summarize(reject = sprintf("%.2f (%.4f)", sum(jack.p.rDb < 0.05)/n(), median(bias, na.rm = TRUE))) %>%
+  spread(sample, reject)
+bvals %>%
+  ggplot(aes(x = jack.p.rDb, group = mutation_rate, fill = mutation_rate)) +
+  geom_histogram(alpha = 0.5, binwidth = 0.05) +
+  facet_grid(sexrate~sample, scales = "free_y")
 ```
 
