@@ -120,7 +120,7 @@ and Tibshirani by subtracting the observed value from the bootstrap estimate:
 
 $$
 \hat\theta_B = \frac{1}{B} \sum\theta^*\\
-Bias[\hat\theta] = \hat\theta - \hat\theta_B
+Bias[\hat\theta] = \hat\theta_B - \hat\theta
 $$
 
 Once I have the bias, I'm going to compare the bias-corrected value of the
@@ -128,12 +128,19 @@ clone-corrected $\bar{r}_d$ to the null distribution of the full data set. This
 would allow us to see if the reduced sample size affected the data (good example
 from <http://www.stat.umn.edu/geyer/5601/examp/bias.html>).
 
+
+> Note to future Zhian:
+> 
+> The answer may not be as simple as accounting for bias due to sample size, but
+> also bias due to duplicated samples. Perhaps the way to go is to subtract the
+> sum of the biases from the data. 
+
 ```{r pvals-bias, fig.height = 7, fig.width = 7}
 makep <- function(x, y) (sum(x <= y, na.rm = TRUE) + 1)/(length(y) + 1)
 bvals <- vals %>%
   filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
   mutate(jack.mean = map_dbl(jack.rd, mean, na.rm = TRUE)) %>%
-  mutate(bias = rbarD - jack.mean) %>% # calculating bias a la Effron
+  mutate(bias = jack.mean - rbarD) %>% # calculating bias a la Effron
   select(bias, jack.mean, everything()) %>%
   mutate(jack.p.rDb = map2_dbl(rbarDcc - bias, samples.rd, makep)) %>%
   select(bias, jack.p.rD, jack.p.rDb, everything())
