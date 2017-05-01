@@ -77,9 +77,15 @@ vals %>%
   spread(sample, n) %>%
   knitr::kable()
 ```
+
 Now, let's visualize the "p-value" for each jack knife analysis. This p-value
 represents the fraction of jack-knife simulations less than or equal to the 
 clone-corrected value. 
+
+In essence, we are asking the following question:
+
+> Can the clone-corrected value of $\bar{r}_d$ be attributed to a small sample
+> size?
 
 ```{r pval, fig.width = 7, fig.height = 10}
 vals %>%
@@ -109,26 +115,66 @@ clone-corrected value is lower than the distribution. Of course, this is
 expecting that the mean value for the distribution is near the observed value of
 the whole data set. This may not be true.
 
-Here, I'm testing to see what happens when we "correct" for this bias by
-shifting the distribution.
+To correct for this, I'm going to calculate the bias a la Section 10.3 in Efron 
+and Tibshirani by subtracting the observed value from the bootstrap estimate:
+
+$$
+\hat\theta_B = \frac{1}{B} \sum\theta^*\\
+Bias[\hat\theta] = \hat\theta - \hat\theta_B
+$$
+
+Once I have the bias, I'm going to compare the bias-corrected value of the
+clone-corrected $\bar{r}_d$ to bootstrapped distribution, which would tell us
+how many samples provided a value of $\bar{r}_d$ less than the clone-corrected
+value (good example from <http://www.stat.umn.edu/geyer/5601/examp/bias.html>).
 
 ```{r pvals-bias, fig.height = 7, fig.width = 7}
 makep <- function(x, y) (sum(x >= y, na.rm = TRUE) + 1)/(length(y) + 1)
 bvals <- vals %>%
   filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
   mutate(jack.mean = map_dbl(jack.rd, mean, na.rm = TRUE)) %>%
-  mutate(bias = rbarD - jack.mean) %>%
+  mutate(bias = rbarD - jack.mean) %>% # calculating bias a la Effron
   select(bias, jack.mean, everything()) %>%
-  mutate(jack.rdb = map2(jack.rd, bias, `+`)) %>%
-  mutate(jack.p.rDb = map2_dbl(rbarDcc, jack.rdb, makep)) %>%
+  mutate(jack.p.rDb = map2_dbl(rbarDcc - bias, jack.rd, makep)) %>%
   select(bias, jack.p.rD, jack.p.rDb, everything())
-bvals %>%
-  group_by(sexrate, sample) %>%
-  summarize(reject = sprintf("%.2f (%.4f)", sum(jack.p.rDb < 0.05)/n(), median(bias, na.rm = TRUE))) %>%
-  spread(sample, reject)
-bvals %>%
-  ggplot(aes(x = jack.p.rDb, group = mutation_rate, fill = mutation_rate)) +
-  geom_histogram(alpha = 0.5, binwidth = 0.05) +
-  facet_grid(sexrate~sample, scales = "free_y")
 ```
 
+Now we can visualize this as a table of the percentage rejection.
+
+```{r}
+bvals %>%
+  group_by(sexrate, sample) %>%
+  summarize(reject = sprintf("%.2f (%.4f)", 
+                             sum(jack.p.rDb < 0.05)/n(), 
+                             median(bias, na.rm = TRUE))) %>%
+  spread(sample, reject) %>%
+  knitr::kable(digits = 3, caption = "rejected fraction (median bias)")
+```
+
+
+```{r, fig.width = 10, fig.height = 7}
+bvals %>%
+  ggplot(aes(x = jack.p.rDb, group = mutation_rate, fill = mutation_rate)) +
+  geom_density(alpha = 0.5, binwidth = 0.05) +
+  geom_rug(alpha = 0.5) +
+  facet_grid(sexrate~sample, scales = "free_y") +
+  xlab("Fraction of bootstraps <= clone-corrected")
+
+bvals %>%
+  unite(the_group, seed, rep, run, gen) %>%
+  ggplot(aes(x = sexrate, y = bias, fill = mutation_rate)) +
+  geom_line(aes(group = the_group), alpha = 0.2) +
+  geom_boxplot(aes(group = factor(sexrate))) +
+  # geom_point(aes(group = the_group), alpha = 0.2) +
+  facet_grid(sample ~ mutation_rate)
+```
+
+# Conclusions
+
+Clone-correction provides a means of assessing $\bar{r}_d$ without the bias from
+duplicated genotypes (which tends to inflate the statistic) at the cost of bias
+from a decreased sample size. By sub-sampling our data to the number of samples
+equal to the clone-corrected size, we can obtain a distribution that shows us
+how much we expect the effect of a reduced sample size has. We can then 
+correct the clone-corrected value of $\bar{r}_d$ for the bias due to sample size
+and compare that to the expected values.
