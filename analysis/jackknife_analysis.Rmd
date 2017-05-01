@@ -26,7 +26,7 @@ library('zksimanalysis')
 ### Loading Data
 
 ```{r}
-res        <- load("../data/processed_results.rda") # load original values of rd
+res        <- load("../data/full_results.rda") # load original values of rd
 jack_files <- list.files("../data/jack_rda_files/", full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
@@ -124,18 +124,18 @@ Bias[\hat\theta] = \hat\theta - \hat\theta_B
 $$
 
 Once I have the bias, I'm going to compare the bias-corrected value of the
-clone-corrected $\bar{r}_d$ to bootstrapped distribution, which would tell us
-how many samples provided a value of $\bar{r}_d$ less than the clone-corrected
-value (good example from <http://www.stat.umn.edu/geyer/5601/examp/bias.html>).
+clone-corrected $\bar{r}_d$ to the null distribution of the full data set. This
+would allow us to see if the reduced sample size affected the data (good example
+from <http://www.stat.umn.edu/geyer/5601/examp/bias.html>).
 
 ```{r pvals-bias, fig.height = 7, fig.width = 7}
-makep <- function(x, y) (sum(x >= y, na.rm = TRUE) + 1)/(length(y) + 1)
+makep <- function(x, y) (sum(x <= y, na.rm = TRUE) + 1)/(length(y) + 1)
 bvals <- vals %>%
   filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
   mutate(jack.mean = map_dbl(jack.rd, mean, na.rm = TRUE)) %>%
   mutate(bias = rbarD - jack.mean) %>% # calculating bias a la Effron
   select(bias, jack.mean, everything()) %>%
-  mutate(jack.p.rDb = map2_dbl(rbarDcc - bias, jack.rd, makep)) %>%
+  mutate(jack.p.rDb = map2_dbl(rbarDcc - bias, samples.rd, makep)) %>%
   select(bias, jack.p.rD, jack.p.rDb, everything())
 ```
 
@@ -148,17 +148,30 @@ bvals %>%
                              sum(jack.p.rDb < 0.05)/n(), 
                              median(bias, na.rm = TRUE))) %>%
   spread(sample, reject) %>%
-  knitr::kable(digits = 3, caption = "rejected fraction (median bias)")
+  knitr::kable(digits = 3, caption = "Null Hypothesis Rejected (median bias)")
 ```
 
 
 ```{r, fig.width = 10, fig.height = 7}
 bvals %>%
-  ggplot(aes(x = jack.p.rDb, group = mutation_rate, fill = mutation_rate)) +
-  geom_density(alpha = 0.5, binwidth = 0.05) +
+  ggplot(aes(x = p.rDcc, group = mutation_rate, fill = mutation_rate)) +
+  geom_density(alpha = 0.75) +
   geom_rug(alpha = 0.5) +
   facet_grid(sexrate~sample, scales = "free_y") +
-  xlab("Fraction of bootstraps <= clone-corrected")
+  scale_fill_viridis(option = "A", discrete = TRUE) +
+  ggtitle("Clone-censored p-values without bias correction") +
+  xlab("P-value")
+
+
+bvals %>%
+  ggplot(aes(x = jack.p.rDb, group = mutation_rate, fill = mutation_rate)) +
+  geom_density(alpha = 0.75) +
+  geom_rug(alpha = 0.5) +
+  facet_grid(sexrate~sample, scales = "free_y") +
+  scale_fill_viridis(option = "D", discrete = TRUE) +
+  ggtitle("P-values after bias correction of clone-censored data") +
+  xlab("P-value (bias-corrected)")
+
 
 bvals %>%
   unite(the_group, seed, rep, run, gen) %>%
@@ -174,7 +187,13 @@ bvals %>%
 Clone-correction provides a means of assessing $\bar{r}_d$ without the bias from
 duplicated genotypes (which tends to inflate the statistic) at the cost of bias
 from a decreased sample size. By sub-sampling our data to the number of samples
-equal to the clone-corrected size, we can obtain a distribution that shows us
-how much we expect the effect of a reduced sample size has. We can then 
-correct the clone-corrected value of $\bar{r}_d$ for the bias due to sample size
-and compare that to the expected values.
+equal to the clone-corrected size, we can obtain a distribution from which we
+can calculate this bias and further use this to correct our clone-corrected
+estimate. We can then use this corrected estimate to calculate a p-value from
+the distribution derived from the full data set. 
+
+It's clear, however that this is not a one-size-fits-all situation. Indeed, 
+some values are rescued, about half fail to reject the null hypothesis of 
+random mating. We can ask the queston of whether or not the clone-corrected data
+is within the realm of values from jack-knifed samples, but it's clear from 
+above that most of the samples from the jack-knife analysis are biased.
