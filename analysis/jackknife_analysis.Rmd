@@ -43,7 +43,7 @@ gc()
 
 # taking stock of how much data we have
 jackdat %>% filter(!is.na(pop))
-vals
+get(res)
 ```
 
 Note that above, I'm filtering `jackdat` for non-missing populations. I should
@@ -188,6 +188,19 @@ bvals %>%
   # geom_point(aes(group = the_group), alpha = 0.2) +
   facet_grid(sample ~ mutation_rate)
 ```
+
+Well, it turns out that things got worse, folks. Perhaps the answer is that we 
+need to consider the fact that there is over-representation of the clones. If we
+parameterize the resampling procedure by weighting the samples by the value of 
+$P_{sex}$, then we can account for this over-representation. Consider that it is
+possible for a clonal genotype to be identical in state without being identical 
+by descent. This is roughly what $P_{sex}$ measures. When we weight the
+resamplings with $P_{sex}$, it's more likely for us to grab a smaller population
+that's representative of what the underlying genotypes are. We can use that to
+calculate the bias due to smaller sample size and use that to correct the
+clone-corrected estimate.
+
+
 
 # Conclusions
 
