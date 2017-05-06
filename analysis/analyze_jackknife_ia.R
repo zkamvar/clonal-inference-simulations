@@ -8,13 +8,14 @@ returned containing the fraction of jackknife data sets with a value of IA less
 than or equal to that of the clone-corrected data for both IA and rd, the result
 of the jackknife procedure, and the name of the population.
 
-Usage: analyze_jackknife_ia.R [-dvm -s SEED -p PERMUTATIONS -o PATH] [FILE...]
+Usage: analyze_jackknife_ia.R [-dvmP -s SEED -p PERMUTATIONS -o PATH] [FILE...]
 
 Options:
  -h,--help                                    show this message and exit
  -v,--verbose                                 record progress
  -d,--debug                                   record EVERYTHING
  -m,--mutant                                  flag for indicating single mutant locus. If this is flagged, two analyses are run.
+ -P, --psex                                   weight samples by psex (passed to jack.ia() in poppr > 2.4.1)
  -s SEED,--seed=SEED                          random seed [default: 20160909]
  -p PERMUTATIONS,--permutations=PERMUTATIONS  number of permutations for the index of association [default: 99]
  -o PATH,--output=PATH                        default path to place Rdata files [default: ~/jackknife_rda_files]
@@ -61,6 +62,7 @@ tidy_no_first_locus <- function(x, ...){
   tidy_jackia(x[loc = -1, mlg.reset = TRUE], ...)
 }
 
+
 # For each file we will
 # 1. Load the file into R (since it will be an Rda file)
 # 2. Select the dataset column
@@ -77,7 +79,9 @@ for (f in opt$FILE){
     apply(1, listfun, tidy_jackia,
           reps = opt$permutations,
           verbose = opt$debug,
-          quiet = !opt$verbose) %>%
+          quiet = !opt$verbose,
+          use_psex = opt$psex,     # Note: if poppr's version is not > 2.4.1,
+          method = "multiple") %>% # then this will fail.
     bind_rows()
   if (opt$mutant){
     if (opt$verbose) message(paste("Analyzing populations without first locus ... "))
@@ -88,7 +92,9 @@ for (f in opt$FILE){
       apply(1, listfun, tidy_no_first_locus,
           reps = opt$permutations,
           verbose = opt$debug,
-          quiet = !opt$verbose) %>%
+          quiet = !opt$verbose,
+          use_psex = opt$psex,     # Note: if poppr's version is not > 2.4.1,
+          method = "multiple") %>% # then this will fail.
       bind_rows()
   }
   outf <- gsub(".DATA", ".jackia", basename(f))
