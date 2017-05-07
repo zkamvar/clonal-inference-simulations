@@ -11,8 +11,9 @@ clonal reproduction, but it's also clear that a reduced sample size contributes
 to this as well. To disentangle this, we assess the $\bar{r}_d$ from 1000 
 replicates of *n* samples where *n* is the size of the data set after 
 clone-correction. The data were processed via the `analyze_jackknife_ia.R`
-script. These were saved in the `jack_rda_files/` directory.
+script. These were saved in the `ma_jack_rda_files/` directory.
 
+> Note: this is the same analysis, utilizing more simulated alleles.
 
 ## Setup
 
@@ -26,8 +27,8 @@ library('zksimanalysis')
 ### Loading Data
 
 ```{r}
-res        <- load("../data/full_results.rda") # load original values of rd
-jack_files <- list.files("../data/jack_rda_files/", full.names = TRUE) # load jackknife simulations
+res        <- load("../data/ma_full_results.rda") # load original values of rd
+jack_files <- list.files("../data/ma_jackrda_files/", full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
 for (i in jack_files){
@@ -211,7 +212,7 @@ gc()
 Now, I can load in the new results:
 
 ```{r, jack_psex}
-jack_files <- list.files("../data/jack_psex_rda_files/", full.names = TRUE) # load jackknife simulations
+jack_files <- list.files("../data/ma_jackpsex_rda_files/", full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
 for (i in jack_files){

@@ -11,3 +11,8 @@ data. It can be downloaded from the CGRB server with:
 Note that the `XXXXX` must be replaced with the proper port number.
 
 The scripts in `analysis/` will read and write to this directory.
+
+### Note
+
+I started this project saving the results in a directory outside of this 
+repository. I have since been creating soft-links to the files.
