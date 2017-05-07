@@ -193,9 +193,9 @@ xsim
 Now, let's look at the values of $\bar{r}_d$:
 
 ```{r, datrd}
-barplot(c(sexual = bitwise.ia(xdat), 
-          clonal = bitwise.ia(ydat),
-          simulated = bitwise.ia(xsim)), log = "y", ylab = "log index of association")
+barplot(c(sexual = bitwise.ia(xdat, threads = 1L), 
+          clonal = bitwise.ia(ydat, threads = 1L),
+          simulated = bitwise.ia(xsim, threads = 1L)), log = "y", ylab = "log index of association")
 ```
 
 We can clearly see that the value of $\bar{r}_d$ is different between the sexual
@@ -204,9 +204,9 @@ dendrograms produced will give us a good idea:
 
 ```{r, dendrogrammin}
 library('ape')
-xdat %>% bitwise.dist() %>% nj() -> sexdist
-ydat %>% bitwise.dist() %>% nj() -> clonedist
-xsim %>% bitwise.dist() %>% nj() -> simdist
+xdat %>% bitwise.dist(threads = 1L) %>% nj() -> sexdist
+ydat %>% bitwise.dist(threads = 1L) %>% nj() -> clonedist
+xsim %>% bitwise.dist(threads = 1L) %>% nj() -> simdist
 par(mfrow = c(1, 3))
 plot(sexdist, main = "Sexual")
 add.scale.bar(x = 0.1, y = -0.1, lcol = "red", length = 0.05)
@@ -222,9 +222,9 @@ Okay, that clears things up a little bit. The simulated population has a LOT of
 variance. When happens to our populations if we shuffle them?
 
 ```{r, dendrogrammin_2_electric_boogaloo}
-xdat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> sexdist
-ydat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> clonedist
-xsim %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist() %>% nj() -> simdist
+xdat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist(threads = 1L) %>% nj() -> sexdist
+ydat %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist(threads = 1L) %>% nj() -> clonedist
+xsim %>% shuffle_genlight(mat = as.matrix(.), x = ., blocksize = 1) %>% bitwise.dist(threads = 1L) %>% nj() -> simdist
 par(mfrow = c(1, 3))
 plot(sexdist, main = "Sexual")
 add.scale.bar(x = 0.05, y = -0.1, lcol = "red", length = 0.05)
