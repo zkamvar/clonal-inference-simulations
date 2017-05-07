@@ -28,7 +28,7 @@ library('zksimanalysis')
 
 ```{r}
 res        <- load("../data/ma_full_results.rda") # load original values of rd
-jack_files <- list.files("../data/ma_jackrda_files/", full.names = TRUE) # load jackknife simulations
+jack_files <- list.files("../data/ma_jack_rda_files/", full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
 for (i in jack_files){
