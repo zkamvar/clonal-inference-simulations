@@ -212,7 +212,7 @@ gc()
 Now, I can load in the new results:
 
 ```{r, jack_psex}
-jack_files <- list.files("../data/ma_jackpsex_rda_files/", full.names = TRUE) # load jackknife simulations
+jack_files <- list.files("../data/ma_jack_psex_rda_files/", full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
 for (i in jack_files){
