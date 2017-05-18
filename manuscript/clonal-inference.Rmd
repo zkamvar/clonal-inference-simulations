@@ -682,7 +682,17 @@ sumsq = sum of squares, df = degrees of freedom, statistic = F statistic,
 p.value = p-value, Terms are as follows: CC = Clone Correction, SS = Sample
 Size, MR = Mutation Rate.
 
-
+When we tested the effect of reduced sample size on clone-corrected estimates,
+we assessed the cases where the p-value of the clone-corrected $\bar{r}_d$ was
+both lower than that of the observed data and non-significant at 
+$\alpha = 0.05$. Of these cases, using the non-parametric approach, only those
+data with a total sample size of 10 had a majority (> 75%) of cases that could
+be attributed to reduced sample size across all levels of sexual reproduction 
+less than one (Supplementary Materials). Populations with larger starting sample
+sizes tended to show that the majority of cases could not be attributed to
+change in sample size. In stark contrast, using the parametric approach revealed
+no cases that could not be attributed to small sample size, many with a p-value
+greater than 0.5 (Supplementary Materials). 
 
 ### Negative Values of $\bar{r}_d$ in Clonal Populations Correlated With Low Allelic Diversity
 
@@ -1038,23 +1048,43 @@ if the result is significant with and without clone-correction, then there is
 strong evidence for clonal reproduction. This technique was used by Goss et al.
 to support the hypothesis that South American populations of the potato late
 blight pathogen, *Phytophthora infestans* were reproducing clonally
-[-@goss2014irish]. Our findings show that a non-significant value does not
+[-@goss2014irish]. 
+
+Our findings show that a non-significant value does not
 necessarily indicate the absence of clonal reproduction since the power to
 detect clonal reproduction consistently decreases with clone-correction(Fig.
-\@ref(fig:sim2), \@ref(fig:sim2a)). Our results confirm the concerns raised in
+\@ref(fig:sim2), \@ref(fig:sim2a)). This is clearly demonstrated when comparing
+the values of $\bar{r}_d$ from an epidemic population of the Sudden Oak Death
+pathogen, *Phytophthora ramorum* in the Joe Hall Creek watershed in Curry
+County, OR [@kamvar2015spatial]. The value of $\bar{r}_d$ for all 244 isolates
+is 0.103, whereas that of the 30 unique genotypes is but 0.014 with a p-value
+hovering around 0.29. This is a pathogen that's known to be clonal, but if all
+we did was assess the index of association on the clone-corrected estimate, we 
+would conclude otherwise. 
+
+While it would be intuitive to think that one could assess the effect of small
+sample sizes by sub-sampling the original data, our results show that this is
+still inconclusive. Sub-sampling data non-parametrically often created a
+distribution with a large variance with a mean often slightly greater than the
+observed statistic. Many times, the clone-corrected estimate fell in the lower
+5% of the distribution. On the other hand, the clone-corrected estimate always
+fell within the parametric sub-sampled distribution, where the variance was
+often smaller and the mean closer to the clone-corrected data. We attribute this
+to the effect of the weighting scheme where, because the samples were weighted
+by $p_{sex}$, we're most likely to get a random sample of mostly unique
+genotypes. Because $p_{sex}$ decreases rapidly with each additional genotype, we
+might consider this sub-sampling method to be representative of the underlying
+population structure.
+
+Our results confirm the concerns raised in
 @tibayrenc1996towards of the increase of false negatives due to 
 clone-correction, further highlighting the fact that a failure to reject the
 null hypothesis of random mating does not necessarily mean that the population
 is randomly mating [@smith1993how; @tibayrenc1996towards;
 @milgroom1996recombination]. Clone-correction thus should be interpreted
-carefully in light of the fact that clone-correction reduces sample size and
-power is significantly reduced with small sample sizes.
-<!-- TODO: Perform the analyses and make this better -->
-In light of this, we recommend to create an expected distribution of $\bar{r}_d$
-by sub-sampling the data to the number of unique MLGs. If the clone-corrected
-value of $\bar{r}_d$ falls within the distribution, then a rejection of the null
-hypothesis of random mating may be feasible.
-<!-- TODO -->
+carefully, especially with haploid organisms in light of the fact that clone-
+correction reduces sample size and power is significantly reduced with small
+sample sizes.
 
 ### Mutation Rates and $\bar{r}_d$ 
 
