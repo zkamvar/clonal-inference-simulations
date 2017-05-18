@@ -279,6 +279,23 @@ where *m* is the number of loci and $E_{5l}$ is the evenness of the alleles at
 locus *l* with the *poppr* function `locus_table()` [@grunwald2003analysis;
 @kamvar2014poppr].
 
+The process of clone-correction necessarily reduces sample size and has the
+effect of reducing the value off $\bar{r}_d$, but it is not clear whether this
+effect is a result of removing bias due to repeated genotypes or if it is the
+result of adding bias by reducing sample size. We hypothesized that if the
+clone-corrected estimate of $\bar{r}_d$ was significantly lower than re-sampled
+data sets of the same size, then we could conclude that sample size did not
+significantly affect the estimate.
+
+We assessed this by randomly sub-sampling *n* individuals from the data 999
+times where *n* represents the number of unique multilocus genotypes. This was
+performed twice for each data set, first sub-sampling without replacement where
+each sample had the same probability of being selected, then sub-sampling
+without replacement, weighting each sample with the probability of sampling the
+*n*th encounter of a given genotype by chance ($p_{sex}$) [@arnaud2006genclone;
+@arnaud2007standardizing]. A one-sided test of significance was then performed
+to assess the fraction of re-sampled data sets that were less than or equal to
+the clone-corrected value of $\bar{r}_d$.
 
 ### Analysis of SNP Data
 
@@ -1025,10 +1042,10 @@ blight pathogen, *Phytophthora infestans* were reproducing clonally
 necessarily indicate the absence of clonal reproduction since the power to
 detect clonal reproduction consistently decreases with clone-correction(Fig.
 \@ref(fig:sim2), \@ref(fig:sim2a)). Our results confirm the concerns raised in
-@tibayrenc1996towards of the increase of false negatives due to clone-
-correction, further highlighting the fact that a failure to reject the null
-hypothesis of random mating does not necessarily mean that the population is
-randomly mating [@smith1993how; @tibayrenc1996towards;
+@tibayrenc1996towards of the increase of false negatives due to 
+clone-correction, further highlighting the fact that a failure to reject the
+null hypothesis of random mating does not necessarily mean that the population
+is randomly mating [@smith1993how; @tibayrenc1996towards;
 @milgroom1996recombination]. Clone-correction thus should be interpreted
 carefully in light of the fact that clone-correction reduces sample size and
 power is significantly reduced with small sample sizes.
