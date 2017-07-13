@@ -1,11 +1,48 @@
-# Factors Influencing Inference of Clonality in Diploid Populations
+---
+title: 'Factors Influencing Inference of Clonality in Diploid Populations'
+author:
+- Zhian N. Kamvar
+- Niklaus J. Grünwald
+institute: ["Oregon State University", "USDA-ARS Horticultural Research Service"]
+date: '`r Sys.Date()`'
+output:
+   bookdown::word_document2:
+    # keep_tex: true
+bibliography: main_bibliography.bib
+csl: molecular-ecology.csl
+abstract: |
+  The index of association is a measure of multilocus linkage disequilibrium,
+  which reflects the deviation of observed genetic variation from expected. In
+  sexual populations, loci are randomly assorting due to recombination, resulting
+  in a near-zero value of the index of association. In clonal populations,
+  recombination is non-existent, meaning that loci are passed from parent to
+  offspring in a non-independent fashion, resulting in a significantly non-zero
+  value of the index of association. We build on previous work by investigating
+  the effect of sample size, mutation rate, and clone correction on the power of
+  the index of association to detect clonal reproduction in simulated data sets
+  generated with microsatellite and genomic markers. Our findings suggest that
+  power decreases with small sample sizes and low allelic diversity, and physical
+  linkage in genomic markers does not affect power if permutation tests are
+  performed with linkage groups. We hope that these novel insights provide useful
+  to the study of molecular pathogens.
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+if (!require("here")) install.packages("here", repos = "https://cran.rstudio.com")
+# evaluate fig.cap after a chunk is evaluated
+knitr::opts_knit$set(eval.after = c('fig.cap', 'fig.scap'))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+LATEX <- TRUE # knitr::opts_knit$get("rmarkdown.pandoc.to") == "latex"
+TO <- "latex"
+```
+
 
 ```{r, results = "asis", echo = FALSE}
 out <- "
 \\singlespacing
 \\begin{center}
 "
-cat(beaverdown::iflatex(out))
+# cat(beaverdown::iflatex(out))
 ```
 
 
@@ -16,7 +53,7 @@ Zhian N. Kamvar and Niklaus J. Grünwald
 out <- "
 \\end{center}
 \\vspace*{\\fill}"
-cat(beaverdown::iflatex(out))
+# cat(beaverdown::iflatex(out))
 ```
 
 Target Journal: **Molecular Ecology**
@@ -26,11 +63,11 @@ out <- "
 \\doublespacing
 \\newpage
 "
-cat(beaverdown::iflatex(out))
+# cat(beaverdown::iflatex(out))
 ```
 
 
-## Abstract
+<!-- ## Abstract 
 
 The index of association is a measure of multilocus linkage disequilibrium,
 which reflects the deviation of observed genetic variation from expected. In
@@ -46,8 +83,9 @@ power decreases with small sample sizes and low allelic diversity, and physical
 linkage in genomic markers does not affect power if permutation tests are
 performed with linkage groups. We hope that these novel insights provide useful
 to the study of molecular pathogens.
+-->
 
-## Introduction
+# Introduction
 
 Population genetic theory is largely based on model populations such as the
 neutral Wright-Fisher model in which populations are assumed to be infinitely
@@ -197,7 +235,7 @@ $\geq$ 0.95), we additionally seek to determine what factors result in negative
 $\bar{r}_d$ values. This work provides novel insights into the sensitivity and
 scope of the index of association for inferring clonality.
 
-## Methods
+# Methods
 
 We used simulations to evaluate the behavior of $\bar{r}_d$ under different
 population scenarios. Initial sets of simulations were created for different
@@ -220,7 +258,7 @@ sampled without replacement for each replicate in R version 3.2 with the package
 (described below) were performed on both full and clone-corrected data sets. All
 downstream analyses were run on the OSU CGRB Core Computing Facility.
 
-### Simulating Microsatellite Loci
+## Simulating Microsatellite Loci
 
 Each population was simulated with 21 co-dominant, unlinked loci containing 6 to
 10 alleles per locus with frequencies drawn from a uniform distribution and
@@ -234,7 +272,7 @@ The mutation rate of 1e-5 was selected as this was previously used in
 cerevisiae* microsatellite loci [@lynch2008genome]. All mutations were applied
 in a stepwise manner using the `StepwiseMutator()` operator in simuPOP.
 
-### Simulating SNP Loci
+## Simulating SNP Loci
 
 Simulations of 10,000 diploid, biallelic loci spread evenly over 10 chromosomal
 fragments were simulated with a mutation rate of 1e-5 mutations per generation
@@ -242,7 +280,7 @@ for forward and backward mutations using the `SNPMutator()` operator and and a
 recombination rate of 0.01 between adjacent loci using the `Recombinator()`
 operator in simuPOP.
 
-### Mating
+## Mating
 
 Simulations of sexual reproduction were conducted at 10 rates of sexual
 reproduction over a log scale (0.0, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 0.1, 
@@ -257,7 +295,7 @@ duplicating their genotypes with the `CloneGenoTransmitter()` operator. If one
 mating type was lost before 10,000 generations, the simulation would continue to
 completion with only clonal reproduction.
 
-### Analysis of Microsatellite Data
+## Analysis of Microsatellite Data
 
 The standardized index of association ($\bar{r}_d$, @Agapow_2001) was calculated
 for full and clone-corrected data using the *poppr* function `ia()`
@@ -297,7 +335,7 @@ without replacement, weighting each sample with the probability of sampling the
 to assess the fraction of re-sampled data sets that were less than or equal to
 the clone-corrected value of $\bar{r}_d$.
 
-### Analysis of SNP Data
+## Analysis of SNP Data
 
 The overall value of $\bar{r}_d$ was calculated for each simulation with the
 *poppr* function `bitwise.ia()` [@kamvar2015novel]. Significance was first
@@ -313,7 +351,7 @@ written for @kamvar2015novel to randomly insert missing data via the `pop_NA()`
 function [@kamvar2015poppr2supp] at rates of 1%, 5%, and 10% each.
 
 
-### Power Analysis
+## Power Analysis
 
 Permutation analysis of the index of association is commonly used to calculate
 statistical support for detecting non-random mating. If the observed value of
@@ -396,9 +434,9 @@ this, we conducted an additional ROC analysis to condition p-values on $E_{5A}$
 such that non-significant values that also had $E_{5A} \geq 0.85$ would be 
 considered significant.
 
-## Results
+# Results
 
-### Clone Correction Negatively Impacts Clonal Inference
+## Clone Correction Negatively Impacts Clonal Inference
 
 For microsatellite data, the values of $\bar{r}_d$ for completely clonal and
 nearly clonal populations ranged from -0.577 to 1 in completely clonal data sets
@@ -425,63 +463,95 @@ to 0.05% and 0.1% sex. This appears to be due to the observed negative values of
 $\bar{r}_d$ that result in a p-value of 1. At p <= 0.01, we observe a false
 positive rate of 1.5% in the worst case scenario.
 
-```{r sim1, echo = FALSE, fig.cap = figcap1, fig.scap = figscap1}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/rd_sexrate.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/rd_sexrate.png")
-}
 
-cap <- "Effect of rate of sexual reproduction, sample size (n), mutation rate, and
-clone-correction on $\\bar{r}_d$ for microsatellite data. Violin plots represent
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate, and
+clone-correction on $\bar{r}_d$ for microsatellite data. Violin plots represent
 data sets simulated with even and uneven mutation rates over 20 and 21 loci,
 respectively (columns) and sub-sampled in four different population sizes
 (rows). Color indicates whether or not the calculations were performed on whole
 or clone-corrected data sets. Each violin plot contains 1000 unique data sets.
-Black lines in violins mark the 25, 50, and 75th percentile."
+Black lines in violins mark the 25, 50, and 75th percentile.
+](figure/rd_sexrate.pdf){#fig:sim1 width=100%} 
 
-scap <- "Effect of rate of sexual reproduction, sample size, mutation rate, and 
-clone-correction on $\\bar{r}_d$ for microsatellite data."
-
-figcap1  <- beaverdown::render_caption(caption = cap, figname = "fig1", to = TO)
-if (!LATEX) figcap1 <- gsub("@ref", "\\\\@ref", figcap1)
-figscap1 <- beaverdown::render_caption(caption = scap, figname = "fig1s", to = TO)
+<!-- ```{r sim1, echo = FALSE, fig.cap = figcap1, fig.scap = figscap1}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/rd_sexrate.png"))
+# }
+# 
+# cap <- "Effect of rate of sexual reproduction, sample size (n), mutation rate, and
+# clone-correction on $\\bar{r}_d$ for microsatellite data. Violin plots represent
+# data sets simulated with even and uneven mutation rates over 20 and 21 loci,
+# respectively (columns) and sub-sampled in four different population sizes
+# (rows). Color indicates whether or not the calculations were performed on whole
+# or clone-corrected data sets. Each violin plot contains 1000 unique data sets.
+# Black lines in violins mark the 25, 50, and 75th percentile."
+# 
+# scap <- "Effect of rate of sexual reproduction, sample size, mutation rate, and 
+# clone-correction on $\\bar{r}_d$ for microsatellite data."
+# 
+# figcap1  <- beaverdown::render_caption(caption = cap, figname = "fig1", to = TO)
+# if (!LATEX) figcap1 <- gsub("@ref", "\\\\@ref", figcap1)
+# figscap1 <- beaverdown::render_caption(caption = scap, figname = "fig1s", to = TO)
 ```
-
-```{r simdiv, echo = FALSE, fig.cap = figcapdiv, fig.scap = figscapdiv}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/diversity_stats.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/diversity_stats.png")
-}
-
-cap <- "Effect rate of sexual reproduction and sample size (n) on genotypic and
+-->
+![
+Effect rate of sexual reproduction and sample size (n) on genotypic and
 allelic diversity for microsatellite data. Genotypic diversity: 
 H = Shannon-Wiener index, $E_5$ = evenness, G = Stoddart and Taylor's index.
 Allelic Diversity: $E_{5A}$ = allelic evenness, $H_{exp}$ = Nei's expected
 heterozygosity (gene diversity). Allelic diversity estimates calculated for
 clone-corrected data. Points indicate means and lines extend to to standard
 deviations on either side of the mean. Color/shading indicates sample size.
-Vertical axis on different scales."
+Vertical axis on different scales.
+](figure/diversity_stats.pdf){#fig:simdiv width=100%}
 
-figscapdiv <- "The effect rate of sexual reproduction and sample size on
-genotypic and allelic diversity for microsatellite data."
+<!-- ```{r simdiv, echo = FALSE, fig.cap = figcapdiv, fig.scap = figscapdiv}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/diversity_stats.png"))
+# }
+# 
+# cap <- "Effect rate of sexual reproduction and sample size (n) on genotypic and
+# allelic diversity for microsatellite data. Genotypic diversity: 
+# H = Shannon-Wiener index, $E_5$ = evenness, G = Stoddart and Taylor's index.
+# Allelic Diversity: $E_{5A}$ = allelic evenness, $H_{exp}$ = Nei's expected
+# heterozygosity (gene diversity). Allelic diversity estimates calculated for
+# clone-corrected data. Points indicate means and lines extend to to standard
+# deviations on either side of the mean. Color/shading indicates sample size.
+# Vertical axis on different scales."
+# 
+# figscapdiv <- "The effect rate of sexual reproduction and sample size on
+# genotypic and allelic diversity for microsatellite data."
+# 
+# figcapdiv  <- beaverdown::render_caption(caption = cap, figname = "figdiv", to = TO)
+# if (!LATEX) figcapdiv <- gsub("@ref", "\\\\@ref", figcapdiv)
+# ```
+# ```{r, results = "asis", echo = FALSE}
+# out <- "
+# \\newpage
+# "
+# # cat(beaverdown::iflatex(out))
+``` -->
 
-figcapdiv  <- beaverdown::render_caption(caption = cap, figname = "figdiv", to = TO)
-if (!LATEX) figcapdiv <- gsub("@ref", "\\\\@ref", figcapdiv)
-```
-```{r, results = "asis", echo = FALSE}
-out <- "
-\\newpage
-"
-cat(beaverdown::iflatex(out))
-```
 
-```{r sim4, echo = FALSE, fig.cap = figcap3, fig.scap = figscap3, out.width = "100%"}
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate,
+and clone-correction on the power of permutation analysis for microsatellite
+data. Power (true positive rate) is on the vertical axis. Values are shown for p
+= 0.01. Plots are arranged in a grid with clone-correction in rows and mutation
+rate in columns. Color indicates sample size.
+](figure/ssr_power.pdf){#fig:sim4 width=100%}
+
+
+<!-- ```{r sim4, echo = FALSE, fig.cap = figcap3, fig.scap = figscap3, out.width = "100%"}
 if (LATEX){
-	knitr::include_graphics("figure/simulations/ssr_power.pdf")
+	
 } else {
-	knitr::include_graphics("figure/simulations/ssr_power.png")
+	knitr::include_graphics(here::here("manuscript/figure/ssr_power.png"))
 }
 
 figcap3 <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
@@ -493,35 +563,45 @@ rate in columns. Color indicates sample size."
 figscap3 <- "Effect of rate of sexual reproduction, sample size, mutation rate,
 and clone-correction on the power of permutation analysis for microsatellite
 data."
-```
+``` -->
 
-```{r simroc, echo = FALSE, fig.cap = figcaproc, fig.scap = figscaproc}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/ROC_Curve.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/ROC_Curve.png")
-}
-
-figcaproc <- "Effect of rate of sexual reproduction, sample size (n), mutation
+![
+Effect of rate of sexual reproduction, sample size (n), mutation
 rate, clone-correction, and $E_{5A}$ augmentation on ROC analysis of 
-$\\bar{r}_d$. Rate of sexual reproduction arranged in rows. Clone corrected (cc)
+$\bar{r}_d$. Rate of sexual reproduction arranged in rows. Clone corrected (cc)
 and whole (wd) data sets with even and uneven mutation rates arranged in
 columns. Line type indicates the use of $E_{5A}$ > 0.85 to augment the analysis.
 Line shade indicates sample size. A dotted line of unity is shown in each plot.
-Each ROC curve is calculated over 100 values of $\\alpha$ from 0 to 1."
+Each ROC curve is calculated over 100 values of $\alpha$ from 0 to 1.
+](figure/ROC_Curve.pdf){#fig:simroc width=100%}
 
-figcaproc  <- beaverdown::render_caption(caption = figcaproc, figname = "fig1", to = TO)
-figscaproc <- "Effect of rate of sexual reproduction, sample size, mutation
-rate, clone-correction, and $E_{5A}$ augmentation on ROC analysis of 
-$\\bar{r}_d$."
-figscaproc  <- beaverdown::render_caption(caption = figscaproc, figname = "fig1", to = TO)
-```
+<!-- ```{r simroc, echo = FALSE, fig.cap = figcaproc, fig.scap = figscaproc}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/ROC_Curve.png"))
+# }
+# 
+# figcaproc <- "Effect of rate of sexual reproduction, sample size (n), mutation
+# rate, clone-correction, and $E_{5A}$ augmentation on ROC analysis of 
+# $\\bar{r}_d$. Rate of sexual reproduction arranged in rows. Clone corrected (cc)
+# and whole (wd) data sets with even and uneven mutation rates arranged in
+# columns. Line type indicates the use of $E_{5A}$ > 0.85 to augment the analysis.
+# Line shade indicates sample size. A dotted line of unity is shown in each plot.
+# Each ROC curve is calculated over 100 values of $\\alpha$ from 0 to 1."
+# 
+# figcaproc  <- beaverdown::render_caption(caption = figcaproc, figname = "fig1", to = TO)
+# figscaproc <- "Effect of rate of sexual reproduction, sample size, mutation
+# rate, clone-correction, and $E_{5A}$ augmentation on ROC analysis of 
+# $\\bar{r}_d$."
+# figscaproc  <- beaverdown::render_caption(caption = figscaproc, figname = "fig1", to = TO)
+``` -->
 
 ```{r, results = "asis", echo = FALSE}
 out <- "
 \\newpage
 "
-cat(beaverdown::iflatex(out))
+# cat(beaverdown::iflatex(out))
 ```
 
 The ROC and AURC analyses showed a steady decrease in the ability to detect non-
@@ -543,52 +623,67 @@ which is not seen in the interaction of clone correction and sample size. Only
 at sex rates of 0.1% and 0.05% do we see significant effects across all
 interactions.
 
-```{r sim2, echo = FALSE, fig.cap = figcap2, fig.scap = figscap2}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/AURC_box_plot.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/AURC_box_plot.png")
-}
-
-figcap2 <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate,
 and clone-correction on area under the ROC curve. Box plots showing the
 distribution of the AURC for each independent seed. Boxes span the interquartile
 range (IQR) and the whiskers extend to 1.5 * IQR. An AURC of 1 indicates a
 perfect classifier, while an AURC of 0.5 indicates the classifier is no better
 than a random guess. Any values below 0.5 (shaded in grey) are considered worse
-than random."
+than random.
+](figure/AURC_box_plot.pdf){#fig:sim2 width=100%}
 
-figscap2 <- "Effect of rate of sexual reproduction, sample size, mutation
-rate, and clone-correction on area under the ROC curve."
-```
+<!-- ```{r sim2, echo = FALSE, fig.cap = figcap2, fig.scap = figscap2}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/AURC_box_plot.png"))
+# }
+# 
+# figcap2 <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
+# and clone-correction on area under the ROC curve. Box plots showing the
+# distribution of the AURC for each independent seed. Boxes span the interquartile
+# range (IQR) and the whiskers extend to 1.5 * IQR. An AURC of 1 indicates a
+# perfect classifier, while an AURC of 0.5 indicates the classifier is no better
+# than a random guess. Any values below 0.5 (shaded in grey) are considered worse
+# than random."
+# 
+# figscap2 <- "Effect of rate of sexual reproduction, sample size, mutation
+# rate, and clone-correction on area under the ROC curve."
+``` -->
 
 ```{r, results = "asis", echo = FALSE}
 out <- "
 \\newpage
 "
-cat(beaverdown::iflatex(out))
+# cat(beaverdown::iflatex(out))
 ```
 
-
-
-```{r sim3, echo = FALSE, fig.cap = figcap3, fig.scap = figscap3, out.width = "100%"}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/AURC_ANOVA.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/AURC_ANOVA.png")
-}
-
-figcap3 <- "P-values from ANOVA analysis assessing AURC distributions with the 
-model $AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$
+![
+P-values from ANOVA analysis assessing AURC distributions with the 
+model $AURC \sim Clone Correction \times Sample Size \times Mutation Rate$
 for each rate of sexual reproduction, separately. P-values are represented both
-as colors and numbers."
+as colors and numbers.
+](figure/AURC_ANOVA.pdf){#fig:sim3 width=100%}
 
-figcap3  <- beaverdown::render_caption(caption = figcap3, figname = "fig1", to = TO)
-figscap3 <- "P-values from ANOVA analysis assessing AURC distributions with the 
-model $AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$
-for each rate of sexual reproduction, separately."
-figcap3  <- beaverdown::render_caption(caption = figscap3, figname = "fig1", to = TO)
-```
+<!-- ```{r sim3, echo = FALSE, fig.cap = figcap3, fig.scap = figscap3, out.width = "100%"}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/AURC_ANOVA.png"))
+# }
+# 
+# figcap3 <- "P-values from ANOVA analysis assessing AURC distributions with the 
+# model $AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$
+# for each rate of sexual reproduction, separately. P-values are represented both
+# as colors and numbers."
+# 
+# figcap3  <- beaverdown::render_caption(caption = figcap3, figname = "fig1", to = TO)
+# figscap3 <- "P-values from ANOVA analysis assessing AURC distributions with the 
+# model $AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$
+# for each rate of sexual reproduction, separately."
+# figcap3  <- beaverdown::render_caption(caption = figscap3, figname = "fig1", to = TO)
+``` -->
 
 
 sexrate   term             sumsq     df    statistic   p.value
@@ -694,7 +789,7 @@ change in sample size. In stark contrast, using the parametric approach revealed
 no cases that could not be attributed to small sample size, many with a p-value
 greater than 0.5 (Supplementary Materials). 
 
-### Negative Values of $\bar{r}_d$ in Clonal Populations Correlated With Low Allelic Diversity
+## Negative Values of $\bar{r}_d$ in Clonal Populations Correlated With Low Allelic Diversity
 
 When using the criterion of $E_{5A} \geq 0.85$ to augment the criteria for the 
 ROC analysis, we found that the power to detect non-random mating increased
@@ -703,63 +798,88 @@ low sample sizes (Fig. \@ref(fig:sim4a), \@ref(fig:sim2a)). Analyzing the
 distributions of the AURC with ANOVA, we found that the most consistently
 significant effect found was that of sample size (Fig. \@ref(fig:sim3a), Tab.
 \@ref(tab:sim4)) (albeit much like Fig. \@ref(fig:sim3), all effects and
-interactions were significant for 0.1% and 0.05% sex).
+interactions were significant for 0.1% and #figure/ssr_power_ea.pdf){width=100%}`{r sim4a, echo = FALSE, fig. 0.05% sex).
 
-```{r sim4a, echo = FALSE, fig.cap = figcap3, fig.scap = figscap3, out.width = "100%"}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/ssr_power_ea.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/ssr_power_ea.png")
-}
-
-figcap3 <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate,
 and clone-correction on the power of permutation analysis for microsatellite
 data taking into account allelic evenness. Plots are arranged in a grid with
 clone-correction in rows and mutation rate in columns. Values are shown for
-$\\alpha$ = 0.01 and $E_{5A} \\geq 0.85$"
-figcap3  <- beaverdown::render_caption(caption = figcap3, figname = "fig1", to = TO)
-figscap3 <- "Effect of rate of sexual reproduction, sample size, mutation rate,
-and clone-correction on the power of permutation analysis for microsatellite
-data taking into account allelic evenness."
-```
+$\alpha$ = 0.01 and $E_{5A} \geq 0.85$
+](figure/ssr_power_ea.pdf){#fig:sim4a width=100%}
 
-```{r sim2a, echo = FALSE, fig.cap = figcap2a, fig.scap = figscap2a}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/AURC_box_plot_ea.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/AURC_box_plot_ea.png")
-}
+<!-- ```{r sim4a, echo = FALSE, fig.cap = figcap3, fig.scap = figscap3, out.width = "100%"}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/ssr_power_ea.png"))
+# }
+# 
+# figcap3 <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
+# and clone-correction on the power of permutation analysis for microsatellite
+# data taking into account allelic evenness. Plots are arranged in a grid with
+# clone-correction in rows and mutation rate in columns. Values are shown for
+# $\\alpha$ = 0.01 and $E_{5A} \\geq 0.85$"
+# figcap3  <- beaverdown::render_caption(caption = figcap3, figname = "fig1", to = TO)
+# figscap3 <- "Effect of rate of sexual reproduction, sample size, mutation rate,
+# and clone-correction on the power of permutation analysis for microsatellite
+# data taking into account allelic evenness."
+``` -->
 
-figcap2a <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate,
 and clone-correction on area under the ROC curve taking into account allelic
 evenness. Box plots showing the distribution of the area under the ROC Curve for
 each independent seed. Boxes span the interquartile range (IQR) and the whiskers
 extend to 1.5 * IQR. An AURC of 1 indicates a perfect classifier, while an AURC
 of 0.5 indicates the classifier is no better than a random guess. Any values
-below 0.5 (shaded in grey) is considered worse than random."
+below 0.5 (shaded in grey) is considered worse than random.
+](figure/AURC_box_plot_ea.pdf){#fig:sim2a width=100%}
 
-figscap2a <- "Effect of rate of sexual reproduction, sample size, mutation rate,
-and clone-correction on area under the ROC curve taking into account allelic
-evenness."
-```
+<!-- ```{r sim2a, echo = FALSE, fig.cap = figcap2a, fig.scap = figscap2a}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/AURC_box_plot_ea.png"))
+# }
+# 
+# figcap2a <- "Effect of rate of sexual reproduction, sample size (n), mutation rate,
+# and clone-correction on area under the ROC curve taking into account allelic
+# evenness. Box plots showing the distribution of the area under the ROC Curve for
+# each independent seed. Boxes span the interquartile range (IQR) and the whiskers
+# extend to 1.5 * IQR. An AURC of 1 indicates a perfect classifier, while an AURC
+# of 0.5 indicates the classifier is no better than a random guess. Any values
+# below 0.5 (shaded in grey) is considered worse than random."
+# 
+# figscap2a <- "Effect of rate of sexual reproduction, sample size, mutation rate,
+# and clone-correction on area under the ROC curve taking into account allelic
+# evenness."
+``` -->
 
-```{r sim3a, echo = FALSE, fig.cap = figcap3a, fig.scap = figscap3a, out.width = "100%"}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/AURC_ANOVA_ea.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/AURC_ANOVA_ea.png")
-}
-
-figcap3a <- "P-values from ANOVA analysis on AURC distributions with the model
-$AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$ for each
+![
+P-values from ANOVA analysis on AURC distributions with the model
+$AURC \sim Clone Correction \times Sample Size \times Mutation Rate$ for each
 rate of sexual reproduction separately taking into account allelic evenness.
-P-values are represented both as colors and numbers."
-figcap3a  <- beaverdown::render_caption(caption = figcap3a, figname = "fig1", to = TO)
-figscap3a <- "P-values from ANOVA analysis on AURC distributions with the model
-$AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$ for each
-rate of sexual reproduction separately taking into account allelic evenness."
-figscap3a  <- beaverdown::render_caption(caption = figscap3a, figname = "fig1", to = TO)
-```
+P-values are represented both as colors and numbers.
+](figure/AURC_ANOVA_ea.pdf){#fig:sim3a width=100%}
+
+<!-- ```{r sim3a, echo = FALSE, fig.cap = figcap3a, fig.scap = figscap3a, out.width = "100%"}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/AURC_ANOVA_ea.png"))
+# }
+# 
+# figcap3a <- "P-values from ANOVA analysis on AURC distributions with the model
+# $AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$ for each
+# rate of sexual reproduction separately taking into account allelic evenness.
+# P-values are represented both as colors and numbers."
+# figcap3a  <- beaverdown::render_caption(caption = figcap3a, figname = "fig1", to = TO)
+# figscap3a <- "P-values from ANOVA analysis on AURC distributions with the model
+# $AURC \\sim Clone Correction \\times Sample Size \\times Mutation Rate$ for each
+# rate of sexual reproduction separately taking into account allelic evenness."
+# figscap3a  <- beaverdown::render_caption(caption = figscap3a, figname = "fig1", to = TO)
+``` -->
 
 
 sexrate   term             sumsq     df    statistic   p.value
@@ -855,7 +975,7 @@ squares, df = degrees of freedom, statistic = F statistic, p.value = p-value,
 Terms are as follows: CC = Clone Correction, SS = Sample Size, MR = Mutation 
 Rate.
 
-### Power To Detect Clonal Reproduction in SNP Data
+## Power To Detect Clonal Reproduction in SNP Data
 
 Because of the computational intensity of the simulations, we were only able to
 run 24 unique seeds over all rates of sexual reproduction with 10 replicates per
@@ -883,82 +1003,113 @@ increase in false positive rates (Fig. \@ref(fig:sim6)). An ANOVA analysis of
 the distributions of ROC over the 24 seeds showed significant differences for
 0.5% to 10% sexual reproduction (Fig. \@ref(fig:sim7), Tab. \@ref(tab:sim5)).
 
-```{r sim5, echo = FALSE, fig.cap = figcap5, fig.scap = figscap5}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/genomic_rd.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/genomic_rd.png")
-}
-
-cap <- "Effect of rate of sexual reproduction and sample size (n) on $\\bar{r}_d$ 
+![
+Effect of rate of sexual reproduction and sample size (n) on $\bar{r}_d$ 
 for SNP data. Each panel represents a different sample size. Each violin plot
 contains 120 unique data sets. Points represent observed values. Black lines in
-violins mark the 25, 50, and 75th percentile."
+violins mark the 25, 50, and 75th percentile.
+](figure/genomic_rd.pdf){#fig:sim5 width=100%} 
 
-scap <- "Effect of rate of sexual reproduction and sample size on $\\bar{r}_d$ 
-for SNP data."
+<!-- ```{r sim5, echo = FALSE, fig.cap = figcap5, fig.scap = figscap5}
+# if (LATEX){
+# 
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/genomic_rd.png"))
+# }
+# 
+# cap <- "Effect of rate of sexual reproduction and sample size (n) on $\\bar{r}_d$ 
+# for SNP data. Each panel represents a different sample size. Each violin plot
+# contains 120 unique data sets. Points represent observed values. Black lines in
+# violins mark the 25, 50, and 75th percentile."
+# 
+# scap <- "Effect of rate of sexual reproduction and sample size on $\\bar{r}_d$ 
+# for SNP data."
+# 
+# figcap5  <- beaverdown::render_caption(caption = cap, figname = "fig2", to = TO)
+# if (!LATEX) figcap1 <- gsub("@ref", "\\\\@ref", figcap1)
+# figscap5 <- beaverdown::render_caption(caption = scap, figname = "fig2s", to = TO)
+```-->
 
-figcap5  <- beaverdown::render_caption(caption = cap, figname = "fig2", to = TO)
-if (!LATEX) figcap1 <- gsub("@ref", "\\\\@ref", figcap1)
-figscap5 <- beaverdown::render_caption(caption = scap, figname = "fig2s", to = TO)
-```
 
-```{r simmisssnp, echo = FALSE, fig.cap = figcapmisssnp, fig.scap = figscapmisssnp}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/genomic_missing.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/genomic_missing.png")
-}
-
-cap <- "Effect of rate of sexual reproduction, sample size (n), and missing data on 
-$\\bar{r}_d$ for SNP data. Panels are arranged horizontally with increasing
+![
+Effect of rate of sexual reproduction, sample size (n), and missing data on 
+$\bar{r}_d$ for SNP data. Panels are arranged horizontally with increasing
 rates of missing data from left to right and vertically with increasing sample
 size from top to bottom. Shading indicates whether or not missing data was
 ignored or treated as a new allele. Black lines mark the 25, 50, and 75th
-percentile. Each violin represents 120 values."
+percentile. Each violin represents 120 values.
+](figure/genomic_missing.pdf){#fig:simmisssnp width=100%}
 
-scap <- "Effect of rate of sexual reproduction, sample size, and missing data on 
-$\\bar{r}_d$ for SNP data."
+<!-- ```{r simmisssnp, echo = FALSE, fig.cap = figcapmisssnp, fig.scap = figscapmisssnp}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/genomic_missing.png"))
+# }
+# 
+# cap <- "Effect of rate of sexual reproduction, sample size (n), and missing data on 
+# $\\bar{r}_d$ for SNP data. Panels are arranged horizontally with increasing
+# rates of missing data from left to right and vertically with increasing sample
+# size from top to bottom. Shading indicates whether or not missing data was
+# ignored or treated as a new allele. Black lines mark the 25, 50, and 75th
+# percentile. Each violin represents 120 values."
+# 
+# scap <- "Effect of rate of sexual reproduction, sample size, and missing data on 
+# $\\bar{r}_d$ for SNP data."
+# 
+# figcapmisssnp  <- beaverdown::render_caption(caption = cap, figname = "fig2", to = TO)
+# if (!LATEX) figcap1 <- gsub("@ref", "\\\\@ref", figcap1)
+# figscapmisssnp <- beaverdown::render_caption(caption = scap, figname = "fig2s", to = TO)
+``` -->
 
-figcapmisssnp  <- beaverdown::render_caption(caption = cap, figname = "fig2", to = TO)
-if (!LATEX) figcap1 <- gsub("@ref", "\\\\@ref", figcap1)
-figscapmisssnp <- beaverdown::render_caption(caption = scap, figname = "fig2s", to = TO)
-```
 
 
-
-
-```{r sim6, echo = FALSE, fig.cap = figcap6, fig.scap = figscap6}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/genomic_power.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/genomic_power.png")
-}
-
-figcap6 <- "Effect of rate of sexual reproduction and sample size (n) the power to 
+![
+Effect of rate of sexual reproduction and sample size (n) the power to 
 detect non-random mating for SNP data. Color indicates sample size. False
 positive rate is shown as increasing transparency. Data shown for both p = 0.01
-and p = 0.05"
+and p = 0.05
+](figure/genomic_power.pdf){#fig:sim6 width=100%}
 
-figscap6 <- "Effect of rate of sexual reproduction and sample size the power to 
-detect non-random mating for SNP data. Color indicates sample size."
-```
+<!-- ```{r sim6, echo = FALSE, fig.cap = figcap6, fig.scap = figscap6}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/genomic_power.png"))
+# }
+# 
+# figcap6 <- "Effect of rate of sexual reproduction and sample size (n) the power to 
+# detect non-random mating for SNP data. Color indicates sample size. False
+# positive rate is shown as increasing transparency. Data shown for both p = 0.01
+# and p = 0.05"
+# 
+# figscap6 <- "Effect of rate of sexual reproduction and sample size the power to 
+# detect non-random mating for SNP data. Color indicates sample size."
+``` -->
 
-```{r sim7, echo = FALSE, fig.cap = figcap7, fig.scap = figscap7}
-if (LATEX){
-	knitr::include_graphics("figure/simulations/AURC_genomic.pdf")
-} else {
-	knitr::include_graphics("figure/simulations/AURC_genomic.png")
-}
-
-figcap7 <- "Effect of rate of sexual reproduction and sample size (n) on area under 
+![
+Effect of rate of sexual reproduction and sample size (n) on area under 
 the ROC curve for SNP data. Each point represents AURC calculated with 10 
 populations total. 5 populations with a sex rate of 1.0 and 5 populations with a 
-sex rate specified on the horizontal axis."
+sex rate specified on the horizontal axis.
+](figure/AURC_genomic.pdf){#fig:sim7 width=100%}
 
-figscap7 <- "Effect of rate of sexual reproduction and sample size on area under 
-the ROC curve for SNP data."
-```
+<!-- ```{r sim7, echo = FALSE, fig.cap = figcap7, fig.scap = figscap7}
+# if (LATEX){
+# 	
+# } else {
+# 	knitr::include_graphics(here::here("manuscript/figure/AURC_genomic.png"))
+# }
+# 
+# figcap7 <- "Effect of rate of sexual reproduction and sample size (n) on area under 
+# the ROC curve for SNP data. Each point represents AURC calculated with 10 
+# populations total. 5 populations with a sex rate of 1.0 and 5 populations with a 
+# sex rate specified on the horizontal axis."
+# 
+# figscap7 <- "Effect of rate of sexual reproduction and sample size on area under 
+# the ROC curve for SNP data."
+``` -->
+
 sexrate   term            sumsq   df   statistic   p.value
 --------  ------------  -------  ---  ----------  --------
 0.0000    (Intercept)    22.932    1   17347.604     0.000
@@ -995,7 +1146,7 @@ rate of sexual reproduction, term = ANOVA term, sumsq = sum of squares, df =
 degrees of freedom, statistic = F statistic, p.value = p-value, Terms are as
 follows: SS = Sample Size.
 
-### Common Features of Microsatellite and SNP Markers
+## Common Features of Microsatellite and SNP Markers
 
 For both microsatellite and SNP data, as found in @de2004clonal, large variances
 were observed with extremely low levels of sexual reproduction (Figs.
@@ -1013,7 +1164,7 @@ that the critical point to detect clonal reproduction in a population is at a
 maximum of 1% sexual reproduction (Fig.\@ref(fig:sim4), \@ref(fig:sim4a), 
 \@ref(fig:sim6)). 
 
-## Discussion
+# Discussion
 
 Scientists have used the index of association to provide evidence for clonal
 reproduction in populations. The index of association measure the ratio of
@@ -1033,7 +1184,7 @@ clone-correction as sample size is by definition reduced when clone-correcting.
 More importantly, we found that linkage depends critically on allelic diversity
 at low levels of sexual reproduction (< 0.1%) as discussed below.
 
-### Clone Correction Increases False Negatives
+## Clone Correction Increases False Negatives
 
 While the presence of over-represented genotypes is often an indication of
 clonal reproduction, it does not explicitly rule out sexual reproduction
@@ -1086,7 +1237,7 @@ carefully, especially with haploid organisms in light of the fact that clone-
 correction reduces sample size and power is significantly reduced with small
 sample sizes.
 
-### Mutation Rates and $\bar{r}_d$ 
+## Mutation Rates and $\bar{r}_d$ 
 
 We assessed the effect of uneven mutation rates across loci because we had previously
 observed that a single, hyper-variable locus with 18 alleles was the driver for
@@ -1101,7 +1252,7 @@ clone-correction less severe. We believe that this is most likely due to the
 observed increase in genotypic diversity, which causes an increased sample size
 with clone-correction (Fig. \@ref(fig:simdiv)).
 
-### Allelic Diversity Influences the value of $\bar{r}_d$ in Clonal Populations
+## Allelic Diversity Influences the value of $\bar{r}_d$ in Clonal Populations
 
 A novel feature, not previously observed in @de2004clonal, was the observation
 of negative values of $\bar{r}_d$ (Fig. \@ref(fig:sim1)). While positive values
@@ -1130,10 +1281,10 @@ of low allelic diversity.
 out <- "
 \\newpage
 "
-cat(beaverdown::iflatex(out))
+# cat(beaverdown::iflatex(out))
 ```
 
-### Linkage in SNP Data Increases $\bar{r}_d$ Unilaterally
+## Linkage in SNP Data Increases $\bar{r}_d$ Unilaterally
 
 The results we obtained from SNP data revealed almost no values of $\bar{r}_d$
 at or below zero (Fig. \@ref(fig:sim5)). Testing for significance by shuffling
@@ -1148,7 +1299,7 @@ significance of a value of $\bar{r}_d$. In contrast to the microsatellite data,
 sample size did not significantly affect power with high levels of clonal
 reproduction (Fig \@ref(fig:sim7), Tab: \@ref(tab:sim5)). 
 
-### Limitations of This Study
+## Limitations of This Study
 
 The scope of simulation studies are limited to the parameters used to generate
 the simulations. We do not know, for example, what effect selection, population
@@ -1165,7 +1316,7 @@ simulations. This, however was most likely beneficial to our analysis as our
 results show that low allelic diversity can lead to negative $\bar{r}_d$ values,
 which we have previously observed in data from purely clonal organisms.
 
-### Conclusions
+## Conclusions
 
 The index of association is a valuable measure for lending support to the
 hypothesis of clonal reproduction in natural populations. We confirm that
@@ -1180,3 +1331,4 @@ the same level of clonal reproduction for SNP data, but results from permutation
 analyses may be misleading if linkage is present among markers and recommend
 shuffling within linkage groups to assess significance.
 
+# References
