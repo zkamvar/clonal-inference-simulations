@@ -1,5 +1,7 @@
 ---
 title: 'Factors Influencing Inference of Clonality in Diploid Populations'
+geometry:
+  margin=1.5in
 author:
 - Zhian N. Kamvar
 - Niklaus J. Grünwald
@@ -8,6 +10,7 @@ date: '`r Sys.Date()`'
 output:
    bookdown::pdf_document2:
      keep_tex: true
+     toc: false
 bibliography: main_bibliography.bib
 csl: molecular-ecology.csl
 abstract: |
