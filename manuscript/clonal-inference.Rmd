@@ -32,6 +32,8 @@ abstract: |
 
 ```{r setup, include = FALSE, echo = FALSE}
 if (!require("here")) install.packages("here", repos = "https://cran.rstudio.com")
+suppressPackageStartupMessages(library("readr"))
+suppressPackageStartupMessages(library("magrittr"))
 # evaluate fig.cap after a chunk is evaluated
 knitr::opts_knit$set(eval.after = c('fig.cap', 'fig.scap'))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
@@ -792,6 +794,8 @@ populations total. 5 populations with a sex rate of 1.0 and 5 populations with a
 sex rate specified on the horizontal axis.
 ](figure/AURC_genomic.pdf){#fig:sim7 width=100%}
 
+\newpage
+
 ## Tables
 
  Reproductive Mode   $p \leq \alpha$   $p > \alpha$
@@ -805,89 +809,20 @@ a threshold value in [0, 1]. Randomly mating populations are simulated with a
 sex rate of 1. Non-Random mating populations are simulated with a sex rate less
 than one.
 
-sexrate   term             sumsq     df    statistic   p.value
---------  -------------  -------  -----  -----------  --------
-0.0000    (Intercept)     63.936      1    10569.674     0.000
-          CC               0.855      1      141.309     0.000
-          SS               0.060      3        3.289     0.020
-          MR               0.556      1       91.913     0.000
-          CC X SS          0.001      3        0.049     0.985
-          CC X MR          0.174      1       28.747     0.000
-          SS X MR          0.002      3        0.100     0.960
-          CC X SS X MR     0.000      3        0.006     0.999
-          Residuals        9.582   1584           NA        NA
-0.0001    (Intercept)     70.972      1    14652.094     0.000
-          CC               0.496      1      102.400     0.000
-          SS               0.027      3        1.886     0.130
-          MR               0.340      1       70.257     0.000
-          CC X SS          0.009      3        0.596     0.617
-          CC X MR          0.076      1       15.698     0.000
-          SS X MR          0.001      3        0.077     0.972
-          CC X SS X MR     0.003      3        0.241     0.868
-          Residuals        7.673   1584           NA        NA
-0.0005    (Intercept)     91.939      1   245382.751     0.000
-          CC               0.072      1      191.181     0.000
-          SS               0.089      3       78.753     0.000
-          MR               0.050      1      132.414     0.000
-          CC X SS          0.047      3       42.205     0.000
-          CC X MR          0.027      1       72.663     0.000
-          SS X MR          0.035      3       31.105     0.000
-          CC X SS X MR     0.018      3       15.818     0.000
-          Residuals        0.593   1584           NA        NA
-0.0010    (Intercept)     86.202      1   157278.033     0.000
-          CC               0.224      1      408.905     0.000
-          SS               0.269      3      163.853     0.000
-          MR               0.113      1      206.697     0.000
-          CC X SS          0.135      3       82.053     0.000
-          CC X MR          0.060      1      109.071     0.000
-          SS X MR          0.067      3       40.994     0.000
-          CC X SS X MR     0.034      3       20.426     0.000
-          Residuals        0.868   1584           NA        NA
-0.0050    (Intercept)     52.266      1    14127.572     0.000
-          CC               0.936      1      253.111     0.000
-          SS               2.592      3      233.531     0.000
-          MR               0.138      1       37.393     0.000
-          CC X SS          0.234      3       21.126     0.000
-          CC X MR          0.028      1        7.675     0.006
-          SS X MR          0.026      3        2.385     0.068
-          CC X SS X MR     0.022      3        1.974     0.116
-          Residuals        5.860   1584           NA        NA
-0.0100    (Intercept)     39.376      1     5724.212     0.000
-          CC               0.686      1       99.672     0.000
-          SS               2.455      3      118.955     0.000
-          MR               0.068      1        9.817     0.002
-          CC X SS          0.173      3        8.380     0.000
-          CC X MR          0.003      1        0.378     0.539
-          SS X MR          0.051      3        2.488     0.059
-          CC X SS X MR     0.056      3        2.720     0.043
-          Residuals       10.896   1584           NA        NA
-0.0500    (Intercept)     28.671      1     1903.303     0.000
-          CC               0.072      1        4.806     0.029
-          SS               0.239      3        5.293     0.001
-          MR               0.001      1        0.080     0.778
-          CC X SS          0.391      3        8.646     0.000
-          CC X MR          0.000      1        0.032     0.858
-          SS X MR          0.037      3        0.809     0.489
-          CC X SS X MR     0.001      3        0.028     0.994
-          Residuals       23.861   1584           NA        NA
-0.1000    (Intercept)     26.010      1     1441.495     0.000
-          CC               0.009      1        0.524     0.469
-          SS               0.131      3        2.419     0.065
-          MR               0.000      1        0.001     0.979
-          CC X SS          0.162      3        2.984     0.030
-          CC X MR          0.000      1        0.013     0.908
-          SS X MR          0.014      3        0.256     0.857
-          CC X SS X MR     0.001      3        0.015     0.998
-          Residuals       28.581   1584           NA        NA
-0.5000    (Intercept)     25.669      1     1489.342     0.000
-          CC               0.001      1        0.033     0.857
-          SS               0.042      3        0.806     0.491
-          MR               0.002      1        0.099     0.753
-          CC X SS          0.001      3        0.025     0.995
-          CC X MR          0.000      1        0.006     0.939
-          SS X MR          0.004      3        0.076     0.973
-          CC X SS X MR     0.001      3        0.011     0.998
-          Residuals       27.301   1584           NA        NA
+```{r anovatable1, results = "asis", echo = FALSE}
+the_cols <- cols(
+  sexrate = col_character(),
+  term = col_character(),
+  sumsq = col_double(),
+  df = col_integer(),
+  statistic = col_double(),
+  p.value = col_double()
+)
+readr::read_csv(here::here("manuscript", "table", "ANOVA.csv"), 
+                col_types = the_cols,
+                na = "NA") %>%
+  knitr::kable(format = "pandoc", digits = 3)
+```
 
 Table: (\#tab:sim3) ANOVA table comparing the model $AURC \sim Clone Correction 
 \times Sample Size \times Mutation Rate$ for each rate of sexual reproduction
@@ -896,91 +831,20 @@ sumsq = sum of squares, df = degrees of freedom, statistic = F statistic,
 p.value = p-value, Terms are as follows: CC = Clone Correction, SS = Sample
 Size, MR = Mutation Rate.
 
-
-sexrate   term             sumsq     df    statistic   p.value
---------  -------------  -------  -----  -----------  --------
-0.0000    (Intercept)     96.914      1   169384.022     0.000
-          CC               0.001      1        0.952     0.329
-          SS               0.007      3        4.365     0.005
-          MR               0.000      1        0.268     0.605
-          CC X SS          0.001      3        0.638     0.591
-          CC X MR          0.000      1        0.013     0.908
-          SS X MR          0.001      3        0.704     0.550
-          CC X SS X MR     0.000      3        0.104     0.958
-          Residuals        0.906   1584           NA        NA
-0.0001    (Intercept)     96.531      1   202595.988     0.000
-          CC               0.001      1        2.838     0.092
-          SS               0.009      3        6.345     0.000
-          MR               0.000      1        0.823     0.365
-          CC X SS          0.001      3        0.404     0.750
-          CC X MR          0.000      1        0.819     0.366
-          SS X MR          0.000      3        0.178     0.911
-          CC X SS X MR     0.000      3        0.112     0.953
-          Residuals        0.755   1584           NA        NA
-0.0005    (Intercept)     91.136      1   158601.676     0.000
-          CC               0.051      1       89.102     0.000
-          SS               0.106      3       61.325     0.000
-          MR               0.036      1       61.799     0.000
-          CC X SS          0.033      3       19.237     0.000
-          CC X MR          0.019      1       33.262     0.000
-          SS X MR          0.024      3       14.139     0.000
-          CC X SS X MR     0.012      3        7.046     0.000
-          Residuals        0.910   1584           NA        NA
-0.0010    (Intercept)     84.686      1   113261.634     0.000
-          CC               0.211      1      282.532     0.000
-          SS               0.339      3      151.115     0.000
-          MR               0.103      1      137.833     0.000
-          CC X SS          0.126      3       56.324     0.000
-          CC X MR          0.053      1       71.367     0.000
-          SS X MR          0.061      3       26.976     0.000
-          CC X SS X MR     0.030      3       13.161     0.000
-          Residuals        1.184   1584           NA        NA
-0.0050    (Intercept)     51.087      1    13448.247     0.000
-          CC               0.888      1      233.702     0.000
-          SS               2.812      3      246.742     0.000
-          MR               0.127      1       33.301     0.000
-          CC X SS          0.226      3       19.851     0.000
-          CC X MR          0.024      1        6.284     0.012
-          SS X MR          0.031      3        2.682     0.045
-          CC X SS X MR     0.025      3        2.186     0.088
-          Residuals        6.017   1584           NA        NA
-0.0100    (Intercept)     38.906      1     5499.579     0.000
-          CC               0.634      1       89.610     0.000
-          SS               2.558      3      120.521     0.000
-          MR               0.070      1        9.912     0.002
-          CC X SS          0.182      3        8.581     0.000
-          CC X MR          0.003      1        0.443     0.506
-          SS X MR          0.048      3        2.270     0.079
-          CC X SS X MR     0.054      3        2.531     0.056
-          Residuals       11.206   1584           NA        NA
-0.0500    (Intercept)     28.404      1     1861.840     0.000
-          CC               0.064      1        4.165     0.041
-          SS               0.274      3        5.996     0.000
-          MR               0.001      1        0.072     0.788
-          CC X SS          0.401      3        8.760     0.000
-          CC X MR          0.001      1        0.049     0.825
-          SS X MR          0.035      3        0.759     0.517
-          CC X SS X MR     0.001      3        0.020     0.996
-          Residuals       24.165   1584           NA        NA
-0.1000    (Intercept)     25.985      1     1413.238     0.000
-          CC               0.008      1        0.422     0.516
-          SS               0.145      3        2.632     0.049
-          MR               0.000      1        0.004     0.952
-          CC X SS          0.164      3        2.974     0.031
-          CC X MR          0.000      1        0.019     0.891
-          SS X MR          0.013      3        0.229     0.876
-          CC X SS X MR     0.001      3        0.012     0.998
-          Residuals       29.124   1584           NA        NA
-0.5000    (Intercept)     25.366      1     1459.705     0.000
-          CC               0.001      1        0.030     0.862
-          SS               0.051      3        0.978     0.402
-          MR               0.003      1        0.158     0.691
-          CC X SS          0.001      3        0.026     0.994
-          CC X MR          0.000      1        0.005     0.943
-          SS X MR          0.004      3        0.078     0.972
-          CC X SS X MR     0.001      3        0.010     0.999
-          Residuals       27.526   1584           NA        NA
-
+```{r anovatable2, results = "asis", echo = FALSE}
+the_cols <- cols(
+  sexrate = col_character(),
+  term = col_character(),
+  sumsq = col_double(),
+  df = col_integer(),
+  statistic = col_double(),
+  p.value = col_double()
+)
+readr::read_csv(here::here("manuscript", "table", "ANOVA_EA.csv"), 
+                col_types = the_cols,
+                na = "NA") %>%
+  knitr::kable(format = "pandoc", digits = 3)
+```
 
 Table: (\#tab:sim4) ANOVA table comparing the model $AURC \sim Clone Correction 
 \times Sample Size \times Mutation Rate$ for each rate of sexual reproduction
@@ -990,36 +854,20 @@ squares, df = degrees of freedom, statistic = F statistic, p.value = p-value,
 Terms are as follows: CC = Clone Correction, SS = Sample Size, MR = Mutation 
 Rate.
 
-
-sexrate   term            sumsq   df   statistic   p.value
---------  ------------  -------  ---  ----------  --------
-0.0000    (Intercept)    22.932    1   17347.604     0.000
-          SS              0.004    3       1.121     0.345
-          Residuals       0.122   92          NA        NA
-0.0001    (Intercept)    23.602    1   29949.701     0.000
-          SS              0.001    3       0.352     0.787
-          Residuals       0.072   92          NA        NA
-0.0005    (Intercept)    23.562    1   28317.512     0.000
-          SS              0.001    3       0.339     0.797
-          Residuals       0.077   92          NA        NA
-0.0010    (Intercept)    23.562    1   28317.512     0.000
-          SS              0.001    3       0.339     0.797
-          Residuals       0.077   92          NA        NA
-0.0050    (Intercept)    19.117    1    6103.399     0.000
-          SS              0.174    3      18.568     0.000
-          Residuals       0.288   92          NA        NA
-0.0100    (Intercept)    13.984    1    1590.890     0.000
-          SS              0.806    3      30.552     0.000
-          Residuals       0.809   92          NA        NA
-0.0500    (Intercept)     6.510    1     232.786     0.000
-          SS              1.340    3      15.972     0.000
-          Residuals       2.573   92          NA        NA
-0.1000    (Intercept)     5.920    1     155.018     0.000
-          SS              0.575    3       5.023     0.003
-          Residuals       3.514   92          NA        NA
-0.5000    (Intercept)     6.161    1     169.859     0.000
-          SS              0.059    3       0.542     0.655
-          Residuals       3.337   92          NA        NA
+```{r anovatable3, results = "asis", echo = FALSE}
+the_cols <- cols(
+  sexrate = col_character(),
+  term = col_character(),
+  sumsq = col_double(),
+  df = col_integer(),
+  statistic = col_double(),
+  p.value = col_double()
+)
+readr::read_csv(here::here("manuscript", "table", "ANOVA_GENOMIC.csv"), 
+                col_types = the_cols,
+                na = "NA") %>%
+  knitr::kable(format = "pandoc", digits = 3)
+```
 
 Table: (\#tab:sim5) ANOVA table comparing the model $AURC \sim Sample Size$ for 
 each rate of sexual reproduction separately with SNP data. Columns: sexrate =

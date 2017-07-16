@@ -1,10 +1,5 @@
 ---
 title: "ROC Analysis"
-author: "Zhian N. Kamvar"
-date: "October 16, 2016"
-output:
-  html_document: default
-  html_notebook: default
 ---
 
 ## Introduction
@@ -60,6 +55,7 @@ library('zksimanalysis')
 # These are for manipulating ggplot2 graphics
 library("gtable")
 library("grid")
+library("readr")
 ```
 
 We load the data previously processed in `ROC_calculation.Rmd`.
@@ -372,9 +368,11 @@ anova_heat <- . %>%
     ))
   }
 
-anova_table <- . %>%
+anova_table_prep <- . %>%
   mutate(sexrate = ifelse(duplicated(sexrate), "", sexrate)) %>%
-  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term)) %>%
+  mutate(term = gsub("([A-Z])[a-z]+?\\s([A-Z])[a-z]+?(\\s|$)", "\\1\\2 ", term))
+anova_table <- . %>%
+  anova_table_prep %>%
   unclass() %>%       # This step is necessary because there's unexpected behavior from tibble
   as.data.frame() %>% # when passing to as.data.frame
   knitr::kable(format = "pandoc", digits = 3) %>% 
@@ -443,8 +441,10 @@ ggAURC_ANOVA
 ggAURC_ANOVA_ea
 
 
+AURC_ANOVA_III %>% anova_table_prep %>% write_csv(here::here("manuscript", "table", "ANOVA.csv"))
 AURC_ANOVA_III %>% anova_table
 AURC_ANOVA_ea_III %>% anova_table
+AURC_ANOVA_ea_III %>% anova_table_prep %>% write_csv(here::here("manuscript", "table", "ANOVA_EA.csv"))
 ```
 
 
@@ -661,6 +661,7 @@ g_AURC_ANOVA_III <- g_AURC_by_seed %>%
        car::Anova(type = 3) %>% 
        broom::tidy()) 
 g_AURC_ANOVA_III %>% anova_heat + theme(aspect.ratio = 1/9)
+g_AURC_ANOVA_III %>% ungroup() %>% anova_table_prep %>% write_csv(here::here("manuscript", "table", "ANOVA_GENOMIC.csv"))
 g_AURC_ANOVA_III %>% ungroup() %>% anova_table
 ```
 
