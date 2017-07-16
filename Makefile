@@ -1,3 +1,4 @@
+# Targets: Files to Render ------------------------------------------------
 SSR_DATA    := data/processed_results.rda data/full_results.rda
 MA_SSR_DATA := data/ma_processed_results.rda data/ma_full_results.rda
 TARGETS     := $(SSR_DATA) \
@@ -16,9 +17,23 @@ TARGETS     := $(SSR_DATA) \
                reports/ma_jackknife_analysis.html
 
 .PHONY: all
-
 all : manuscript/clonal-inference.pdf
 
+# Pattern Rules -----------------------------------------------------------
+manuscript/%.pdf : manuscript/%.Rmd $(TARGETS)
+	-R --slave -e "rmarkdown::render(input = '$<')"
+
+# Karl Broman saves the day: http://kbroman.org/minimal_make/#automatic-variables
+# If you simply just use $@ for the output_file, you're going to have a bad time
+# because knitr will automatically assume that the directory in the output file
+# is supposed to be nested inside of the input directory. Using the $(@F) and
+# $(@D) variables prevents this unfortunate behavior!
+reports/%.html : analysis/%.Rmd
+	-R --slave -e "rmarkdown::render(input = '$<', \
+	               output_file = '$(@F)', \
+	               output_dir = '$(@D)')"
+
+# Primary Data Dependencies -----------------------------------------------
 $(SSR_DATA) : reports/ssr_data_cleaning.html
 reports/ssr_data_cleaning.html : data/rda_files/ \
                                  data/diversity_rda_files/ \
@@ -34,6 +49,7 @@ reports/ma_ssr_data_cleaning.html : data/ma_rda_files/ \
 data/genomic_data.rda : reports/genomic_data_processing.html
 reports/genomic_data_processing.html : data/genomic_rda_files/
 
+# ROC Data Dependencies ---------------------------------------------------
 reports/ROC_Curve.html : data/ROC_data.rda
 data/ROC_data.rda : reports/ROC_Calculation.html
 reports/ROC_Calculation.html: $(SSR_DATA) data/genomic_data.rda
@@ -42,6 +58,7 @@ reports/ma_ROC_Curve.html : data/ma_ROC_data.rda
 data/ma_ROC_data.rda : reports/ma_ROC_Calculation.html
 reports/ma_ROC_Calculation.html: $(MA_SSR_DATA)
 
+# Jackknife Data Dependencies ---------------------------------------------
 reports/jackknife_analysis.html : $(SSR_DATA) \
                                   data/jack_rda_files/ \
                                   data/jack_psex_rda_files/
@@ -49,17 +66,3 @@ reports/jackknife_analysis.html : $(SSR_DATA) \
 reports/ma_jackknife_analysis.html : $(MA_SSR_DATA) \
                                      data/ma_jack_rda_files/ \
                                      data/ma_jack_psex_rda_files/
-
-# Karl Broman saves the day: http://kbroman.org/minimal_make/#automatic-variables
-# If you simply just use $@ for the output_file, you're going to have a bad time
-# because knitr will automatically assume that the directory in the output file
-# is supposed to be nested inside of the input directory. Using the $(@F) and
-# $(@D) variables prevents this unfortunate behavior!
-
-reports/%.html : analysis/%.Rmd
-	-R --slave -e "rmarkdown::render(input = '$<', \
-	               output_file = '$(@F)', \
-	               output_dir = '$(@D)')"
-
-manuscript/%.pdf : manuscript/%.Rmd $(TARGETS)
-	-R --slave -e "rmarkdown::render(input = '$<')"
