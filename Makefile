@@ -49,6 +49,11 @@ reports/ma_ssr_data_cleaning.html : data/ma_rda_files/ \
 data/genomic_data.rda : reports/genomic_data_processing.html
 reports/genomic_data_processing.html : data/genomic_rda_files/
 
+reports/equilibrium_analysis.html : data/ia_over_generations_n1000/ \
+                                    data/locus_diversity_over_generations_n1000/ \
+                                    data/ia_over_generations_n1000_more_alleles/ \
+                                    data/locus_diversity_over_generations_n1000_more_alleles/
+
 # ROC Data Dependencies ---------------------------------------------------
 reports/ROC_Curve.html : data/ROC_data.rda
 data/ROC_data.rda : reports/ROC_Calculation.html
