@@ -142,7 +142,7 @@ grid.newpage()
 grid.draw(oroc_plot_mod)
 
 # ggsave(plot = oroc_plot_mod, 
-#        file = "~/Documents/Grunwald/dissertation/figure/simulations/ROC_Curve.pdf",
+#        file = here::here('manuscript', 'figure', 'ROC_Curve.pdf'),
 #        width = 8, height = 10, dpi = 600)
 
 total_oroc_plot <-  bind_rows(total_roc, total_roc_ea, .id = "extra_info") %>% 
@@ -216,9 +216,9 @@ AURC_box_plot <- AURC_by_seed %>% AURC_box
 AURC_box_plot_ea <- AURC_by_seed_ea %>% AURC_box
 
 # ggsave(plot = AURC_box_plot, width = 6, height = 7, dpi = 600,
-#        file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_box_plot.pdf")
+#        file = here::here('manuscript', 'figure', 'AURC_box_plot.pdf'))
 # ggsave(plot = AURC_box_plot_ea, width = 6, height = 7, dpi = 600,
-#        file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_box_plot_ea.pdf")
+#        file = here::here('manuscript', 'figure', 'AURC_box_plot_ea.pdf'))
 
 AURC_box_plot
 AURC_box_plot_ea
@@ -326,7 +326,7 @@ g$widths <- unit.pmax(g1$widths, g2$widths) # use the largest widths
 # g$layout[grepl("guide", g$layout$name),c("t","b")] <- c(1,nrow(g))
 grid.newpage()
 grid.draw(g)
-# ggsave(plot = g, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA.pdf",
+# ggsave(plot = g, file = here::here('manuscript', 'figure', 'AURC_ANOVA.pdf'),
 #        width = 8, height = 5, dpi = 600)
 ```
 
@@ -435,9 +435,9 @@ AURC_ANOVA_ea_III <- AURC_by_seed_ea %>%
 ggAURC_ANOVA    <- AURC_ANOVA_III %>% anova_heat
 ggAURC_ANOVA_ea <- AURC_ANOVA_ea_III %>% anova_heat
 
-ggsave(plot = ggAURC_ANOVA, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA.pdf",
+ggsave(plot = ggAURC_ANOVA, file = here::here('manuscript', 'figure', 'AURC_ANOVA.pdf'),
        width = 8, height = 5, dpi = 600)
-ggsave(plot = ggAURC_ANOVA_ea, file = "~/Documents/Grunwald/dissertation/figure/simulations/AURC_ANOVA_ea.pdf",
+ggsave(plot = ggAURC_ANOVA_ea, file = here::here('manuscript', 'figure', 'AURC_ANOVA_ea.pdf'),
        width = 8, height = 5, dpi = 600)
 ggAURC_ANOVA
 ggAURC_ANOVA_ea
@@ -533,9 +533,9 @@ powerplot0.01
 powerplot0.01_ea
 powerplot0.05
 
-# ggsave(plot = powerplot0.01, file = "~/Documents/Grunwald/dissertation/figure/simulations/ssr_power.pdf",
+# ggsave(plot = powerplot0.01, file = here::here('manuscript', 'figure', 'ssr_power.pdf'),
 #        width = 8, height = 5, dpi = 600)
-# ggsave(plot = powerplot0.01_ea, file = "~/Documents/Grunwald/dissertation/figure/simulations/ssr_power_ea.pdf",
+# ggsave(plot = powerplot0.01_ea, file = here::here('manuscript', 'figure', 'ssr_power_ea.pdf'),
 #        width = 8, height = 5, dpi = 600)
 
 ```
