@@ -17,7 +17,7 @@ TARGETS     := $(SSR_DATA) \
 
 .PHONY: all
 
-all : $(TARGETS) manuscript/clonal-inference.pdf
+all : manuscript/clonal-inference.pdf
 
 $(SSR_DATA) : reports/ssr_data_cleaning.html
 reports/ssr_data_cleaning.html : data/rda_files/ \
@@ -34,22 +34,19 @@ reports/ma_ssr_data_cleaning.html : data/ma_rda_files/ \
 data/genomic_data.rda : reports/genomic_data_processing.html
 reports/genomic_data_processing.html : data/genomic_rda_files/
 
-data/ROC_data.rda : reports/ROC_Calculation.html \
-                    $(SSR_DATA) \
-                    data/genomic_data.rda
+reports/ROC_Curve.html : data/ROC_data.rda
+data/ROC_data.rda : reports/ROC_Calculation.html
+reports/ROC_Calculation.html: $(SSR_DATA) data/genomic_data.rda
 
-results/ROC_Curve.html : data/ROC_data.rda
+reports/ma_ROC_Curve.html : data/ma_ROC_data.rda
+data/ma_ROC_data.rda : reports/ma_ROC_Calculation.html
+reports/ma_ROC_Calculation.html: $(MA_SSR_DATA)
 
-data/ma_ROC_data.rda : reports/ma_ROC_Calculation.html \
-                       $(MA_SSR_DATA)
-
-results/ma_ROC_Curve.html : data/ma_ROC_data.rda
-
-results/jackknife_analysis.html : $(SSR_DATA) \
+reports/jackknife_analysis.html : $(SSR_DATA) \
                                   data/jack_rda_files/ \
                                   data/jack_psex_rda_files/
 
-results/ma_jackknife_analysis.html : $(MA_SSR_DATA) \
+reports/ma_jackknife_analysis.html : $(MA_SSR_DATA) \
                                      data/ma_jack_rda_files/ \
                                      data/ma_jack_psex_rda_files/
 
