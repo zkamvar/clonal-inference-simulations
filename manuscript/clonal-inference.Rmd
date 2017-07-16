@@ -14,8 +14,8 @@ output:
 bibliography: main_bibliography.bib
 csl: molecular-ecology.csl
 abstract: |
-  The index of association is a measure of multilocus linkage disequilibrium,
-  which reflects the deviation of observed genetic variation from expected. In
+  The index of association is a measure of multilocus linkage disequilibrium
+  that reflects the deviation of observed genetic variation from expected. In
   sexual populations, loci are randomly assorting due to recombination, resulting
   in a near-zero value of the index of association. In clonal populations,
   recombination is non-existent, meaning that loci are passed from parent to
@@ -24,7 +24,7 @@ abstract: |
   the effect of sample size, mutation rate, and clone correction on the power of
   the index of association to detect clonal reproduction in simulated data sets
   generated with microsatellite and genomic markers. Our findings suggest that
-  power decreases with small sample sizes and low allelic diversity, and physical
+  power decreases with small sample sizes and low allelic diversity. Additionally, we find that physical
   linkage in genomic markers does not affect power if permutation tests are
   performed with linkage groups. We hope that these novel insights provide useful
   to the study of molecular pathogens.
@@ -54,8 +54,7 @@ history violate the fundamental assumption of random assortment of alleles, such
 as populations that undergo clonal reproduction [@orive1993effective;
 @milgroom1996recombination]. For many clonal populations, the contribution of
 genetic variation from mutation is greater than that of recombination. While
-this increases the risk of the accumulation of deleterious mutations, the 
-two-fold cost of sex is drastically reduced, meaning that selectively
+this increases the risk of deleterious mutation accumulation, selectively
 advantageous combinations of alleles are maintained [@heitman2012evolution].
 
 Pathogenic microorganisms can reproduce sexually or clonally
@@ -114,14 +113,15 @@ linkage) to 1 (complete linkage):
 (\#eq:rd)
 \end{align}
 
+Previous research has already contributed to our understanding of the behavior of $\bar{r}_d$.
 De Meeûx & Balloux [-@de2004clonal] investigated the effect of increasing levels
 of sexual reproduction on $\bar{r}_d$ (noted in their publication as
 $\bar{r}_D$). They found that very little ($\sim$ 1%) sexual reproduction is
-required to produce a value of $\bar{r}_d$ close to zero. This indicates that
+required to produce a value of $\bar{r}_d$ that is not significantly different from zero. This work indicated that
 $\bar{r}_d$ alone might not be well suited as a measure of clonal reproduction.
-@prugnolle2010apparent tested the effect of sampling design on $\bar{r}_d$,
-finding that its value is drastically reduced when clones from multiple
-populations are sampled, leading to an over-estimation of the level of
+Additionally, @prugnolle2010apparent tested the effect of sampling design on $\bar{r}_d$,
+finding that its value was drastically reduced when clones from multiple
+populations were sampled, leading to an over-estimation of the level of
 recombination.
 
 These studies laid the groundwork for understanding the behavior of $\bar{r}_d$
@@ -133,7 +133,7 @@ one data set at a time [@Agapow_2001; @de2004clonal; @prugnolle2010apparent;
 @kamvar2014poppr]. This constrained researchers to only analyze a minimal set of
 20 populations per scenario.
 
-A non-zero value of $I_A$ and $\bar{r}_d$ does not always indicate a significant
+Furthermore, a non-zero value of $I_A$ and $\bar{r}_d$ does not always indicate a significant
 departure from the null assumption of unlinked loci. Since the distribution of
 $I_A$ and $\bar{r}_d$ are not known, the safest way to test for significance are
 random permutation tests. These tests effectively create unlinked populations by
@@ -196,11 +196,8 @@ population scenarios. Initial sets of simulations were created for different
 levels of sexual reproduction for each marker type. All simulations were
 performed with the python package simuPOP version 1.1.7 in python version 3.4
 [@peng2008forward]. For each scenario, 100 simulations with 10 replicates were
-created with a census size of 10,000 diploid individuals with equal mating type
-proportions evolved over 10,000 generations. We chose a census size of 10,000 
-individuals to minimize the effect of drift. We chose to run the simulations for
-10,000 generations because this was previously shown in @de2004clonal to be
-sufficient in reaching equilibrium for summary statistics.
+created with a census size of 10,000 diploid individuals (to minimize the effect of drift) with equal mating type
+proportions evolved over 10,000 generations (previously shown in @de2004clonal to be sufficient in reaching equilibrium for summary statistics).
 
 The simulated populations were first stored in the native simuPOP format and
 then transferred to feather format using the python and R packages *feather*
@@ -489,7 +486,7 @@ significantly negative $\bar{r}_d$ values in clonal populations, the power of
 the index to detect clonal reproduction was greater, but at the cost of an
 increase in false positive rates (Fig. \@ref(fig:sim6)). An ANOVA analysis of
 the distributions of ROC over the 24 seeds showed significant differences for
-0.5% to 10% sexual reproduction (Fig. \@ref(fig:sim7), Tab. \@ref(tab:sim5)).
+0.5% to 10% sexual reproduction (Fig. \@ref(fig:sim7), Table \@ref(tab:sim5)).
 
 <!-- Figures 8-12 -->
 
@@ -498,7 +495,7 @@ the distributions of ROC over the 24 seeds showed significant differences for
 ## Common Features of Microsatellite and SNP Markers
 
 For both microsatellite and SNP data, as found in @de2004clonal, large variances
-were observed with extremely low levels of sexual reproduction (Figs.
+were observed with extremely low levels of sexual reproduction (Fig.
 \@ref(fig:sim1), \@ref(fig:sim5)). The variances and means of $\bar{r}_d$ 
 decrease with increasing levels of sexual reproduction. For low levels of sexual
 reproduction (< 0.01%), the distributions appeared bimodal. This feature appears
@@ -507,10 +504,10 @@ part of the distribution extends into the negative values of $\bar{r}_d$,
 resulting in non-significant p-values, which occur when low allelic diversity is
 observed. Additionally, with larger sample sizes, the variances decrease (Fig.
 \@ref(fig:sim1), \@ref(fig:sim5)) and the power to detect clonal reproduction
-increases (\@ref(fig:sim4a), \@ref(fig:sim6)), suggesting that the behavior of
+increases (Fig. \@ref(fig:sim4a), \@ref(fig:sim6)), suggesting that the behavior of
 the index is affected by sample size. Based on the power analysis, we observe
 that the critical point to detect clonal reproduction in a population is at a
-maximum of 1% sexual reproduction (Fig.\@ref(fig:sim4), \@ref(fig:sim4a), 
+maximum of 1% sexual reproduction (Fig. \@ref(fig:sim4), \@ref(fig:sim4a), 
 \@ref(fig:sim6)). 
 
 # Discussion
@@ -552,7 +549,7 @@ blight pathogen, *Phytophthora infestans* were reproducing clonally
 
 Our findings show that a non-significant value does not
 necessarily indicate the absence of clonal reproduction since the power to
-detect clonal reproduction consistently decreases with clone-correction(Fig.
+detect clonal reproduction consistently decreases with clone-correction (Fig.
 \@ref(fig:sim2), \@ref(fig:sim2a)). This is clearly demonstrated when comparing
 the values of $\bar{r}_d$ from an epidemic population of the Sudden Oak Death
 pathogen, *Phytophthora ramorum* in the Joe Hall Creek watershed in Curry
@@ -638,7 +635,7 @@ linked markers. Great care, however must be taken to ensure that linkage blocks
 are shuffled together or that SNP markers are not linked before assessing
 significance of a value of $\bar{r}_d$. In contrast to the microsatellite data,
 sample size did not significantly affect power with high levels of clonal
-reproduction (Fig \@ref(fig:sim7), Tab: \@ref(tab:sim5)). 
+reproduction (Fig. \@ref(fig:sim7), Table \@ref(tab:sim5)). 
 
 ## Limitations of This Study
 
