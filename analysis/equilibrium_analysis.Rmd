@@ -1,8 +1,5 @@
 ---
 title: "Assessing equilibrium of simulations"
-output: 
-  html_document: 
-    toc: yes
 ---
 
 ## Introduction
@@ -353,3 +350,9 @@ Alleleplot_ma <- datalist_ma %>%
 Alleleplot_ma
 ```
 
+## Session Information
+
+```{r session_info}
+options(width = 100)
+devtools::session_info()
+```
