@@ -1,0 +1,47 @@
+name: simulation_reports
+output_dir: ../reports
+exclude: ["*.yml", "*.sh", "*.bat", "LICENSE", "Makefile", "*.pdf", "old/", "*_cache/"]
+navbar:
+  title: "Simulation Reports"
+  left:
+    - text: "Summary statistics over time"
+      href: equilibrium_analysis.html
+    - text: "Genomic Data Analysis"
+      href: genomic_data_analysis.html
+    - text: "SSR Analysis"
+      menu:
+        - text: "20 loci, 6-10 alleles"
+        - text: "---------------------"
+        - text: "Index of Association Analysis"
+          href: post_analysis.html
+        - text: "Jackknife/Subsampling Analysis"
+          href: jackknife_analysis.html
+        - text: "20 loci, 10-20 alleles"
+        - text: "---------------------"
+        - text: "Index of Association Analysis"
+          href: ma_post_analysis.html
+        - text: "Jackknife/Subsampling Analysis"
+          href: ma_jackknife_analysis.html
+    - text: "Receiver Operator Characteristic"
+      menu:
+        - text: "20 loci, 6-10 alleles"
+        - text: "---------------------"
+        - text: "Processing"
+          href: ROC_Calculation.html
+        - text: "Results"
+          href: ROC_Curve.html
+        - text: "20 loci, 10-20 alleles"
+        - text: "---------------------"
+        - text: "Processing"
+          href: ma_ROC_Calculation.html
+        - text: "Results"
+    - text: "Examples of negative I_A"
+      href: negative_ia.html
+output:
+  html_document:
+    toc: true
+    code_folding: "show"
+    toc_float:
+      collapsed: false
+    toc_depth: 3
+    highlight: "default"

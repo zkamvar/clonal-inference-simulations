@@ -17,7 +17,7 @@ TARGETS     := $(SSR_DATA) \
                reports/ma_jackknife_analysis.html
 
 .PHONY: all
-all : manuscript/clonal-inference.pdf
+all : manuscript/clonal-inference.pdf reports/index.html
 
 # Pattern Rules -----------------------------------------------------------
 manuscript/%.pdf : manuscript/%.Rmd $(TARGETS)

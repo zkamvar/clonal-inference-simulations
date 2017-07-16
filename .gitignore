@@ -20,3 +20,5 @@ data/*zip
 
 reports/*files
 reports/*html
+reports/old/*
+reports/site_libs/*
