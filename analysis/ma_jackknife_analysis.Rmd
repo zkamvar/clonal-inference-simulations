@@ -498,23 +498,30 @@ af  <- rraf(Pram, by_pop = FALSE, mul = 2, res = "vector")
 jia   <- ia(JHC, sample = 999, quiet = TRUE, valuereturn = TRUE)
 jiacc <- JHC %>% clonecorrect(NA) %>% ia(sample = 999, quiet = TRUE, valuereturn = TRUE)
 jjak  <- jack.ia(JHC, quiet = TRUE, reps = 999, use_psex = TRUE, method = "multiple", freq = af)
+jjak2 <- jack.ia(JHC, quiet = TRUE, reps = 999)
 (jbias <- map_dbl(jjak, mean, na.rm = TRUE))
 (jiap  <- map2_dbl(jbias, jia$samples, function(a, b) (sum(a <= b, na.rm = TRUE) + 1)/(length(b) + 1)))
 df <- data_frame(rbarD = c(jia$index[3], jiacc$index[3], jbias[2]),
                  type = c("observed", "clone-censored", "estimate"))
 bind_rows(null = jia$samples,
           nullcc = jiacc$samples,
-          resampled = jjak,
+          resampled.psex = jjak,
+          resampled = jjak2,
           .id = "type") %>%
   ggplot(aes(x = rbarD)) +
   geom_density(aes(fill = type), alpha = 0.5) +
   geom_rug(aes(color = type), alpha = 0.1) +
   geom_vline(xintercept = df$rbarD, lty = 1:3) +
-  annotate(geom = "text", x = df$rbarD, y = 10*c(3, 5, 4), label = df$type, hjust = c(1.05, -0.05, -0.05)) +
-  scale_fill_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled")) +
-  scale_color_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled")) +
-  # xlim(c(-0.06, 0.15)) +
-  theme_bw(base_size = 14, base_family = "Helvetica")
+  annotate(geom = "text", x = df$rbarD, y = 10*c(3, 5, 4), label = df$type, hjust = c(1.05, 1.05, -0.05)) +
+  scale_fill_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled", "Resampled (Psex)")) +
+  scale_color_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled", "Resampled (Psex)")) +
+  theme_bw(base_size = 16, base_family = "Helvetica") +
+  theme(aspect.ratio = 0.68) +
+  theme(legend.position = "top") +
+  xlim(c(-0.06, 0.3)) +
+  theme(panel.border = element_blank()) +
+  theme(panel.grid.major.y = element_line(color = "grey70")) +
+  theme(panel.grid.minor.y = element_line(color = "grey50"))
 ```
 
 What we can see from this example is that the estimate here would easily be
