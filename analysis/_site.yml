@@ -35,6 +35,7 @@ navbar:
         - text: "Processing"
           href: ma_ROC_Calculation.html
         - text: "Results"
+          href: ma_ROC_Curve.html
     - text: "Examples of negative I_A"
       href: negative_ia.html
 output:
