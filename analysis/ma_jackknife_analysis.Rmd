@@ -532,3 +532,8 @@ that this can only be performed on a small number of markers considering that
 $p_{gen}$, and therefore $p_{sex}$ approaches zero as the number of loci 
 increases. However, we can see that this approach does detect the non-random 
 mating in populations with a sex rate >1%. 
+
+Ultimately, there is still no good way of assessing clonality. We must accept
+the fact that $\bar{r}_d$ was simply not designed to be this sensitive to 
+different levels of sexual reproduction. It may be more important to think about
+what the biological consequence of 1% sexual reproduction in a population is. 
