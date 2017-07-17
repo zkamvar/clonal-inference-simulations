@@ -62,7 +62,7 @@ We load the data previously processed in `ROC_calculation.Rmd`.
 
 ```{r, load_data, cache = TRUE, results = "hide"}
 system.time({
-res <- load("../data/ROC_data.rda")
+res <- load(here::here("data", "ROC_data.rda"))
 })
 res
 ```

@@ -24,7 +24,7 @@ processed in the file `ssr_data_cleaning.Rmd`. The name of the data was called
 
 ```{r, load_data, cache = TRUE, cache.lazy = FALSE}
 system.time({
-res           <- load("../data/ma_processed_results.rda")
+res           <- load(here::here("data", "ma_processed_results.rda"))
 even_mutation <- vals %>% filter(mutation_rate == "even")
 odd_mutation  <- vals %>% filter(mutation_rate == "uneven")
 })

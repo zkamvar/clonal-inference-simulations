@@ -44,8 +44,8 @@ kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulatio
 First the data from the first round of simulations with 6-10 alleles per locus.
 
 ```{r data_preparation, results = "hide"}
-datfiles  <- dir("../data/ia_over_generations_n1000/", full.names = TRUE)
-locfiles  <- dir("../data/locus_diversity_over_generations_n1000/", full.names = TRUE)
+datfiles  <- dir(here::here("data", "ia_over_generations_n1000/"), full.names = TRUE)
+locfiles  <- dir(here::here("data", "locus_diversity_over_generations_n1000/"), full.names = TRUE)
 datnames  <- setNames(datfiles, datfiles)
 locnames  <- setNames(locfiles, locfiles)
 for (i in datfiles){
@@ -88,8 +88,8 @@ datalist
 ```
 
 ```{r data_preparation_more_alleles, results = "hide"}
-datfiles  <- dir("../data/ia_over_generations_n1000_more_alleles/", full.names = TRUE)
-locfiles  <- dir("../data/locus_diversity_over_generations_n1000_more_alleles/", full.names = TRUE)
+datfiles  <- dir(here::here("data", "ia_over_generations_n1000_more_alleles/"), full.names = TRUE)
+locfiles  <- dir(here::here("data", "locus_diversity_over_generations_n1000_more_alleles/"), full.names = TRUE)
 datnames  <- setNames(datfiles, datfiles)
 locnames  <- setNames(locfiles, locfiles)
 for (i in datfiles){

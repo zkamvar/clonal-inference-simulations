@@ -26,8 +26,8 @@ library('zksimanalysis')
 ### Loading Data
 
 ```{r}
-res        <- load("../data/full_results.rda") # load original values of rd
-jack_files <- list.files("../data/jack_rda_files/", full.names = TRUE) # load jackknife simulations
+res        <- load(here::here("data", "full_results.rda")) # load original values of rd
+jack_files <- list.files(here::here("data", "jack_rda_files/"), full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
 for (i in jack_files){
@@ -211,7 +211,7 @@ gc()
 Now, I can load in the new results:
 
 ```{r, jack_psex}
-jack_files <- list.files("../data/jack_psex_rda_files/", full.names = TRUE) # load jackknife simulations
+jack_files <- list.files(here::here("data", "jack_psex_rda_files/"), full.names = TRUE) # load jackknife simulations
 jacklist   <- setNames(jack_files, basename(jack_files))
 
 for (i in jack_files){

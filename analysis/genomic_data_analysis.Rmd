@@ -42,7 +42,7 @@ kamvarz@files.cgrb.oregonstate.edu:/nfs1/BPP/Grunwald_Lab/home/kamvarz/simulatio
 
 ```{r, load_data, results = "hide"}
 # Here we have to filter out the stored genetic data
-genomic_data <- load("../data/genomic_data.rda")
+genomic_data <- load(here::here("data", "genomic_data.rda"))
 genomic_data
 ```
 
@@ -168,13 +168,13 @@ something else going on. To illustrate, I'll load a clonal data set and a sexual
 data set. 
 
 ```{r, load_examples}
-load("../data/genomic_rda_files/X.data.3639601.100.bpp.dir_genomic10_gen_10seed_0_sex_1.0000_gen_10000_rep_09.pop.feather.DATA.rda") %>% 
+load(here::here("data", "genomic_rda_files/X.data.3639601.100.bpp.dir_genomic10_gen_10seed_0_sex_1.0000_gen_10000_rep_09.pop.feather.DATA.rda")) %>% 
   get() %>% 
   tidyr::gather(key = percent_missing, value = dataset, starts_with("dataset")) -> x
 
 xdat <- x$dataset[[2]]
 xdat
-load("../data/genomic_rda_files/X.data.3639601.1.grungall1.dir_genomic10_gen_10seed_0_sex_0.0000_gen_10000_rep_01.pop.feather.DATA.rda") %>%
+load(here::here("data", "genomic_rda_files/X.data.3639601.1.grungall1.dir_genomic10_gen_10seed_0_sex_0.0000_gen_10000_rep_01.pop.feather.DATA.rda")) %>%
   get() %>%
   tidyr::gather(key = percent_missing, value = dataset, starts_with("dataset")) -> y
 
