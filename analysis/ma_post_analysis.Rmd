@@ -60,6 +60,10 @@ and over again.
 ```{r, plotting_params}
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
+my_theme  <- theme(panel.border = element_blank()) +
+  theme(panel.grid.major.x = element_blank()) +
+  theme(panel.grid.major.y = element_line(color = "grey20")) +
+  theme(panel.grid.minor.y = element_line(color = "grey50", linetype = 3))
 asp       <- function(r) theme(aspect.ratio = r)
 sample_colors <- scale_color_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
 sample_fill <- scale_fill_viridis(end = 0.75, discrete = TRUE, direction = -1, option = "A")
@@ -109,6 +113,7 @@ rd_sexrate <- vals %>%
   facet_grid(sample~mutation_rate, switch = "y") +
   scale_y_continuous(position = "right") +
   theme(text = element_text(size = 14)) +
+  my_theme +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   labs(list(
     x = "Rate of Sexual Reproduction",
@@ -146,6 +151,8 @@ rd_pval <- vals %>%
   scale_y_log10(breaks = c(0.01, 0.1, 1),
                 minor_breaks = c((1:9)*0.001, (2:9)*0.01, (2:9)*0.1)) +
   facet_grid(mutation_rate~clone_correct) +
+  my_theme +
+  theme(panel.grid.minor.y = element_line(color = "grey60", linetype = 1)) +
   labs(list(
     x = "Rate of Sexual Reproduction",
     y = eval(prd),
@@ -219,6 +226,7 @@ vals %>%
   geom_jitter(alpha = 0.25, height = 0) +
   geom_boxplot(color = "black", notch = TRUE, width = 0.5, alpha = 0.25) +
   log_rd_color() + 
+  my_theme + 
   facet_grid(sample~mutation_rate) +
   labs(list(
     x = "Rate of Sexual Reproduction",
@@ -423,6 +431,7 @@ diversity_plot <- vals %>%
   theme(legend.position = "bottom") +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   theme(strip.background = element_blank()) +
+  my_theme +
   labs(list(
     x = "Rate of Sexual Reproduction",
     color = "Sample Size"
