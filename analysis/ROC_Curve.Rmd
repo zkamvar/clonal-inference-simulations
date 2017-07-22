@@ -71,7 +71,8 @@ res
 ```{r, generate_sexrate}
 alpha <- seq(0, 1, by = 0.01)
 old_theme <- theme_set(theme_bw())
-old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
+old_theme <- theme_update(axis.text = element_text(color = "black"), 
+                          axis.text.x = element_text(angle = 90, vjust = 0.5))
 sexrate_theme <- theme(panel.border = element_blank()) +
   theme(panel.grid.major.x = element_blank()) +
   theme(panel.grid.major.y = element_line(color = "grey20")) +
