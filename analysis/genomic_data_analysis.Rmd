@@ -52,6 +52,10 @@ genomic_data
 old_theme <- theme_set(theme_bw())
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 old_theme <- theme_update(text = element_text(size = 14))
+my_theme  <- theme(panel.border = element_blank()) +
+  theme(panel.grid.major.x = element_blank()) +
+  theme(panel.grid.major.y = element_line(color = "grey20")) +
+  theme(panel.grid.minor.y = element_line(color = "grey50", linetype = 3))
 asp       <- function(r) theme(aspect.ratio = r)
 # The p-value for rd is best visualized on a log scale. This provides that
 # the color scaling for that transformation, emphasizing smaller p-values over
@@ -98,10 +102,12 @@ missing_plot <- missing_stats %>%
   geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) +
   scale_fill_grey(start = 1, end = 0.5) +
   facet_grid(sample ~ missing, switch = "y") +
-  scale_y_continuous(position = "right") +
+  scale_y_continuous(position = "right", breaks = c(0, 0.5, 1), 
+                     minor_breaks = c(0.25, 0.75), limits = c(NA, 1)) +
   theme(text = element_text(size = 14)) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   theme(strip.background = element_blank()) +
+  my_theme + 
   theme(aspect.ratio = 1/2) +
   theme(legend.position = "bottom") +
   labs(list(
@@ -111,12 +117,16 @@ missing_plot <- missing_stats %>%
     fill = "Missing Data"
     ))
 
-ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_missing.pdf",
+if (!interactive()){
+  ggsave(filename = here::here("manuscript", "figure", "genomic_missing.pdf"),
        plot = missing_plot, dpi = 600, height = 5, width = 6)
+}
+
 
 main_rd_plot <- ggplot(original %>% select(sexrate, rd, sample), 
        aes(x = sexrate, y = rd, fill = sample)) +
   geom_boxplot() +
+  my_theme + 
     labs(list(
     title = "index of association by sex rate",
     x = "Rate of Sexual Reproduction",
@@ -127,6 +137,7 @@ main_rd_plot <- ggplot(original %>% select(sexrate, rd, sample),
 pval_rd_plot <- ggplot(original %>% select(sexrate, p.rD, sample), 
        aes(x = sexrate, y = p.rD, fill = sample)) +
   geom_boxplot() + 
+  my_theme +
     labs(list(
     title = "p-value for the index of association by sex rate",
     subtitle = "out of 999 permutations",
@@ -292,14 +303,21 @@ corrected_rd <- original_redux %>%
     y = eval(rd)
     )) +
   facet_wrap(~sample) +
+  my_theme +
+  scale_y_continuous(breaks = c(0, 0.5, 1),
+                     minor_breaks = c(0.25, 0.75),
+                     limits = c(NA, 1)) +
   theme(aspect.ratio = 1/2) +
   theme(strip.background = element_blank()) +
   theme(strip.text = element_text(size = 14, face = "bold")) +
   theme(text = element_text(size = 14)) 
 corrected_rd
 
-ggsave(filename = "~/Documents/Grunwald/dissertation/figure/simulations/genomic_rd.pdf",
+if (!interactive()){
+  ggsave(filename = here::here("manuscript", "figure", "genomic_rd.pdf"),
        plot = corrected_rd, dpi = 600, height = 4, width = 6)
+}
+
 
 
 correcte_rd_p <- original_redux %>% 
