@@ -108,10 +108,10 @@ oroc_plot <- bind_rows(roc_overall, roc_overall_ea, .id = "extra_info") %>%
   labs(list(
     # title = "ROC Curves",
     # subtitle = "over mutation rate and clone-correction by sex rate",
-    pch = "Sample Size",
-    color = "Sample Size",
-    fill = "Sample Size",
-    linetype = "Extra Information"
+    pch = "Sample\nSize",
+    color = "Sample\nSize",
+    fill = "Sample\nSize",
+    linetype = "Extra\nInformation"
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "left") +
@@ -147,7 +147,7 @@ grid.draw(oroc_plot_mod)
 
 # ggsave(plot = oroc_plot_mod, 
 #        file = here::here('manuscript', 'figure', 'ROC_Curve.pdf'),
-#        width = 8, height = 10, dpi = 600)
+#        width = 6.5, height = 10, dpi = 600)
 
 total_oroc_plot <-  bind_rows(total_roc, total_roc_ea, .id = "extra_info") %>% 
   mutate(extra_info = ifelse(extra_info == 1, "none", "E5")) %>%

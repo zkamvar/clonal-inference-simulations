@@ -18,7 +18,7 @@ script. These were saved in the `ma_jack_rda_files/` directory.
 
 ### Packages
 
-```{r, required_packages}
+```{r, required_packages, message = FALSE, warning = FALSE}
 library('zksimanalysis')
 ```
 

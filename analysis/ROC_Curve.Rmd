@@ -105,10 +105,10 @@ oroc_plot <- bind_rows(roc_overall, roc_overall_ea, .id = "extra_info") %>%
   labs(list(
     # title = "ROC Curves",
     # subtitle = "over mutation rate and clone-correction by sex rate",
-    pch = "Sample Size",
-    color = "Sample Size",
-    fill = "Sample Size",
-    linetype = "Extra Information"
+    pch = "Sample\nSize",
+    color = "Sample\nSize",
+    fill = "Sample\nSize",
+    linetype = "Extra\nInformation"
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "left") +
@@ -144,7 +144,7 @@ grid.draw(oroc_plot_mod)
 
 ggsave(plot = oroc_plot_mod, 
        file = here::here('manuscript', 'figure', 'ROC_Curve.pdf'),
-       width = 8, height = 10, dpi = 600)
+       width = 6.5, height = 10, dpi = 600)
 
 total_oroc_plot <-  bind_rows(total_roc, total_roc_ea, .id = "extra_info") %>% 
   mutate(extra_info = ifelse(extra_info == 1, "none", "E5")) %>%
@@ -637,7 +637,7 @@ g_AURC_by_seed_plot
 ```
 
 
-```{r genomic_power, fig.width = 4.5, fig.height = 4}
+```{r genomic_power, fig.width = 5.5, fig.height = 2.75}
 g_overall_roc_table <- g_roc_overall %>% 
   # filter(alpha %in% c(0.01, 0.05)) %>%
   filter(alpha %in% c(0.01)) %>%
@@ -656,10 +656,10 @@ powerplot <- g_overall_roc_table %>%
   theme(strip.text = element_text(size = 12, face = "bold")) +
   theme(strip.background = element_blank()) +
   theme(text = element_text(size = 16)) +
-  theme(legend.position = "top") +
-  theme(legend.justification = "left") +
-  theme(legend.box = "vertical") +
-  theme(legend.box.just = "left") +
+  theme(legend.position = "right") +
+  theme(legend.justification = "top") +
+  theme(legend.box = "horizontal") +
+  theme(legend.box.just = "top") +
   theme(legend.spacing = unit(0, "lines")) +
   theme(legend.box.margin = unit(rep(0, 4), "lines")) +
   theme(aspect.ratio = 0.5) +
@@ -669,13 +669,13 @@ powerplot <- g_overall_roc_table %>%
     # title = "Power to detect non-random mating (p = 0.01)",
     x = "Rate of Sexual Reproduction",
     y = "True Positive Rate",
-    alpha = "False Positive Rate",
-    color = "Sample Size"
+    alpha = "False\nPositive\nRate",
+    color = "Sample\nSize"
   )) +
   sample_colors
 
 ggsave(file = here::here('manuscript', 'figure', 'genomic_power.pdf'),
-       plot = powerplot, width = 4.5, height = 4, dpi = 600)
+       plot = powerplot, width = 5.5, height = 2.75, dpi = 600)
 powerplot
 ```
 
