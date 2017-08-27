@@ -342,12 +342,21 @@ To calculate the ROC curve, we first define what a positive value is. If we
 consider the p-value of $\bar{r}_d$ as a classifier to determine clonality, we
 can define the false positive fraction as the fraction of observations where $p
 \leq \alpha$ for simulations where the rate of sexual reproduction is set to 1.0
-(Table \@ref(tab:simtab1)). In contrast, the true positive fraction is the
+(Table \@ref(tab:ROC-schema)). In contrast, the true positive fraction is the
 fraction of observations where $p \leq \alpha$ in simulations where clonality is
 introduced (e.g. all simulations where the rate of sexual reproduction is less
 than 1.0).
  
-<!-- Table 1 -->
+ Reproductive Mode   $p \leq \alpha$   $p > \alpha$
+------------------- ----------------- ---------------
+ Non-Random Mating    True Positive    False Negative
+   Random Mating     False Positive     True Negative
+
+Table: (\#tab:ROC-schema) Definitions of false positive and true positive values
+for ROC analysis of simulations. *p* is the p-value for $\bar{r}_d$, $\alpha$ is
+a threshold value in [0, 1]. Randomly mating populations are simulated with a
+sex rate of 1. Non-Random mating populations are simulated with a sex rate less
+than one.
 
 We constructed each ROC curve by plotting the true positive fraction on the y
 axis and the false positive fraction on the x axis with values of $\alpha$ in
@@ -363,9 +372,10 @@ unique seeds, we additionally constructed ROC curves for each seed with respect
 to clone-correction, sample size, and mutation rate. To test for significant 
 effects of clone-correction, sample size, and mutation rate on the inference of 
 non-random mating on microsatellite data, we then separated the data by rate of
-sexual reproduction and performed a three way (type III) ANOVA on each rate
+sexual reproduction and performed a three way (type III) analysis of variance (ANOVA) on each rate
 separately with formula \@ref(eq:anova). For SNP data, we did not have clone
 correction or mutation rate differences, so we set these variables to 1. 
+We controlled for the false discovery rate (FDR) using the Benjamini-Hochberg method [@benjamini1995controlling].
 
 \begin{equation}
 AURC \sim Clone Correction \times Sample Size \times Mutation Rate (\#eq:anova)
@@ -395,6 +405,28 @@ $H_{exp}$ showed higher values for populations where the rate of sexual
 reproduction is < 0.1%. Not shown in the graph is a bimodal pattern in the
 $H_{exp}$ distributions with a rate of sexual reproduction < 0.1%.
 
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate, and
+clone-correction on $\bar{r}_d$ for microsatellite data. Violin plots represent
+data sets simulated with even and uneven mutation rates over 20 and 21 loci,
+respectively (columns) and sub-sampled in four different population sizes
+(rows). Color indicates whether or not the calculations were performed on whole
+or clone-corrected data sets. Each violin plot contains 1000 unique data sets.
+Black lines in violins mark the 25, 50, and 75th percentile.
+](figure/rd_sexrate.pdf){#fig:sim1 width=100%} 
+
+
+![
+Effect rate of sexual reproduction and sample size (n) on genotypic and
+allelic diversity for microsatellite data. Genotypic diversity: 
+H = Shannon-Wiener index, $E_5$ = evenness, G = Stoddart and Taylor's index.
+Allelic Diversity: $E_{5A}$ = allelic evenness, $H_{exp}$ = Nei's expected
+heterozygosity (gene diversity). Allelic diversity estimates calculated for
+clone-corrected data. Points indicate means and lines extend to to standard
+deviations on either side of the mean. Color/shading indicates sample size.
+Vertical axis on different scales.
+](figure/diversity_stats.pdf){#fig:simdiv width=100%}
+
 The power (p <= 0.01) to detect non-random mating decreases significantly at low
 levels of sexual reproduction (Fig. \@ref(fig:sim4)). This is further affected
 by both mutation rate, sample size, and clone correction. Clone correction,
@@ -406,7 +438,6 @@ There is less power to detect non-random mating at 0% and 0.01% sex as compared
 to 0.05% and 0.1% sex. This appears to be due to the observed negative values of
 $\bar{r}_d$ that result in a p-value of 1. At p <= 0.01, we observe a false
 positive rate of 1.5% in the worst case scenario.
-
 
 <!-- Figures 1-4 -->
 
@@ -420,6 +451,14 @@ the AURC. For all scenarios, the diagnostic power of $\bar{r}_d$ to detect
 non-random mating is no better than random at rates of sexual reproduction
 greater than 10%.
 
+![
+Effect of rate of sexual reproduction, sample size (n), mutation rate,
+and clone-correction on the power of permutation analysis for microsatellite
+data. Power (true positive rate) is on the vertical axis. Values are shown for p
+= 0.01. Plots are arranged in a grid with clone-correction in rows and mutation
+rate in columns. Color indicates sample size.
+](figure/ssr_power.pdf){#fig:sim4 width=100%}
+
 A three-way ANOVA adds support for the hypothesis that clone correction
 significantly affects the diagnostic power of $\bar{r}_d$ (Fig. \@ref(fig:sim3),
 Table \@ref(tab:sim3)). While there are no significant effects at 50% sex, clone
@@ -432,6 +471,12 @@ interactions.
 
 <!-- Figures 5-6 -->
 
+![
+FDR-corrected P-values from ANOVA analysis assessing AURC distributions with the 
+model $AURC \sim Clone Correction \times Sample Size \times Mutation Rate$
+for each rate of sexual reproduction, separately. P-values are represented both
+as colors and numbers.
+](figure/AURC_ANOVA.pdf){#fig:sim3 width=100%}
 
 <!-- Table 2 -->
 
@@ -491,6 +536,31 @@ the distributions of ROC over the 24 seeds showed significant differences for
 0.5% to 10% sexual reproduction (Fig. \@ref(fig:sim7), Table \@ref(tab:sim5)).
 
 <!-- Figures 8-12 -->
+
+![
+Effect of rate of sexual reproduction and sample size (n) on $\bar{r}_d$ 
+for SNP data. Each panel represents a different sample size. Each violin plot
+contains 120 unique data sets. Points represent observed values. Black lines in
+violins mark the 25, 50, and 75th percentile.
+](figure/genomic_rd.pdf){#fig:sim5 width=100%} 
+
+
+![
+Effect of rate of sexual reproduction, sample size (n), and missing data on 
+$\bar{r}_d$ for SNP data. Panels are arranged horizontally with increasing
+rates of missing data from left to right and vertically with increasing sample
+size from top to bottom. Shading indicates whether or not missing data was
+ignored or treated as a new allele. Black lines mark the 25, 50, and 75th
+percentile. Each violin represents 120 values.
+](figure/genomic_missing.pdf){#fig:simmisssnp width=100%}
+
+
+![
+Effect of rate of sexual reproduction and sample size (n) the power to 
+detect non-random mating for SNP data. Color indicates sample size. False
+positive rate is shown as increasing transparency. Values are shown for p
+= 0.01.
+](figure/genomic_power.pdf){#fig:sim6 width=50%}
 
 <!-- Table 4 -->
 
@@ -671,40 +741,12 @@ the same level of clonal reproduction for SNP data, but results from permutation
 analyses may be misleading if linkage is present among markers and recommend
 shuffling within linkage groups to assess significance.
 
-# Figures and Tables
+# Supplementary Figures and Tables
+
+\setcounter{figure}{0} 
+\renewcommand{\thefigure}{S\arabic{figure}}
 
 ## Figures
-
-![
-Effect of rate of sexual reproduction, sample size (n), mutation rate, and
-clone-correction on $\bar{r}_d$ for microsatellite data. Violin plots represent
-data sets simulated with even and uneven mutation rates over 20 and 21 loci,
-respectively (columns) and sub-sampled in four different population sizes
-(rows). Color indicates whether or not the calculations were performed on whole
-or clone-corrected data sets. Each violin plot contains 1000 unique data sets.
-Black lines in violins mark the 25, 50, and 75th percentile.
-](figure/rd_sexrate.pdf){#fig:sim1 width=100%} 
-
-
-![
-Effect rate of sexual reproduction and sample size (n) on genotypic and
-allelic diversity for microsatellite data. Genotypic diversity: 
-H = Shannon-Wiener index, $E_5$ = evenness, G = Stoddart and Taylor's index.
-Allelic Diversity: $E_{5A}$ = allelic evenness, $H_{exp}$ = Nei's expected
-heterozygosity (gene diversity). Allelic diversity estimates calculated for
-clone-corrected data. Points indicate means and lines extend to to standard
-deviations on either side of the mean. Color/shading indicates sample size.
-Vertical axis on different scales.
-](figure/diversity_stats.pdf){#fig:simdiv width=100%}
-
-
-![
-Effect of rate of sexual reproduction, sample size (n), mutation rate,
-and clone-correction on the power of permutation analysis for microsatellite
-data. Power (true positive rate) is on the vertical axis. Values are shown for p
-= 0.01. Plots are arranged in a grid with clone-correction in rows and mutation
-rate in columns. Color indicates sample size.
-](figure/ssr_power.pdf){#fig:sim4 width=100%}
 
 
 ![
@@ -728,12 +770,6 @@ than a random guess. Any values below 0.5 (shaded in grey) are considered worse
 than random.
 ](figure/AURC_box_plot.pdf){#fig:sim2 width=100%}
 
-![
-P-values from ANOVA analysis assessing AURC distributions with the 
-model $AURC \sim Clone Correction \times Sample Size \times Mutation Rate$
-for each rate of sexual reproduction, separately. P-values are represented both
-as colors and numbers.
-](figure/AURC_ANOVA.pdf){#fig:sim3 width=100%}
 
 ![
 Effect of rate of sexual reproduction, sample size (n), mutation rate,
@@ -762,52 +798,20 @@ rate of sexual reproduction separately taking into account allelic evenness.
 P-values are represented both as colors and numbers.
 ](figure/AURC_ANOVA_ea.pdf){#fig:sim3a width=100%}
 
-![
-Effect of rate of sexual reproduction and sample size (n) on $\bar{r}_d$ 
-for SNP data. Each panel represents a different sample size. Each violin plot
-contains 120 unique data sets. Points represent observed values. Black lines in
-violins mark the 25, 50, and 75th percentile.
-](figure/genomic_rd.pdf){#fig:sim5 width=100%} 
-
-
-![
-Effect of rate of sexual reproduction, sample size (n), and missing data on 
-$\bar{r}_d$ for SNP data. Panels are arranged horizontally with increasing
-rates of missing data from left to right and vertically with increasing sample
-size from top to bottom. Shading indicates whether or not missing data was
-ignored or treated as a new allele. Black lines mark the 25, 50, and 75th
-percentile. Each violin represents 120 values.
-](figure/genomic_missing.pdf){#fig:simmisssnp width=100%}
-
-
-![
-Effect of rate of sexual reproduction and sample size (n) the power to 
-detect non-random mating for SNP data. Color indicates sample size. False
-positive rate is shown as increasing transparency. Data shown for both p = 0.01
-and p = 0.05
-](figure/genomic_power.pdf){#fig:sim6 width=100%}
 
 ![
 Effect of rate of sexual reproduction and sample size (n) on area under 
 the ROC curve for SNP data. Each point represents AURC calculated with 10 
 populations total. 5 populations with a sex rate of 1.0 and 5 populations with a 
 sex rate specified on the horizontal axis.
-](figure/AURC_genomic.pdf){#fig:sim7 width=100%}
+](figure/AURC_genomic.pdf){#fig:sim7 width=50%}
 
 \newpage
 
 ## Tables
 
- Reproductive Mode   $p \leq \alpha$   $p > \alpha$
-------------------- ----------------- ---------------
- Non-Random Mating    True Positive    False Negative
-   Random Mating     False Positive     True Negative
-
-Table: (\#tab:simtab1) Definitions of false positive and true positive values
-for ROC analysis of simulations. *p* is the p-value for $\bar{r}_d$, $\alpha$ is
-a threshold value in [0, 1]. Randomly mating populations are simulated with a
-sex rate of 1. Non-Random mating populations are simulated with a sex rate less
-than one.
+\setcounter{table}{0} 
+\renewcommand{\thetable}{S\arabic{table}} 
 
 ```{r anovatable1, results = "asis", echo = FALSE}
 the_cols <- cols(
