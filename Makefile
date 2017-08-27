@@ -71,3 +71,26 @@ reports/jackknife_analysis.html : $(SSR_DATA) \
 reports/ma_jackknife_analysis.html : $(MA_SSR_DATA) \
                                      data/ma_jack_rda_files/ \
                                      data/ma_jack_psex_rda_files/
+
+
+# Ignoring Derivatives ----------------------------------------------------
+#
+# This part is useful when testing several changes
+
+.PHONY: ignore
+
+ignore :
+	git update-index --assume-unchanged \
+	manuscript/clonal-inference.tex \
+	manuscript/clonal-inference.pdf \
+	manuscript/figure/* \
+	manuscript/table/*
+
+.PHONY: unignore
+
+unignore :
+	git update-index --no-assume-unchanged \
+	manuscript/clonal-inference.tex \
+	manuscript/clonal-inference.pdf \
+	manuscript/figure/* \
+	manuscript/table/*
