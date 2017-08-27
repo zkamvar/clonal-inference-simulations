@@ -17,17 +17,17 @@ abstract: |
   The index of association is a measure of multilocus linkage disequilibrium
   that reflects the deviation of observed genetic variation from expected. In
   sexual populations, loci are randomly assorting due to recombination, resulting
-  in a near-zero value of the index of association. In clonal populations,
+  in a near-zero value of the index of association. In clonal populations, however,
   recombination is non-existent, meaning that loci are passed from parent to
   offspring in a non-independent fashion, resulting in a significantly non-zero
-  value of the index of association. We build on previous work by investigating
+  value of the index of association. In this study, we build on previous work by investigating
   the effect of sample size, mutation rate, and clone correction on the power of
   the index of association to detect clonal reproduction in simulated data sets
   generated with microsatellite and genomic markers. Our findings suggest that
   power decreases with small sample sizes and low allelic diversity. Additionally, we find that physical
   linkage in genomic markers does not affect power if permutation tests are
-  performed with linkage groups. We hope that these novel insights provide useful
-  to the study of molecular pathogens.
+  performed with linkage groups. We hope that these novel insights provide useful information
+  to the study of microbial pathogens.
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}
@@ -47,8 +47,8 @@ Population genetic theory is largely based on model populations such as the
 neutral Wright-Fisher model in which populations are assumed to be infinitely
 large, with discrete generations, randomly assorting alleles, with no migration
 and no mutation [@hartl1997principles; @nielsen2013introduction]. By using such
-reductionist models, population geneticists are able to reduce the complexity
-and enable analyses to ask fundamental questions and test hypotheses about
+reductionist models, population geneticists are able to reduce complexity;
+enabling analyses to ask fundamental questions and test hypotheses about
 evolutionary processes that could explain population structure and history.
 
 These neutral models, however, cannot be applied to populations whose life
@@ -76,7 +76,7 @@ undergo clonal reproduction [@smith1993how; @balloux2003population;
 with well-defined sexual and clonal phases occurring at separate times, such as
 rust fungi, methods like *CloNcaSe* are effective for estimating the rate of
 sexual reproduction and effective population size [@ali2016cloncase]. However,
-this method cannot be applied to populations where the reproductive cycle is not
+these methods cannot be applied to populations where the reproductive cycle is not
 partitioned into discrete generations.
 
 Simply detecting the presence of clonal reproduction, however can be useful in
@@ -103,8 +103,7 @@ due to a multi-modal distribution of distances, and $I_A$ would be greater than
 zero [@smith1993how; @Agapow_2001; @milgroom2015population]. @Agapow_2001 noted
 that this metric does not have an upper limit and increases with the number of
 loci. To correct this, they developed $\bar{r}_d$ (equation \@ref(eq:rd)), which
-has a similar structure to a correlation coefficient and ranges from 0 (no
-linkage) to 1 (complete linkage):
+has a similar structure to a correlation coefficient with and upper limit of 1 representing complete linkage:
 
 \begin{align} % This mode aligns the equations to the '&=' signs
 \begin{split} % This mode groups the equations into one.
@@ -119,7 +118,8 @@ Previous research has already contributed to our understanding of the behavior o
 De Meeûx & Balloux [-@de2004clonal] investigated the effect of increasing levels
 of sexual reproduction on $\bar{r}_d$ (noted in their publication as
 $\bar{r}_D$). They found that very little ($\sim$ 1%) sexual reproduction is
-required to produce a value of $\bar{r}_d$ that is not significantly different from zero. This work indicated that
+required to produce a value of $\bar{r}_d$ that is not distinguishable from one produced in a randomly mating population. 
+This work indicated that
 $\bar{r}_d$ alone might not be well suited as a measure of clonal reproduction.
 Additionally, @prugnolle2010apparent tested the effect of sampling design on $\bar{r}_d$,
 finding that its value was drastically reduced when clones from multiple
@@ -145,8 +145,9 @@ one-sided test of significance is then used to see if the observed statistic is
 greater than the observed distribution. 
 
 Standard practice for analyzing microbial populations is to perform this test on
-both the whole data set (wd) and clone-corrected data (cc), where each
-multilocus genotype is represented only once per population to avoid signatures
+both the whole data set and clone-corrected data, where each
+multilocus genotype is represented only once per population.
+This is thought to correct for signatures
 of linkage that arise from re-sampling the same individual [@goss2014irish;
 @milgroom1996recombination; @mcdonald1997population]. If the p-value for
 $\bar{r}_d$ is significant after clone-correction, then the population is
@@ -166,16 +167,13 @@ have the capability to generate thousands of unlinked markers at a fraction of
 the cost and time necessary to develop high quality microsatellite markers.
 These marker systems are also prone to missing data and high error rates
 [@mastretta2015restriction]. 
-<!-- TODO -->
-Sentence or two about the utility of these markers compared to SSRs for highly
-clonal organisms, citing [@rafiei2017comparison].
-<!-- TODO -->
-The index of association was developed for multiple
+Moreover, these markers have the advantage of low levels of homoplasy, enabling evolutionary inference [@rafiei2017comparison].
+The index of association, however, was developed for multiple
 loci at a time when obtaining even 100 unlinked markers posed a significant
-challenge. With the advent of these technologies, it is unclear how marker
+challenge. With the advent of these technologies, it has not been formally tested how marker
 choice and genotyping error affect the index of association.
 
-We developed the R package *poppr* for analysis of clonal populations, removing
+We previously developed the R package *poppr* for analysis of clonal populations, removing
 the limitations of data input and computational expense of analyzing the index
 of association [@kamvar2014poppr] and further expanded this to analysis of
 genome-wide SNP data [@R2016; @kamvar2015novel]. With these tools we expand on
@@ -201,6 +199,15 @@ performed with the python package simuPOP version 1.1.7 in python version 3.4
 created with a census size of 10,000 diploid individuals (to minimize the effect of drift) with equal mating type
 proportions evolved over 10,000 generations (previously shown in @de2004clonal to be sufficient in reaching equilibrium for summary statistics).
 
+![
+Diagrammatic representation of the 1,000 simulated populations per rate of sexual reproduction, *s*.
+A) To create a population where a fraction of individuals are produced via sexual recombination, parents are first sampled with replacement and recombined until $s^{-1}$ individuals are produced.
+Individuals from the parental population are then randomly sampled with replacement to produce $(1 - s)^{-1}$ offspring, representing the clonal fraction.
+This resulting population is mutated and becomes the parental population. 
+This cycle is repeated 10,000 times. 
+B) The 10,000th generation is sampled four times (100, 50, 25, and 10 individuals) without replacement and analyzed for $\bar{r}_d$ (dashed arrows) with significance testing via permutation analysis (shaded distributions).
+](figure/simulation-scheme.pdf){#fig:simulations width=50%}
+
 The simulated populations were first stored in the native simuPOP format and
 then transferred to feather format using the python and R packages *feather*
 version 0.3.0 for downstream analyses. Microsatellite simulations were performed
@@ -210,15 +217,6 @@ sampled without replacement for each replicate in R version 3.2 with the package
 *poppr* version 2.3.0 [@R2016;@kamvar2014poppr; @kamvar2015novel]. Analyses
 (described below) were performed on both full and clone-corrected data sets. All
 downstream analyses were run on the OSU CGRB Core Computing Facility.
-
-![
-Diagrammatic representation of the 1,000 simulated populations with different rates of sexual reproduction.
-A) To create a population where a fraction (*s*) individuals are produced via sexual recombination, parents are sampled with replacement and mated until $s^{-1}$ individuals are produced.
-After that, individuals from the parental population are randomly sampled with replacement to produce $(1 - s)^{-1}$ offspring.
-This resulting population is then mutated and becomes the parental population. 
-This cycle is repeated 10,000 times. 
-B) The 10,000th generation is sampled four times (100, 50, 25, and 10 individuals) without replacement and analyzed for $\bar{r}_d$ (dashed arrows) with significance testing via permutation analysis (shaded distributions).
-](figure/simulation-scheme.pdf){#fig:simulations width=50%}
 
 ## Simulating Microsatellite Loci
 
@@ -245,7 +243,7 @@ operator in simuPOP.
 ## Mating
 
 Simulations of sexual reproduction were conducted at 10 rates of sexual
-reproduction (s) over a log scale (0.0, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 0.1, 
+reproduction (*s*) over a log scale (0.0, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 0.1, 
 0.5, 1.0) reflecting the fraction of individuals in generation *t+1* produced
 via sexual reproduction. One to three offspring could be produced at each mating
 event. Rates were chosen to investigate the dynamics of $\bar{r}_d$ at low
@@ -318,7 +316,7 @@ function [@kamvar2015poppr2supp] at rates of 1%, 5%, and 10% each.
 Permutation analysis of the index of association is commonly used to calculate
 statistical support for detecting non-random mating. If the observed value of
 $\bar{r}_d$ is greater than 95% of the results from the permutations, then the
-null hypothesis of linkage equilibrium is rejected. The power or sensitivity of
+null hypothesis of linkage equilibrium is rejected. The power, or sensitivity, of
 this test can be seen as the fraction of significant results within a set of
 simulation parameters when the rate of sexual reproduction is < 1.
 
@@ -326,7 +324,8 @@ The Receiver Operating Characteristic (ROC) curve is a statistical method of
 assessing the balance between sensitivity and specificity of a diagnostic method
 [@metz1978basic]. This is done by simultaneously assessing the true positive
 fraction of tests to a false positive fraction along a gradient of thresholds of
-increasing leniency. A simple way of thinking about ROC analysis is to imagine
+increasing leniency. 
+<!-- A simple way of thinking about ROC analysis is to imagine 
 two factories that both make marbles. On average, factory A makes marbles half
 the size of factory B. Both factories manufacture for the same distributor,
 which mixes the marbles from both factories. You are tasked with finding the
@@ -339,15 +338,15 @@ and blue marbles through. The fractions of orange and blue marbles that passed
 through each sieve are the true positive and false positive fractions,
 respectively. Plot the true positive fraction against the false positive
 fraction for each sieve respectively, and you can assess how well the sieve
-method works by examining the shape of the ROC curve.
-
+method works by examining the shape of the ROC curve. --> 
+An ROC curve is then created by plotting the true positive fraction against the false positive fraction. 
 A useful summary of the ROC curve is to calculate the area under the ROC curve
 (AURC). Briefly, if a method has perfect explanatory power, the area under the
-ROC curve will be equal to 1. If a method has no explanatory power, the AURC
-will be equal to 0.5. We used this method to assess the efficacy of $\bar{r}_d$
+ROC curve will be equal to 1. If a method has no explanatory power, then the ROC curve will be a line with a slope of 1 and the AURC will be equal to 0.5. 
+We used this method to assess the efficacy of $\bar{r}_d$
 to detect non-random mating.
 
-To calculate the ROC curve, we first define what a positive value is. If we
+To calculate the ROC curve, we must first define what a positive value is. If we
 consider the p-value of $\bar{r}_d$ as a classifier to determine clonality, we
 can define the false positive fraction as the fraction of observations where $p
 \leq \alpha$ for simulations where the rate of sexual reproduction is set to 1.0
@@ -370,8 +369,7 @@ than one.
 We constructed each ROC curve by plotting the true positive fraction on the y
 axis and the false positive fraction on the x axis with values of $\alpha$ in
 increments of 0.01 from 0 to 1. Curves were calculated hierarchically by rate of
-sexual reproduction (< 1) and a unique seed was used to generate the
-populations. For each hierarchical level, separate curves were calculated for
+sexual reproduction (< 1),
 sample size, mutation rate, and clone-correction. The areas under the ROC curves
 (AURC) were calculated using the `auc()` function in the R package *flux*
 version 0.3-0 [@jurasinski2014flux].
@@ -384,7 +382,7 @@ non-random mating on microsatellite data, we then separated the data by rate of
 sexual reproduction and performed a three way (type III) analysis of variance (ANOVA) on each rate
 separately with formula \@ref(eq:anova). For SNP data, we did not have clone
 correction or mutation rate differences, so we set these variables to 1. 
-We controlled for the false discovery rate (FDR) using the Benjamini-Hochberg method [@benjamini1995controlling].
+The p-values from the AMOVA results were controlled for the false discovery rate (FDR) using the Benjamini-Hochberg method [@benjamini1995controlling].
 
 \begin{equation}
 AURC \sim Clone Correction \times Sample Size \times Mutation Rate (\#eq:anova)
@@ -436,16 +434,16 @@ deviations on either side of the mean. Color/shading indicates sample size.
 Vertical axis on different scales.
 ](figure/diversity_stats.pdf){#fig:simdiv width=90%}
 
-The power (p <= 0.01) to detect non-random mating decreases significantly at low
+The power (p $\leq$ 0.01) to detect non-random mating decreased significantly at low
 levels of sexual reproduction (Fig. \@ref(fig:sim4)). This is further affected
 by both mutation rate, sample size, and clone correction. Clone correction,
 however, appears to affect even mutation rates more strongly than uneven
-mutation rates. For all scenarios the power to detect non-random mating drops to
-below 0.25 with rates of sexual reproduction greater than 1%. This trend is only
-moderately improved when the threshold is raised to p <= 0.05 (data not shown).
-There is less power to detect non-random mating at 0% and 0.01% sex as compared
-to 0.05% and 0.1% sex. This appears to be due to the observed negative values of
-$\bar{r}_d$ that result in a p-value of 1. At p <= 0.01, we observe a false
+mutation rates. For all scenarios the power to detect non-random mating fell
+below 0.25 with rates of sexual reproduction greater than 1%. This trend was only
+moderately improved when the threshold was raised to p $\leq$ 0.05 (data not shown).
+We observed less power to detect non-random mating at 0% and 0.01% sex as compared
+to 0.05% and 0.1% sex. This appeared to be due to the observed negative values of
+$\bar{r}_d$ that resulted in a p-value of 1. At p $\leq$ 0.01, we observed a false
 positive rate of 1.5% in the worst case scenario.
 
 <!-- Figures 1-4 -->
@@ -455,9 +453,9 @@ The ROC and AURC analyses showed a steady decrease in the ability to detect non-
 random mating with increasing levels of sexual reproduction, mainly due to a
 loss in sensitivity with increasing levels of $\alpha$ (Fig. \@ref(fig:simroc),
 \@ref(fig:sim2)). As seen in the power analysis (Fig. \@ref(fig:sim4)), clone
-correction consistently appears to lower the power to detect linkage based on
+correction consistently appeared to lower the power to detect linkage based on
 the AURC. For all scenarios, the diagnostic power of $\bar{r}_d$ to detect 
-non-random mating is no better than random at rates of sexual reproduction
+non-random mating was no better than random at rates of sexual reproduction
 greater than 10%.
 
 ![
@@ -468,20 +466,20 @@ data. Power (true positive rate) is on the vertical axis. Values are shown for p
 rate in columns. Color indicates sample size.
 ](figure/ssr_power.pdf){#fig:sim4 width=100%}
 
-A three-way ANOVA adds support for the hypothesis that clone correction
+A three-way ANOVA added support for the hypothesis that clone correction
 significantly affects the diagnostic power of $\bar{r}_d$ (Fig. \@ref(fig:sim3),
-Table \@ref(tab:sim3)). While there are no significant effects at 50% sex, clone
-correction, mutation rate, and sample size all have a significant effect on
+Table \@ref(tab:sim3)). While there were no significant effects at 50% sex, clone
+correction, mutation rate, and sample size all had a significant effect on
 $\bar{r}_d$'s diagnostic properties. At low levels of sex (< 1%), the
-interaction of clone correction and mutation rate shows a significant effect,
+interaction of clone correction and mutation rate showed a significant effect,
 which is not seen in the interaction of clone correction and sample size. Only
-at sex rates of 0.1% and 0.05% do we see significant effects across all
+at sex rates of 0.1% and 0.05% did we see significant effects across all
 interactions.
 
 <!-- Figures 5-6 -->
 
 ![
-FDR-corrected P-values from ANOVA analysis assessing AURC distributions with the 
+FDR-corrected p-values from ANOVA analysis assessing AURC distributions with the 
 model $AURC \sim Clone Correction \times Sample Size \times Mutation Rate$
 for each rate of sexual reproduction, separately. P-values are represented both
 as colors and numbers.
@@ -489,6 +487,8 @@ as colors and numbers.
 
 <!-- Table 2 -->
 
+<!-- TODO -->
+<!-- This needs a bit more explanation and possibly a table -->
 When we tested the effect of reduced sample size on clone-corrected estimates,
 we assessed the cases where the p-value of the clone-corrected $\bar{r}_d$ was
 both lower than that of the observed data and non-significant at 
@@ -500,6 +500,7 @@ sizes tended to show that the majority of cases could not be attributed to
 change in sample size. In stark contrast, using the parametric approach revealed
 no cases that could not be attributed to small sample size, many with a p-value
 greater than 0.5 (Supplementary Materials). 
+<!-- TODO -->
 
 ## Negative Values of $\bar{r}_d$ in Clonal Populations Correlated With Low Allelic Diversity
 
@@ -518,7 +519,7 @@ interactions were significant for 0.1% and 0.05% sex).
 
 ## Power To Detect Clonal Reproduction in SNP Data
 
-Because of the computational intensity of the simulations, we were only able to
+Because of the computational intensity of the simulations and limited storage, we were only able to
 run 24 unique seeds over all rates of sexual reproduction with 10 replicates per
 seed. Due to an unexpected corner condition, some replicates failed to save, so
 we randomly sampled five replicates per seed per rate of sexual reproduction,
@@ -526,8 +527,7 @@ giving us a total of 1,200 total populations for analysis.
 
 Analysis of $\bar{r}_d$ for SNP data showed a similar pattern to the
 microsatellite data where clonal and nearly clonal (0.1% sexual reproduction)
-distributions of $\bar{r}_d$ were bimodal, but they did not have as many
-significantly negative values (Fig. \@ref(fig:sim5)). We observed that that none
+distributions of $\bar{r}_d$ were bimodal, but with a narrower range (Fig. \@ref(fig:sim5)). We observed that that none
 of the values of $\bar{r}_d$ for the sexual population reached zero. Increasing
 levels of missing data appeared to consistently decrease the value of
 $\bar{r}_d$ (\@ref(fig:simmisssnp)). This effect was magnified when missing data
@@ -578,15 +578,15 @@ positive rate is shown as increasing transparency. Values are shown for p
 For both microsatellite and SNP data, as found in @de2004clonal, large variances
 were observed with extremely low levels of sexual reproduction (Fig.
 \@ref(fig:sim1), \@ref(fig:sim5)). The variances and means of $\bar{r}_d$ 
-decrease with increasing levels of sexual reproduction. For low levels of sexual
+decreased with increasing levels of sexual reproduction. For low levels of sexual
 reproduction (< 0.01%), the distributions appeared bimodal. This feature appears
 in both the microsatellite and SNP data, but with microsatellite data, the lower
-part of the distribution extends into the negative values of $\bar{r}_d$,
-resulting in non-significant p-values, which occur when low allelic diversity is
-observed. Additionally, with larger sample sizes, the variances decrease (Fig.
+part of the distribution extended into the negative values of $\bar{r}_d$,
+which resulted in non-significant p-values that occured when low allelic diversity was
+observed. Additionally, with larger sample sizes, the variances decreased (Fig.
 \@ref(fig:sim1), \@ref(fig:sim5)) and the power to detect clonal reproduction
-increases (Fig. \@ref(fig:sim4a), \@ref(fig:sim6)), suggesting that the behavior of
-the index is affected by sample size. Based on the power analysis, we observe
+increased (Fig. \@ref(fig:sim4a), \@ref(fig:sim6)), suggesting that the behavior of
+the index was affected by sample size. Based on the power analysis, we observed
 that the critical point to detect clonal reproduction in a population is at a
 maximum of 1% sexual reproduction (Fig. \@ref(fig:sim4), \@ref(fig:sim4a), 
 \@ref(fig:sim6)). 
@@ -596,7 +596,7 @@ maximum of 1% sexual reproduction (Fig. \@ref(fig:sim4), \@ref(fig:sim4a),
 Scientists have used the index of association to provide evidence for clonal
 reproduction in populations. The index of association measure the ratio of
 variance between observed and expected genetic distance and is a measure of
-linkage among markers (equation \@ref(eq:ia) ) [@brown1980multilocus;
+linkage among markers (equation \@ref(eq:ia)) [@brown1980multilocus;
 @smith1993how]. @Agapow_2001 created a standardized version, $\bar{r}_d$, that
 resembles a correlation coefficient (equation \@ref(eq:rd)). De Meeûx & Balloux
 [-@de2004clonal] previously showed that very little sexual reproduction is
