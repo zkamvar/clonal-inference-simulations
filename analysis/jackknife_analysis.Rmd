@@ -1,7 +1,5 @@
 ---
 title: "Assessing bias due to reduced sample size"
-output:
-  html_document: default
 ---
 
 ## Introduction
@@ -19,7 +17,7 @@ script. These were saved in the `jack_rda_files/` directory.
 
 ### Packages
 
-```{r, required_packages}
+```{r, required_packages, message = FALSE, warning = FALSE}
 library('zksimanalysis')
 ```
 
@@ -284,6 +282,7 @@ bvals <- vals %>%
   select(bias, jack.p.rD, jack.p.rDb, everything())
 ```
 
+
 Now we can visualize this as a table of the percentage rejection.
 
 ```{r}
@@ -295,6 +294,9 @@ bvals %>%
   spread(sample, reject) %>%
   knitr::kable(digits = 3, caption = "Null Hypothesis Rejected (median bias)")
 ```
+
+
+
 
 Now this is showing promise. To recap, this table is derived from the situations
 in which $\bar{r}_d$ was significant for the full data set, but not for the 
@@ -357,6 +359,112 @@ bvals %>%
   ggtitle("Progression of bias", subtitle = "full data set compared to sub-sample")
 ```
 
+## Flaws with "bias correction"
+
+After thinking about this for a little bit, I realized that this method is
+flawed because the bias is greater if the clone-corrected data is closer to
+zero. An example can be shown with the "nancycats" data set in *adegenet*,
+documenting 17 colonies of cats in Nancy, France. Since we know cats don't
+clone, we can trust that this data set comes from sexual organisms.
+
+```{r}
+data("nancycats")
+nan7 <- nancycats[pop = 7]
+set.seed(999)
+nan72 <- nan7[sample(nInd(nan7), nInd(nan7)*2, replace = TRUE)]
+indNames(nan72) <- paste("sample", seq(nInd(nan72)))
+nan72 <- as.genclone(nan72)
+nan7ia    <- ia(nan7, sample = 999, valuereturn = TRUE, quiet = TRUE, plot = FALSE)
+nan72ia   <- ia(nan72, sample = 999, valuereturn = TRUE, quiet = TRUE, plot = FALSE)
+nan72ccia <- ia(clonecorrect(nan72, NA), sample = 999, valuereturn = TRUE, quiet = TRUE, plot = FALSE)
+nanjack   <- jack.ia(nan72, use_psex = TRUE, method = 'multiple', mul = 2, rep = 999, quiet = TRUE)
+idx       <- c("Ia", "rbarD")
+nan72bi   <- nan72ccia
+# Calculating the bias-correction
+nan72bi$index[idx] <- nan72ccia$index[idx] - map2_dbl(nanjack, nan72ia$index[idx], function(a, b) (mean(a) - b))
+nan72bi$index[c(FALSE, TRUE)] <- map2_dbl(nan72bi$index[idx], nan72bi$samples, makep)
+plot(nan7ia) + ggtitle("Original Data")
+plot(nan72ia) + ggtitle(paste("Resampled Data with", nmll(nan72), "unique samples"))
+plot(nan72ccia) + ggtitle(paste("Resampled Data (clone-corrected)"))
+plot(nan72bi) + ggtitle(paste("Resampled Data (bias-corrected)"))
+```
+
+We would have declared this population incorrectly to be clonal, but if we
+simply used the mean of the jack-knifed samples (accounting for $p_{sex}$), 
+`r round(mean(nanjack$rbarD), 3)`, we would not have been able to reject it.
+
+
+## Using resampling with $p_{sex}$ as an estimate
+
+Here, we will use the mean of the jack-knifed samples as the estimate and
+re-calculate the p-value from there. Note that we are using the null 
+distribution generated from the full data set to 
+
+
+```{r pvals-psex-jack, fig.height = 7, fig.width = 7}
+jvals <- vals %>%
+  filter(p.rD < p.rDcc, p.rDcc > 0.05) %>%
+  mutate(jack.mean = map_dbl(jack.rd, mean, na.rm = TRUE)) %>%
+  mutate(bias = jack.mean - rbarDcc) %>%
+  mutate(jack.p = map2_dbl(jack.mean, samples.rd, makep)) %>%     # against the full null
+  mutate(jack.pcc = map2_dbl(jack.mean, samples.rdcc, makep)) %>% # against the clone-corrected null
+  select(jack.pcc, everything())
+```
+
+What I show here are the results when compared against the full null
+distribution, which exhibits less variance than the clone-corrected null. *When
+compared against the clone-corrected null, there were no cases where the null
+hypothesis was rejected at the 0.01 level.*
+
+There are three tables:
+
+ - Using the mean of the resampled distribution at p &leq; 0.01
+ - Same as above OR $E_{5A} \geq 0.85$
+ - The p &leq; 0.01 AND $E_{5A} \geq 0.85$
+
+```{r}
+jvals %>%
+  group_by(sexrate, sample) %>%
+  summarize(reject = sum(jack.p <= 0.01, na.rm = TRUE)/n()) %>%
+  spread(sample, reject) %>%
+  knitr::kable(digits = 3, caption = "Null Hypothesis Rejected (p <= 0.01)")
+jvals %>%
+  group_by(sexrate, sample) %>%
+  summarize(reject = sum(jack.p <= 0.01 | Evennesscc > 0.85, na.rm = TRUE)/n()) %>%
+  spread(sample, reject) %>%
+  knitr::kable(digits = 3, caption = "Null Hypothesis Rejected (p <= 0.01 or E5A > 0.85)")
+jvals %>%
+  group_by(sexrate, sample) %>%
+  summarize(reject = sum(jack.p <= 0.01 & Evennesscc > 0.85, na.rm = TRUE)/n()) %>%
+  spread(sample, reject) %>%
+  knitr::kable(digits = 3, caption = "Null Hypothesis Rejected (p <= 0.01 and E5A > 0.85)")
+```
+
+
+
+
+```{r}
+jvals %>%
+  ggplot(aes(x = jack.p, group = mutation_rate, fill = mutation_rate)) +
+  geom_histogram(alpha = 0.5, binwidth = 0.05) +
+  facet_grid(sexrate~sample, scales = "free") +
+  ggtitle("P-value from jack-knife analysis weighted by psex")
+```
+
+I thought that maybe there might be some effect in bias where clonal samples 
+would exhibit a greater bias, but this does not appear to be the case.
+
+```{r}
+jvals %>%
+  unite(the_group, seed, rep, run, gen) %>%
+  ggplot(aes(x = sexrate, y = bias, fill = mutation_rate)) +
+  # geom_line(aes(group = the_group), alpha = 0.2) +
+  geom_boxplot(aes(group = factor(sexrate))) +
+  # geom_point(aes(group = the_group), alpha = 0.2) +
+  facet_grid(sample ~ mutation_rate) +
+  scale_y_log10() +
+  ggtitle("Progression of bias", subtitle = "full data set compared to sub-sample")
+```
 
 
 # Conclusions
@@ -372,14 +480,16 @@ genotypes.
 We can address both of these biases at the same time by weighting the samples by
 the probability of encountering the *n*th sample of the same genotype by chance,
 also known as $p_{sex}$. This allows identical genotypes from different genets
-to be included in the analysis. By calculating the bias from this resampling,
-we can then subtract it from the clone-corrected estimate. An example of how
-this works can be seen in real data from the outbreak of *Phytophthora ramorum*
-in Curry County, OR.
+to be included in the analysis and gives us a better idea of what the population
+without identical-by-descent genotypes looks like.
+
+An example of how this works can be seen in real data from the outbreak of
+*Phytophthora ramorum* in Curry County, OR.
 
 
-```{r, cc_example}
+```{r, cc_example, cache = TRUE, fig.width = 7, fig.height = 4}
 library("poppr")
+library("ggjoy")
 data(Pram)
 iard <- c("Ia", "rbarD") # vector to get stats from results
 JHC <- Pram[pop = "JHallCr_OR"] # grabbing the Joe Hall Creek watershed
@@ -388,23 +498,64 @@ af  <- rraf(Pram, by_pop = FALSE, mul = 2, res = "vector")
 jia   <- ia(JHC, sample = 999, quiet = TRUE, valuereturn = TRUE)
 jiacc <- JHC %>% clonecorrect(NA) %>% ia(sample = 999, quiet = TRUE, valuereturn = TRUE)
 jjak  <- jack.ia(JHC, quiet = TRUE, reps = 999, use_psex = TRUE, method = "multiple", freq = af)
-(jbias <- map2_dbl(jjak, jia$index[iard], function(a, b) mean(a, na.rm = TRUE) - b))
-(jiabc <- jiacc$index[iard] - jbias)
-(jiap  <- map2_dbl(jiabc, jiacc$samples, function(a, b) (sum(a <= b, na.rm = TRUE) + 1)/(length(b) + 1)))
-df <- data_frame(rbarD = c(jia$index[3], jiacc$index[3], jiabc[2]),
-                 type = c("observed", "clone-censored", "bias-corrected"))
+jjak2 <- jack.ia(JHC, quiet = TRUE, reps = 999)
+(jbias <- map_dbl(jjak, mean, na.rm = TRUE))
+(jiap  <- map2_dbl(jbias, jia$samples, function(a, b) (sum(a <= b, na.rm = TRUE) + 1)/(length(b) + 1)))
+df <- data_frame(rbarD = c(jia$index[3], jiacc$index[3], jbias[2]),
+                 type = c("observed", "clone-censored", "estimate"))
 bind_rows(null = jia$samples,
           nullcc = jiacc$samples,
-          resampled = jjak,
+          resampled.psex = jjak,
+          resampled = jjak2,
           .id = "type") %>%
-  ggplot(aes(x = rbarD)) +
-  geom_density(aes(fill = type), alpha = 0.5) +
-  geom_rug(aes(color = type), alpha = 0.1) +
-  geom_vline(xintercept = df$rbarD, lty = 1:3) +
-  annotate(geom = "text", x = df$rbarD, y = 10*c(3, 5, 4), label = df$type, hjust = c(-0.05, -0.05, 1.05)) +
-  scale_fill_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled")) +
-  scale_color_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled")) +
-  xlim(c(-0.06, 0.15)) +
-  theme_bw(base_size = 16, base_family = "Helvetica")
+  mutate(type = forcats::fct_rev(type)) %>%
+  group_by(type) %>%
+  mutate(rdmean = mean(rbarD, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(x = rbarD, y = type)) +
+  geom_joy(aes(fill = rdmean), alpha = 0.75, scale = 5) +
+  # geom_rug(aes(color = type), alpha = 0.1) +
+  geom_vline(xintercept = df$rbarD[-3], lty = 1:2, color = c("black", "grey30"), size = 1) +
+  annotate(geom = "text",
+           # size = 3.,
+           fontface = "bold",
+           color = c("black", "grey30"),
+           x = df$rbarD[-3], 
+           y = c(6, 6) + 0.5, 
+           label = df$type[-3], 
+           hjust = c(0, 0) + -0.05,
+           angle = 35) +
+  viridis::scale_fill_viridis(direction = -1, limits = c(0, 0.2)) +
+  # scale_fill_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled", "Resampled (Psex)")) +
+  # scale_color_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled", "Resampled (Psex)")) +
+  theme_joy(font_size = 16, font_family = "Helvetica", grid = FALSE) +
+  theme(aspect.ratio = 0.68) +
+  theme(legend.position = "none") +
+  scale_y_discrete(breaks = c("null", "nullcc", "resampled.psex", "resampled"),
+                   labels = c("Null", "Null (clone-censored)", "Resampled (Psex)", "Resampled"),
+                   expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.06, 0.3)) +
+  theme(axis.title.x = element_text(hjust = 0.5)) +
+  theme(axis.title.y = element_blank()) +
+  # theme(panel.border = element_blank()) +
+  theme(panel.grid.major.x = element_line(color = "grey20", linetype = 3)) +
+  # theme(panel.grid.minor.x = element_line(color = "grey50")) +
+  xlab(eval(quote(expression(bar(r)[d]))))
+ggsave(here::here("manuscript", "figure", "pram.pdf"),
+       width = 7,
+       height = 4)
 ```
 
+What we can see from this example is that the estimate here would easily be
+considered clonal when compared to the Full null distribution. However, when
+compared to the clone-censored null, the estimate is still non-significant due
+to the wide variance exhibited. Another issue arises when considering the fact
+that this can only be performed on a small number of markers considering that
+$p_{gen}$, and therefore $p_{sex}$ approaches zero as the number of loci 
+increases. However, we can see that this approach does detect the non-random 
+mating in populations with a sex rate >1%. 
+
+Ultimately, there is still no good way of assessing clonality. We must accept
+the fact that $\bar{r}_d$ was simply not designed to be this sensitive to 
+different levels of sexual reproduction. It may be more important to think about
+what the biological consequence of 1% sexual reproduction in a population is. 
