@@ -194,7 +194,7 @@ scope of the index of association for inferring clonality.
 # Methods
 
 We used simulations to evaluate the behavior of $\bar{r}_d$ under different
-population scenarios. Initial sets of simulations were created for different
+population scenarios (Fig. \@ref(fig:simulations)). Initial sets of simulations were created for different
 levels of sexual reproduction for each marker type. All simulations were
 performed with the python package simuPOP version 1.1.7 in python version 3.4
 [@peng2008forward]. For each scenario, 100 simulations with 10 replicates were
@@ -210,6 +210,15 @@ sampled without replacement for each replicate in R version 3.2 with the package
 *poppr* version 2.3.0 [@R2016;@kamvar2014poppr; @kamvar2015novel]. Analyses
 (described below) were performed on both full and clone-corrected data sets. All
 downstream analyses were run on the OSU CGRB Core Computing Facility.
+
+![
+Diagrammatic representation of the 1,000 simulated populations with different rates of sexual reproduction.
+A) To create a population where a fraction (*s*) individuals are produced via sexual recombination, parents are sampled with replacement and mated until $s^{-1}$ individuals are produced.
+After that, individuals from the parental population are randomly sampled with replacement to produce $(1 - s)^{-1}$ offspring.
+This resulting population is then mutated and becomes the parental population. 
+This cycle is repeated 10,000 times. 
+B) The 10,000th generation is sampled four times (100, 50, 25, and 10 individuals) without replacement and analyzed for $\bar{r}_d$ (dashed arrows) with significance testing via permutation analysis (shaded distributions).
+](figure/simulation-scheme.pdf){#fig:simulations width=50%}
 
 ## Simulating Microsatellite Loci
 
@@ -236,7 +245,7 @@ operator in simuPOP.
 ## Mating
 
 Simulations of sexual reproduction were conducted at 10 rates of sexual
-reproduction over a log scale (0.0, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 0.1, 
+reproduction (s) over a log scale (0.0, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 0.1, 
 0.5, 1.0) reflecting the fraction of individuals in generation *t+1* produced
 via sexual reproduction. One to three offspring could be produced at each mating
 event. Rates were chosen to investigate the dynamics of $\bar{r}_d$ at low
@@ -425,7 +434,7 @@ heterozygosity (gene diversity). Allelic diversity estimates calculated for
 clone-corrected data. Points indicate means and lines extend to to standard
 deviations on either side of the mean. Color/shading indicates sample size.
 Vertical axis on different scales.
-](figure/diversity_stats.pdf){#fig:simdiv width=100%}
+](figure/diversity_stats.pdf){#fig:simdiv width=90%}
 
 The power (p <= 0.01) to detect non-random mating decreases significantly at low
 levels of sexual reproduction (Fig. \@ref(fig:sim4)). This is further affected
@@ -560,7 +569,7 @@ Effect of rate of sexual reproduction and sample size (n) the power to
 detect non-random mating for SNP data. Color indicates sample size. False
 positive rate is shown as increasing transparency. Values are shown for p
 = 0.01.
-](figure/genomic_power.pdf){#fig:sim6 width=50%}
+](figure/genomic_power.pdf){#fig:sim6 width=75%}
 
 <!-- Table 4 -->
 
@@ -625,11 +634,19 @@ detect clonal reproduction consistently decreases with clone-correction (Fig.
 \@ref(fig:sim2), \@ref(fig:sim2a)). This is clearly demonstrated when comparing
 the values of $\bar{r}_d$ from an epidemic population of the Sudden Oak Death
 pathogen, *Phytophthora ramorum* in the Joe Hall Creek watershed in Curry
-County, OR [@kamvar2015spatial]. The value of $\bar{r}_d$ for all 244 isolates
+County, OR [@kamvar2015spatial] (Fig. \@ref(fig:pram)). The value of $\bar{r}_d$ for all 244 isolates
 is 0.103, whereas that of the 30 unique genotypes is but 0.014 with a p-value
 hovering around 0.29. This is a pathogen that's known to be clonal, but if all
 we did was assess the index of association on the clone-corrected estimate, we 
 would conclude otherwise. 
+
+![
+Comparison of density distributions of $\bar{r}_d$ for *P. ramorum* in the Joe Hall Creek watershed of Curry County, OR from @kamvar2015spatial. 
+Vertical lines represent clone-censored (n = 30) and original (n = 244) estimates of $\bar{r}_d$. 
+Null distributions represent 999 permutations of the original and clone-censored data sets.
+Resampled distributions represent the original data set resampled to 30 individuals 999 times. $P_{sex}$ indicates weighting each sample with the value of $P_{sex}$ before resampling.
+Shading of distributions is relative to mean value.
+](figure/pram.pdf){#fig:pram width=100%}
 
 While it would be intuitive to think that one could assess the effect of small
 sample sizes by sub-sampling the original data, our results show that this is
@@ -640,8 +657,8 @@ observed statistic. Many times, the clone-corrected estimate fell in the lower
 fell within the parametric sub-sampled distribution, where the variance was
 often smaller and the mean closer to the clone-corrected data. We attribute this
 to the effect of the weighting scheme where, because the samples were weighted
-by $p_{sex}$, we're most likely to get a random sample of mostly unique
-genotypes. Because $p_{sex}$ decreases rapidly with each additional genotype, we
+by $P_{sex}$, we're most likely to get a random sample of mostly unique
+genotypes. Because $P_{sex}$ decreases rapidly with each additional genotype, we
 might consider this sub-sampling method to be representative of the underlying
 population structure.
 
@@ -741,6 +758,7 @@ the same level of clonal reproduction for SNP data, but results from permutation
 analyses may be misleading if linkage is present among markers and recommend
 shuffling within linkage groups to assess significance.
 
+
 # Supplementary Figures and Tables
 
 \setcounter{figure}{0} 
@@ -757,7 +775,7 @@ and whole (wd) data sets with even and uneven mutation rates arranged in
 columns. Line type indicates the use of $E_{5A}$ > 0.85 to augment the analysis.
 Line shade indicates sample size. A dotted line of unity is shown in each plot.
 Each ROC curve is calculated over 100 values of $\alpha$ from 0 to 1.
-](figure/ROC_Curve.pdf){#fig:simroc width=100%}
+](figure/ROC_Curve.pdf){#fig:simroc height=120%}
 
 
 ![
@@ -804,7 +822,7 @@ Effect of rate of sexual reproduction and sample size (n) on area under
 the ROC curve for SNP data. Each point represents AURC calculated with 10 
 populations total. 5 populations with a sex rate of 1.0 and 5 populations with a 
 sex rate specified on the horizontal axis.
-](figure/AURC_genomic.pdf){#fig:sim7 width=50%}
+](figure/AURC_genomic.pdf){#fig:sim7 height=50%}
 
 \newpage
 
