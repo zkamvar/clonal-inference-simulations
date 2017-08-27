@@ -74,7 +74,7 @@ res
 
 ```{r, generate_sexrate}
 alpha <- seq(0, 1, by = 0.01)
-old_theme <- theme_set(theme_bw())
+old_theme <- theme_set(theme_bw(base_size = 16, base_family = "Helvetica"))
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 sexrate_theme <- theme(panel.border = element_blank()) +
   theme(panel.grid.major.x = element_blank()) +
@@ -116,8 +116,8 @@ oroc_plot <- bind_rows(roc_overall, roc_overall_ea, .id = "extra_info") %>%
   theme(aspect.ratio = 1) +
   theme(legend.position = "left") +
   theme(panel.grid.minor = element_blank()) +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16, face = "bold")) +
   sample_colors +
   sample_fill
 
@@ -166,7 +166,7 @@ total_oroc_plot <-  bind_rows(total_roc, total_roc_ea, .id = "extra_info") %>%
   )) +
   theme(aspect.ratio = 1) +
   theme(legend.position = "top") +
-  theme(text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
   sample_colors +
   sample_fill
 total_oroc_plot
@@ -210,9 +210,9 @@ AURC_box <- . %>%
     )) +
     scale_fill_grey(start = 1, end = 0.5) +
     theme(legend.position = "bottom") +
-    theme(strip.text = element_text(size = 14, face = "bold")) +
+    theme(strip.text = element_text(size = 16, face = "bold")) +
     theme(strip.background = element_blank()) +
-    theme(text = element_text(size = 14)) +
+    theme(text = element_text(size = 16)) +
     sexrate_theme
   }
   
@@ -257,12 +257,12 @@ AURC_by_seed %>%
   theme(aspect.ratio = 4/9) +
   theme(legend.position = "bottom") +
   theme(strip.background = element_blank()) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.text = element_text(size = 16, face = "bold")) +
   # theme(panel.spacing = unit(0, "cm")) +
   theme(axis.title.x = element_blank()) +
   theme(axis.text.x = element_blank()) +
   theme(axis.ticks.x = element_blank()) +
-  theme(text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
   theme(plot.margin = unit(c(1, 1, 0, 1), "lines")) +
   labs(list(
     # title = "ANOVA over Clone Correction",
@@ -283,7 +283,7 @@ AURC_by_seed %>%
   facet_wrap(~mutation_rate, nrow = 1) + 
   scale_y_discrete(expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
-  theme(text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
   theme(aspect.ratio = 2/9) +
   theme(legend.position = "top") +
   theme(strip.background = element_blank()) +
@@ -308,10 +308,10 @@ AURC_by_seed %>%
   facet_wrap(~clone_correction, nrow = 2) + 
   scale_y_discrete(expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
-  theme(text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
   theme(aspect.ratio = 4/9) +
   theme(legend.position = "top") +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(strip.text = element_text(size = 16, face = "bold")) +
   theme(strip.background = element_blank()) +
   # theme(panel.spacing = unit(0, "cm")) +
   labs(list(
@@ -339,9 +339,9 @@ grid.draw(g)
 Here I'm attempting to run a full AMOVA on the AURC calculations by considering
 full interactions 
 
-```{r full_anova, fig.width = 8, fig.height = 5}
+```{r full_anova, fig.width = 8, fig.height = 4.5}
 clean_anova <- . %>%
-  # mutate(p.value = p.adjust(p.value, "BH")) %>%
+  mutate(p.value = p.adjust(p.value, "BH")) %>%
   mutate(term = gsub(":", " X ", term)) %>%
   mutate(term = gsub("sample", "Sample Size", term)) %>%
   mutate(term = gsub("mutation_rate", "Mutation Rate", term)) %>%
@@ -368,7 +368,7 @@ anova_heat <- . %>%
     scale_y_discrete(expand = c(0, 0)) +
     scale_x_discrete(expand = c(0, 0)) +
     scale_color_gradient(low = "white", high = "black", guide = "none") +
-    theme(text = element_text(size = 14)) +
+    theme(text = element_text(size = 16)) +
     theme(legend.position = "top") +
     labs(list(
       fill = "p-value",
@@ -441,9 +441,9 @@ ggAURC_ANOVA    <- AURC_ANOVA_III %>% anova_heat
 ggAURC_ANOVA_ea <- AURC_ANOVA_ea_III %>% anova_heat
 
 # ggsave(plot = ggAURC_ANOVA, file = here::here('manuscript', 'figure', 'AURC_ANOVA.pdf'),
-#        width = 8, height = 5, dpi = 600)
+#        width = 8, height = 4.5, dpi = 600)
 # ggsave(plot = ggAURC_ANOVA_ea, file = here::here('manuscript', 'figure', 'AURC_ANOVA_ea.pdf'),
-#        width = 8, height = 5, dpi = 600)
+#        width = 8, height = 4.5, dpi = 600)
 ggAURC_ANOVA
 ggAURC_ANOVA_ea
 
@@ -510,9 +510,10 @@ powerplot <- . %>% {
   theme(aspect.ratio = 0.5) +
   theme(strip.text = element_text(size = 12, face = "bold")) +
   theme(strip.background = element_blank()) +
-  theme(text = element_text(size = 14)) +
-  theme(legend.position = "bottom") +
+  theme(text = element_text(size = 16)) +
+  theme(legend.position = "top") +
   theme(legend.box = "vertical") +
+  theme(legend.box.just = "left") +
   theme(legend.spacing = unit(0, "line")) +
   sexrate_theme +
   labs(list(
@@ -541,9 +542,9 @@ powerplot0.01_ea
 powerplot0.05
 
 # ggsave(plot = powerplot0.01, file = here::here('manuscript', 'figure', 'ssr_power.pdf'),
-#        width = 8, height = 5, dpi = 600)
+#        width = 6, height = 5, dpi = 600)
 # ggsave(plot = powerplot0.01_ea, file = here::here('manuscript', 'figure', 'ssr_power_ea.pdf'),
-#        width = 8, height = 5, dpi = 600)
+#        width = 6, height = 5, dpi = 600)
 
 ```
 
