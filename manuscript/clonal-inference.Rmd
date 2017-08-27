@@ -718,7 +718,7 @@ of low allelic diversity.
 
 The results we obtained from SNP data revealed almost no values of $\bar{r}_d$
 at or below zero, and no values above 0.8 (Fig. \@ref(fig:sim5)). 
-The narrower range in clonal scenarios as compared to the microsatellite markers may be indicative of the increased precision that is observed when using SNP data [@rafiei2017comparsion].
+The narrower range in clonal scenarios as compared to the microsatellite markers may be indicative of the increased precision that is observed when using SNP data [@rafiei2017comparison].
 Testing for significance by shuffling
 data at each locus independently rendered all the values of $\bar{r}_d$
 significant, regardless of rate of sexual reproduction. Only when we shuffled
