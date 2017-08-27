@@ -405,6 +405,6 @@ bind_rows(null = jia$samples,
   scale_fill_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled")) +
   scale_color_brewer(palette = "Set1", labels = c("Null", "Null (clone-censored)", "Resampled")) +
   xlim(c(-0.06, 0.15)) +
-  theme_bw(base_size = 14, base_family = "Helvetica")
+  theme_bw(base_size = 16, base_family = "Helvetica")
 ```
 

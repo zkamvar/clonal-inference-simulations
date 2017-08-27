@@ -49,9 +49,9 @@ genomic_data
 ## Visualizations
 
 ```{r, themes}
-old_theme <- theme_set(theme_bw())
+old_theme <- theme_set(theme_bw(base_size = 16, base_family = "Helvetica"))
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
-old_theme <- theme_update(text = element_text(size = 14))
+old_theme <- theme_update(text = element_text(size = 16))
 my_theme  <- theme(panel.border = element_blank()) +
   theme(panel.grid.major.x = element_blank()) +
   theme(panel.grid.major.y = element_line(color = "grey20")) +
@@ -104,8 +104,8 @@ missing_plot <- missing_stats %>%
   facet_grid(sample ~ missing, switch = "y") +
   scale_y_continuous(position = "right", breaks = c(0, 0.5, 1), 
                      minor_breaks = c(0.25, 0.75), limits = c(NA, 1)) +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16, face = "bold")) +
   theme(strip.background = element_blank()) +
   my_theme + 
   theme(aspect.ratio = 1/2) +
@@ -309,8 +309,8 @@ corrected_rd <- original_redux %>%
                      limits = c(NA, 1)) +
   theme(aspect.ratio = 1/2) +
   theme(strip.background = element_blank()) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
-  theme(text = element_text(size = 14)) 
+  theme(strip.text = element_text(size = 16, face = "bold")) +
+  theme(text = element_text(size = 16)) 
 corrected_rd
 
 if (!interactive()){
@@ -339,8 +339,8 @@ correcte_rd_p <- original_redux %>%
   facet_wrap(~sample) +
   theme(aspect.ratio = 1.618^-1) +
   theme(strip.background = element_blank()) +
-  theme(strip.text = element_text(size = 14, face = "bold")) +
-  theme(text = element_text(size = 14))
+  theme(strip.text = element_text(size = 16, face = "bold")) +
+  theme(text = element_text(size = 16))
 correcte_rd_p
 
 ```

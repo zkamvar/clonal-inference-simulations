@@ -138,7 +138,7 @@ over generations.
 
 
 ```{r, fig.height = 4.5, fig.width = 12}
-old_theme <- theme_set(theme_bw())
+old_theme <- theme_set(theme_bw(base_size = 16, base_family = "Helvetica"))
 old_theme <- theme_update(axis.text.x = element_text(angle = 90, vjust = 0.5))
 sample_colors <- scale_color_viridis(discrete = TRUE, direction = -1, option = "D")
 iaplot <- datalist %>%
@@ -152,8 +152,8 @@ iaplot <- datalist %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -176,8 +176,8 @@ iaplot_ma <- datalist_ma %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -209,8 +209,8 @@ Hexpplot <- datalist %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -234,8 +234,8 @@ Hexpplot_ma <- datalist_ma %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -259,8 +259,8 @@ Evenplot <- datalist %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -284,8 +284,8 @@ Evenplot_ma <- datalist_ma %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -309,8 +309,8 @@ Alleleplot <- datalist %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
@@ -334,8 +334,8 @@ Alleleplot_ma <- datalist_ma %>%
   facet_grid(mutation_rate ~ sexrate) +
   scale_x_continuous(breaks = c(2, 4, 6, 8)) +
   sample_colors +
-  theme(text = element_text(size = 14)) +
-  theme(strip.text = element_text(size = 14)) +
+  theme(text = element_text(size = 16)) +
+  theme(strip.text = element_text(size = 16)) +
   theme(aspect.ratio = 0.75) +
   theme(panel.spacing = unit(0, "line")) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
