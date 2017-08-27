@@ -22,3 +22,7 @@ reports/*files
 reports/*html
 reports/old/*
 reports/site_libs/*
+
+# Temporarily ignore these
+manuscript/*pdf
+manuscript/*tex
