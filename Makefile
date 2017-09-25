@@ -23,6 +23,9 @@ all : manuscript/clonal-inference.pdf reports/index.html
 manuscript/%.pdf : manuscript/%.Rmd $(TARGETS)
 	-R --slave -e "rmarkdown::render(input = '$<')"
 
+manuscript/%.docx : manuscript/%.Rmd $(TARGETS)
+	-R --slave -e "rmarkdown::render(input = '$<', output_format = bookdown::word_document2(toc=FALSE))"
+
 # Karl Broman saves the day: http://kbroman.org/minimal_make/#automatic-variables
 # If you simply just use $@ for the output_file, you're going to have a bad time
 # because knitr will automatically assume that the directory in the output file
