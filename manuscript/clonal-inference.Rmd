@@ -598,8 +598,9 @@ maximum of 1% sexual reproduction (Fig. \@ref(fig:sim4), \@ref(fig:sim4a),
 
 # Discussion
 
-Scientists have used the index of association to provide evidence for clonal
-reproduction in populations. The index of association measure the ratio of
+To our knowledge, this is the first study to examine the power of significance testing for the index of assocation in both microsatellite and genomic markers. 
+For many years, scientists have used the index of association to provide evidence for clonal
+reproduction in populations. The index of association measures the ratio of
 variance between observed and expected genetic distance and is a measure of
 linkage among markers (equation \@ref(eq:ia)) [@brown1980multilocus;
 @smith1993how]. @Agapow_2001 created a standardized version, $\bar{r}_d$, that
