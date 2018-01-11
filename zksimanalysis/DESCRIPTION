@@ -1,6 +1,6 @@
 Package: zksimanalysis
 Title: Analysis of Simulations
-Version: 0.9.0.9000
+Version: 0.10.0.9000
 Authors@R: c(person(c("Zhian", "N."), "Kamvar", role = c("cre", "aut"), email =
   "kamvarz@science.oregonstate.edu"),
   person(c("Niklaus", "J."), "Grunwald", role = c("ths", "ctb"), email =
@@ -10,8 +10,8 @@ Description: This is a personal package to analyze simulations for the index of
 Depends:
     R (>= 3.2.0),
     tidyverse (>= 0.5.0),
-    adegenet (>= 2.0.2),
-    poppr (>= 2.4.1),
+    adegenet (>= 2.1.0),
+    poppr (>= 2.6.0),
     feather (>= 0.3.0),
     vcfR (>= 1.2.0),
     poweRlaw (>= 0.60.3),
@@ -19,10 +19,6 @@ Depends:
     viridis (>= 0.3.4)
 Suggests:
 	tidyr
-Remotes:
-  grunwaldlab/poppr@bootia,
-  thibautjombart/adegenet,
-  knausb/vcfR
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
