@@ -1,3 +1,10 @@
+# zksimanalysis 0.10.0.9000
+
+## Dependency updates
+
+* Non-cran repositories have been removed and minimum versions for poppr and 
+  adegenet have been updated
+
 # zksimanalysis 0.9.0.9000
 
 ## NEW FUNCTIONS
