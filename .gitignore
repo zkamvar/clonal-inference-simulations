@@ -18,9 +18,9 @@ data/*_*
 data/*rda
 data/*zip
 
-reports/*files
-reports/*html
+# reports/*files
+# reports/*html
 reports/old/*
-reports/site_libs/*
+# reports/site_libs/*
 
 manuscript/*docx
